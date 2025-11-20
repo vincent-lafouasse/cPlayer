@@ -95,8 +95,8 @@ TEST(Read, TakeU16Basic)
 
 TEST(Read, TakeU16)
 {
-    const std::vector<uint8_t> data = {0, 1, 1, 0, 0xa, 0xf, 0x3, 0xc};
-    const std::vector<uint16_t> expected = {0x10, 0x01, 0xfa, 0xc3};
+    const std::vector<uint8_t> data = {0x34, 0x12, 1, 0, 0xa, 0xf, 0x0, 0xc};
+    const std::vector<uint16_t> expected = {0x1234, 0x0001, 0x0f0a, 0x0c00};
     const std::string name = "peekU16";
 
     const std::string path = prefix + name;
