@@ -8,15 +8,13 @@ FULL_PATH = $(INSTALL_PREFIX)/$(NAME)
 all: build
 
 .PHONY: build
-build: $(FULL_PATH)
+build:
+	cmake -B $(BUILD_DIR) -G Ninja
+	cmake --build build --target $(NAME)
 
 .PHONY: run
 run: build
 	$(FULL_PATH)
-
-$(FULL_PATH):
-	cmake -B $(BUILD_DIR) -G Ninja
-	cmake --build build --target $(NAME)
 
 .PHONY: re
 re: fclean build
