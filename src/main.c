@@ -12,7 +12,7 @@ int main(void)
         exit(1);
     }
 
-    char c;
+    u8 c;
     ReadResult res;
     while ((res = fr_takeByte(&reader, &c)) == Read_Ok) {
         printf("%c", c);

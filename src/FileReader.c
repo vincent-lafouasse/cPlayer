@@ -19,9 +19,9 @@ void fr_close(FileReader* fr)
     fr->fd = -1;
 }
 
-ReadResult fr_takeByte(FileReader* fr, char* out)
+ReadResult fr_takeByte(FileReader* fr, u8* out)
 {
-    char c;
+    u8 c;
     ReadResult res = fr_peekByte(fr, &c);
 
     if (res == Read_Ok) {
@@ -31,7 +31,7 @@ ReadResult fr_takeByte(FileReader* fr, char* out)
     return res;
 }
 
-ReadResult fr_peekByte(FileReader* fr, char* out)
+ReadResult fr_peekByte(FileReader* fr, u8* out)
 {
     if (fr == NULL) {
         return Read_Err;
