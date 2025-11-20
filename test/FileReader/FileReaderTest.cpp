@@ -19,7 +19,7 @@ void writeFile(const std::string& path, const std::vector<uint8_t>& data)
 
 TEST(Read, ReadBytes)
 {
-    const std::vector<uint8_t> data = {0, 0};
+    const std::vector<uint8_t> data = {1, 4, 9, 240, 42, 67};
     const std::string name = "dummy";
 
     const std::string path = prefix + name;
