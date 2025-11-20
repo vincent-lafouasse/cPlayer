@@ -16,7 +16,7 @@ const char* rr_repr(ReadResult rr);
 
 typedef struct {
     int fd;
-    char buffer[BUFFER_SIZE];
+    u8 buffer[BUFFER_SIZE];
     size_t head;
     size_t len;
     const size_t buffer_size;
