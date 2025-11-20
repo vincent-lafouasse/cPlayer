@@ -82,13 +82,13 @@ TEST(Read, TakeU16Basic)
 
     FileReader r = fr_open(path.c_str());
 
-    uint16_t nibble;
+    uint16_t u16;
     uint16_t expected = 42;
-    ASSERT_EQ(fr_takeU16LE(&r, &nibble), Read_Ok);
-    ASSERT_EQ(nibble, expected);
+    ASSERT_EQ(fr_takeU16LE(&r, &u16), Read_Ok);
+    ASSERT_EQ(u16, expected);
     ASSERT_EQ(r.head, r.len);
 
-    ASSERT_NE(fr_takeU16LE(&r, &nibble), Read_Ok);
+    ASSERT_NE(fr_takeU16LE(&r, &u16), Read_Ok);
 
     fr_close(&r);
 }
@@ -104,13 +104,13 @@ TEST(Read, TakeU16)
 
     FileReader r = fr_open(path.c_str());
 
-    uint16_t nibble;
+    uint16_t u16;
     for (uint16_t e : expected) {
-        ASSERT_EQ(fr_takeU16LE(&r, &nibble), Read_Ok);
-        ASSERT_EQ(nibble, e);
+        ASSERT_EQ(fr_takeU16LE(&r, &u16), Read_Ok);
+        ASSERT_EQ(u16, e);
     }
 
-    ASSERT_NE(fr_takeU16LE(&r, &nibble), Read_Ok);
+    ASSERT_NE(fr_takeU16LE(&r, &u16), Read_Ok);
 
     fr_close(&r);
 }
@@ -125,14 +125,14 @@ TEST(Read, TakeU16_DoesntAdvanceOnReadError)
 
     FileReader r = fr_open(path.c_str());
 
-    uint16_t nibble;
-    ASSERT_EQ(fr_takeU16LE(&r, &nibble), Read_Err);
+    uint16_t u16;
+    ASSERT_EQ(fr_takeU16LE(&r, &u16), Read_Err);
     ASSERT_EQ(r.head, static_cast<std::size_t>(0));
-    ASSERT_EQ(fr_takeU16LE(&r, &nibble), Read_Err);
-    ASSERT_EQ(fr_takeU16LE(&r, &nibble), Read_Err);
-    ASSERT_EQ(fr_takeU16LE(&r, &nibble), Read_Err);
-    ASSERT_EQ(fr_takeU16LE(&r, &nibble), Read_Err);
-    ASSERT_EQ(fr_takeU16LE(&r, &nibble), Read_Err);
+    ASSERT_EQ(fr_takeU16LE(&r, &u16), Read_Err);
+    ASSERT_EQ(fr_takeU16LE(&r, &u16), Read_Err);
+    ASSERT_EQ(fr_takeU16LE(&r, &u16), Read_Err);
+    ASSERT_EQ(fr_takeU16LE(&r, &u16), Read_Err);
+    ASSERT_EQ(fr_takeU16LE(&r, &u16), Read_Err);
     ASSERT_EQ(r.head, static_cast<std::size_t>(0));
 
     fr_close(&r);
