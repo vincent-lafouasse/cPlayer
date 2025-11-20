@@ -2,6 +2,7 @@
 
 #include <fcntl.h>
 #include <unistd.h>
+#include <string.h>
 
 static const size_t _buffer_size = BUFFER_SIZE;
 
@@ -18,6 +19,15 @@ void fr_close(FileReader* fr)
         close(fr->fd);
     }
     fr->fd = -1;
+}
+
+void fr_reseatHead(FileReader* r)
+{
+    const size_t newLen = r->len - r->head;
+    const uint8_t* head = r->buffer + r->head;
+    memcpy(r->buffer, head, newLen);
+    r->head = 0;
+    r->len = newLen;
 }
 
 ReadResult fr_takeByte(FileReader* fr, u8* out)
