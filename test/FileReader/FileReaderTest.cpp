@@ -11,7 +11,7 @@ const std::string prefix = "../build/test/";
 
 void writeFile(const std::string& path, const std::vector<uint8_t>& data)
 {
-    std::ofstream os(path);
+    std::ofstream os(path + ".dat");
     for (uint8_t byte : data) {
         os << byte;
     }
