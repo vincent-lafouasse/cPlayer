@@ -12,10 +12,10 @@ int main(void)
         exit(1);
     }
 
-    u8 c;
+    uint8_t byte;
     ReadResult res;
-    while ((res = fr_takeByte(&reader, &c)) == Read_Ok) {
-        printf("%c", c);
+    while ((res = fr_takeByte(&reader, &byte)) == Read_Ok) {
+        printf("%c", byte);
     }
     printf("%s\n", rr_repr(res));
     fr_close(&reader);

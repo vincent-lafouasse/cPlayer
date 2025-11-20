@@ -1,8 +1,7 @@
 #pragma once
 
 #include <stddef.h>
-
-#include "ints.h"
+#include <stdint.h>
 
 #define BUFFER_SIZE 64
 
@@ -16,7 +15,7 @@ const char* rr_repr(ReadResult rr);
 
 typedef struct {
     int fd;
-    u8 buffer[BUFFER_SIZE];
+    uint8_t buffer[BUFFER_SIZE];
     size_t head;
     size_t len;
 } FileReader;
@@ -24,13 +23,13 @@ typedef struct {
 FileReader fr_open(const char* path);
 void fr_close(FileReader* fr);
 
-ReadResult fr_takeByte(FileReader* fr, u8* out);
-ReadResult fr_peekByte(FileReader* fr, u8* out);
+ReadResult fr_takeByte(FileReader* fr, uint8_t* out);
+ReadResult fr_peekByte(FileReader* fr, uint8_t* out);
 
 typedef enum {
     LittleEndian,
     BigEndian,
 } Endianness;
 
-ReadResult fr_peekU16LE(FileReader* fr, u16* out);
-ReadResult fr_takeU16LE(FileReader* fr, u16* out);
+ReadResult fr_peekU16LE(FileReader* fr, uint16_t* out);
+ReadResult fr_takeU16LE(FileReader* fr, uint16_t* out);

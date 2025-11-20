@@ -33,6 +33,7 @@ static void fr_reseatHead(FileReader* r)
 static ReadResult fr_fillRemaining(FileReader* r)
 {
     ssize_t bytesRead = read(r->fd, r->buffer + r->len, _buffer_size - r->len);
+
     if (bytesRead < 0) {
         return Read_Err;
     } else if (bytesRead == 0) {
@@ -43,7 +44,7 @@ static ReadResult fr_fillRemaining(FileReader* r)
     return Read_Ok;
 }
 
-ReadResult fr_peekU16LE(FileReader* fr, u16* out)
+ReadResult fr_peekU16LE(FileReader* fr, uint16_t* out)
 {
     if (fr->len - fr->head < 2) {
         fr_reseatHead(fr);
@@ -56,13 +57,13 @@ ReadResult fr_peekU16LE(FileReader* fr, u16* out)
         return Read_Err;
     }
 
-    u16 lowByte = fr->buffer[0];
-    u16 highByte = fr->buffer[1];
+    uint16_t lowByte = fr->buffer[0];
+    uint16_t highByte = fr->buffer[1];
     *out = lowByte + (highByte << 8);
     return Read_Ok;
 }
 
-ReadResult fr_takeU16LE(FileReader* fr, u16* out)
+ReadResult fr_takeU16LE(FileReader* fr, uint16_t* out)
 {
     ReadResult res = fr_peekU16LE(fr, out);
     if (res == Read_Ok) {
@@ -71,19 +72,19 @@ ReadResult fr_takeU16LE(FileReader* fr, u16* out)
     return res;
 }
 
-ReadResult fr_takeByte(FileReader* fr, u8* out)
+ReadResult fr_takeByte(FileReader* fr, uint8_t* out)
 {
-    u8 c;
-    ReadResult res = fr_peekByte(fr, &c);
+    uint8_t byte;
+    ReadResult res = fr_peekByte(fr, &byte);
 
     if (res == Read_Ok) {
-        *out = c;
+        *out = byte;
         fr->head += 1;
     }
     return res;
 }
 
-ReadResult fr_peekByte(FileReader* fr, u8* out)
+ReadResult fr_peekByte(FileReader* fr, uint8_t* out)
 {
     if (fr == NULL) {
         return Read_Err;
