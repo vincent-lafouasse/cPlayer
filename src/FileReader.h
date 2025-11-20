@@ -5,9 +5,9 @@
 #define BUFFER_SIZE 64
 
 typedef enum {
-    Ok,
-    Err,
-    Done,
+    Read_Ok,
+    Read_Err,
+    Read_Done,
 } ReadResult;
 
 const char* rr_repr(ReadResult rr);

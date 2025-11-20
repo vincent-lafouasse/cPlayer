@@ -24,7 +24,7 @@ ReadResult fr_takeByte(FileReader* fr, char* out)
     char c;
     ReadResult res = fr_peekByte(fr, &c);
 
-    if (res == Ok) {
+    if (res == Read_Ok) {
         *out = c;
         fr->head += 1;
     }
@@ -34,30 +34,30 @@ ReadResult fr_takeByte(FileReader* fr, char* out)
 ReadResult fr_peekByte(FileReader* fr, char* out)
 {
     if (fr == NULL) {
-        return Err;
+        return Read_Err;
     }
     if (fr->len == 0 || fr->head == fr->len) {
         ssize_t bytesRead = read(fr->fd, fr->buffer, fr->buffer_size);
         if (bytesRead < 0) {
-            return Err;
+            return Read_Err;
         } else if (bytesRead == 0) {
-            return Done;
+            return Read_Done;
         }
         fr->len = bytesRead;
         fr->head = 0;
     }
     *out = fr->buffer[fr->head];
-    return Ok;
+    return Read_Ok;
 }
 
 const char* rr_repr(ReadResult rr)
 {
     switch (rr) {
-        case Ok:
+        case Read_Ok:
             return "Ok";
-        case Err:
+        case Read_Err:
             return "Err";
-        case Done:
+        case Read_Done:
             return "Done";
     }
     return NULL;

@@ -14,7 +14,7 @@ int main(void)
 
     char c;
     ReadResult res;
-    while ((res = fr_takeByte(&reader, &c)) == Ok) {
+    while ((res = fr_takeByte(&reader, &c)) == Read_Ok) {
         printf("%c", c);
     }
     printf("%s\n", rr_repr(res));
