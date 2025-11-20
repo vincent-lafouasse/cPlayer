@@ -1,8 +1,8 @@
 #include "FileReader.h"
 
 #include <fcntl.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 
 static const size_t _buffer_size = BUFFER_SIZE;
 
