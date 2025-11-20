@@ -25,7 +25,7 @@ TEST(Read, ReadBytes)
     const std::string path = prefix + name;
     writeFile(path, data);
 
-    FileReader r = fr_new(path.c_str());
+    FileReader r = fr_open(path.c_str());
 
     uint8_t byte;
 
@@ -46,7 +46,7 @@ TEST(Read, PeekByteDoesntAdvance)
     const std::string path = prefix + name;
     writeFile(path, data);
 
-    FileReader r = fr_new(path.c_str());
+    FileReader r = fr_open(path.c_str());
 
     uint8_t byte;
     int nPeeks = 67;
@@ -80,7 +80,7 @@ TEST(Read, TakeU16Basic)
     const std::string path = prefix + name;
     writeFile(path, data);
 
-    FileReader r = fr_new(path.c_str());
+    FileReader r = fr_open(path.c_str());
 
     uint16_t nibble;
     uint16_t expected = 42;
@@ -102,7 +102,7 @@ TEST(Read, TakeU16)
     const std::string path = prefix + name;
     writeFile(path, data);
 
-    FileReader r = fr_new(path.c_str());
+    FileReader r = fr_open(path.c_str());
 
     uint16_t nibble;
     for (uint16_t e : expected) {
@@ -123,7 +123,7 @@ TEST(Read, TakeU16_DoesntAdvanceOnReadError)
     const std::string path = prefix + name;
     writeFile(path, data);
 
-    FileReader r = fr_new(path.c_str());
+    FileReader r = fr_open(path.c_str());
 
     uint16_t nibble;
     ASSERT_EQ(fr_takeU16LE(&r, &nibble), Read_Err);
