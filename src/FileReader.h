@@ -33,3 +33,4 @@ typedef enum {
 } Endianness;
 
 ReadResult fr_peekU16LE(FileReader* fr, u16* out);
+ReadResult fr_takeU16LE(FileReader* fr, u16* out);

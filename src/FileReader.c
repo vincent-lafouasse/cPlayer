@@ -62,6 +62,15 @@ ReadResult fr_peekU16LE(FileReader* fr, u16* out)
     return Read_Ok;
 }
 
+ReadResult fr_takeU16LE(FileReader* fr, u16* out)
+{
+    ReadResult res = fr_peekU16LE(fr, out);
+    if (res == Read_Ok) {
+        fr->head += 2;
+    }
+    return res;
+}
+
 ReadResult fr_takeByte(FileReader* fr, u8* out)
 {
     u8 c;

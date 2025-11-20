@@ -72,7 +72,7 @@ TEST(Read, PeekByteDoesntAdvance)
     fr_close(&r);
 }
 
-TEST(Read, PeekU16Basic)
+TEST(Read, TakeU16Basic)
 {
     const std::vector<uint8_t> data = {42, 0};
     const std::string name = "peekU16";
@@ -84,14 +84,16 @@ TEST(Read, PeekU16Basic)
 
     uint16_t nibble;
     uint16_t expected = 42;
-    ASSERT_EQ(fr_peekU16LE(&r, &nibble), Read_Ok);
+    ASSERT_EQ(fr_takeU16LE(&r, &nibble), Read_Ok);
     ASSERT_EQ(nibble, expected);
-    ASSERT_EQ(r.head, static_cast<std::size_t>(0));
+    ASSERT_EQ(r.head, r.len);
+
+    ASSERT_NE(fr_takeU16LE(&r, &nibble), Read_Ok);
 
     fr_close(&r);
 }
 
-TEST(Read, PeekU16_DoesntAdvanceOnReadError)
+TEST(Read, TakeU16_DoesntAdvanceOnReadError)
 {
     const std::vector<uint8_t> data = {67};
     const std::string name = "peekU16_NotEnough";
@@ -102,7 +104,13 @@ TEST(Read, PeekU16_DoesntAdvanceOnReadError)
     FileReader r = fr_new(path.c_str());
 
     uint16_t nibble;
-    ASSERT_EQ(fr_peekU16LE(&r, &nibble), Read_Err);
+    ASSERT_EQ(fr_takeU16LE(&r, &nibble), Read_Err);
+    ASSERT_EQ(r.head, static_cast<std::size_t>(0));
+    ASSERT_EQ(fr_takeU16LE(&r, &nibble), Read_Err);
+    ASSERT_EQ(fr_takeU16LE(&r, &nibble), Read_Err);
+    ASSERT_EQ(fr_takeU16LE(&r, &nibble), Read_Err);
+    ASSERT_EQ(fr_takeU16LE(&r, &nibble), Read_Err);
+    ASSERT_EQ(fr_takeU16LE(&r, &nibble), Read_Err);
     ASSERT_EQ(r.head, static_cast<std::size_t>(0));
 
     fr_close(&r);
