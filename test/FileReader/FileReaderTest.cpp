@@ -90,3 +90,20 @@ TEST(Read, PeekU16Basic)
 
     fr_close(&r);
 }
+
+TEST(Read, PeekU16_DoesntAdvanceOnReadError)
+{
+    const std::vector<uint8_t> data = {67};
+    const std::string name = "peekU16_NotEnough";
+
+    const std::string path = prefix + name;
+    writeFile(path, data);
+
+    FileReader r = fr_new(path.c_str());
+
+    uint16_t nibble;
+    ASSERT_EQ(fr_peekU16LE(&r, &nibble), Read_Err);
+    ASSERT_EQ(r.head, static_cast<std::size_t>(0));
+
+    fr_close(&r);
+}
