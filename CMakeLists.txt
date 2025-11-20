@@ -4,19 +4,17 @@ project(cPlayer VERSION 0.1.0)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_FLAGS "-Wall -Wextra -pedantic -fdiagnostics-color=always -g3")
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS ${CMAKE_C_FLAGS})
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
 add_subdirectory(src)
 
-#include(cmake/fetch_gtest.cmake)
-#add_subdirectory(test)
-#
-#include(CTest)
-#enable_testing()
-#
-#add_test(NAME FileReaderTest
-#		 COMMAND FileReaderTest
-#)
-#
+include(cmake/fetch_gtest.cmake)
+add_subdirectory(test)
+
+include(CTest)
+enable_testing()
+
+add_test(NAME FileReaderTest
+		 COMMAND FileReaderTest
+)
+

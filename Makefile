@@ -2,32 +2,53 @@ NAME = cPlayer
 
 BUILD_DIR = ./build
 INSTALL_PREFIX = $(BUILD_DIR)/src
+FULL_PATH = $(INSTALL_PREFIX)/$(NAME)
 
 .PHONY: all
 all: build
 
 .PHONY: build
-build: $(INSTALL_PREFIX)/$(NAME)
+build: $(FULL_PATH)
 
 .PHONY: run
 run: build
-	$(INSTALL_PREFIX)/$(NAME)
+	$(FULL_PATH)
 
-$(INSTALL_PREFIX)/$(NAME):
+$(FULL_PATH):
 	cmake -B $(BUILD_DIR) -G Ninja
 	cmake --build build --target $(NAME)
 
 .PHONY: re
 re: fclean build
 
+.PHONY: test
+test: build
+	cmake --build build
+	GTEST_COLOR=1 ctest --test-dir build $(CTEST_OPT)
+
+.PHONY: vtest
+ifneq ($(TEST_WITH_MEMCHECK),)
+vtest: CTEST_OPT += -T memcheck
+endif
+vtest: CTEST_OPT += -V
+vtest: test
+
+
 .PHONY: clean
 clean:
+	rm -rf $(FULL_PATH)
+
+.PHONY: fclean
+fclean: clean
 	rm -rf $(BUILD_DIR)
 
 # aliases
-.PHONY: b c r
+.PHONY: b c r fc t vt
 b: build
 c: clean
+fc: fclean
 r: run
+t: test
+vt: vtest
 
 -include $(DEPS)
