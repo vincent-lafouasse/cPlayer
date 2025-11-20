@@ -1,59 +1,33 @@
 NAME = cPlayer
 
-SRCS = $(shell find src -name '*.c')
-
-CC ?= cc
-CFLAGS += -Wall -Wextra -g3
-CFLAGS += -std=c99 -pedantic
-# CFLAGS += -Werror
-CPPFLAGS += -Isrc -MMD -MP
-
-OBJS := $(SRCS:%=build/%.o)
-DEPS := $(OBJS:.o=.d)
-
-LDFLAGS =
-LDLIBS =
+BUILD_DIR = ./build
+INSTALL_PREFIX = $(BUILD_DIR)/src
 
 .PHONY: all
 all: build
 
 .PHONY: build
-build: $(NAME)
+build: $(INSTALL_PREFIX)/$(NAME)
 
 .PHONY: run
 run: build
-	./$(NAME)
+	$(INSTALL_PREFIX)/$(NAME)
 
-# linking stage
-$(NAME): $(OBJS)
-	$(CC) $(OBJS) $(LDFLAGS) $(LDLIBS) -o $@
-
-# compiling stage
-build/%.c.o: %.c
-	@mkdir -p $(dir $@)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+$(INSTALL_PREFIX)/$(NAME):
+	cmake -B $(BUILD_DIR) -G Ninja
+	cmake --build build --target $(NAME)
 
 .PHONY: re
 re: fclean build
 
 .PHONY: clean
 clean:
-	rm -rf build
-
-.PHONY: fclean
-fclean: clean
-	rm -rf $(NAME)
-
-.PHONY: update
-update: fclean
-	mkdir -p build
-	bear  --output build/compile_commands.json -- make build
+	rm -rf $(BUILD_DIR)
 
 # aliases
-.PHONY: b c u r rm t vt
+.PHONY: b c r
 b: build
 c: clean
-u: update
 r: run
 
 -include $(DEPS)
