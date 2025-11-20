@@ -21,13 +21,26 @@ void fr_close(FileReader* fr)
     fr->fd = -1;
 }
 
-void fr_reseatHead(FileReader* r)
+static void fr_reseatHead(FileReader* r)
 {
     const size_t newLen = r->len - r->head;
     const uint8_t* head = r->buffer + r->head;
     memcpy(r->buffer, head, newLen);
     r->head = 0;
     r->len = newLen;
+}
+
+static ReadResult fr_fillRemaining(FileReader* r)
+{
+    ssize_t bytesRead = read(r->fd, r->buffer + r->len, _buffer_size - r->len);
+    if (bytesRead < 0) {
+        return Read_Err;
+    } else if (bytesRead == 0) {
+        return Read_Done;
+    }
+
+    r->len += bytesRead;
+    return Read_Ok;
 }
 
 ReadResult fr_takeByte(FileReader* fr, u8* out)
