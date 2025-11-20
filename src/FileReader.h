@@ -21,7 +21,7 @@ typedef struct {
     size_t len;
 } FileReader;
 
-FileReader fr_new(const char* path);
+FileReader fr_open(const char* path);
 void fr_close(FileReader* fr);
 
 ReadResult fr_takeByte(FileReader* fr, u8* out);

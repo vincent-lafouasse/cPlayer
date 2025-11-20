@@ -6,7 +6,7 @@
 
 static const size_t _buffer_size = BUFFER_SIZE;
 
-FileReader fr_new(const char* path)
+FileReader fr_open(const char* path)
 {
     int fd = open(path, O_RDONLY);
 

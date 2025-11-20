@@ -6,7 +6,7 @@
 int main(void)
 {
     const char* path = "./src/main.c";
-    FileReader reader = fr_new(path);
+    FileReader reader = fr_open(path);
     if (reader.fd == -1) {
         printf("Failed to open file %s\n", path);
         exit(1);
