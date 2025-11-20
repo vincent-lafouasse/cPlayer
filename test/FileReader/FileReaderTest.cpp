@@ -75,7 +75,7 @@ TEST(Read, PeekByteDoesntAdvance)
 TEST(Read, TakeU16Basic)
 {
     const std::vector<uint8_t> data = {42, 0};
-    const std::string name = "peekU16";
+    const std::string name = "peekU16_basic";
 
     const std::string path = prefix + name;
     writeFile(path, data);
@@ -87,6 +87,28 @@ TEST(Read, TakeU16Basic)
     ASSERT_EQ(fr_takeU16LE(&r, &nibble), Read_Ok);
     ASSERT_EQ(nibble, expected);
     ASSERT_EQ(r.head, r.len);
+
+    ASSERT_NE(fr_takeU16LE(&r, &nibble), Read_Ok);
+
+    fr_close(&r);
+}
+
+TEST(Read, TakeU16)
+{
+    const std::vector<uint8_t> data = {0, 1, 1, 0, 0xa, 0xf, 0x3, 0xc};
+    const std::vector<uint16_t> expected = {0x10, 0x01, 0xfa, 0xc3};
+    const std::string name = "peekU16";
+
+    const std::string path = prefix + name;
+    writeFile(path, data);
+
+    FileReader r = fr_new(path.c_str());
+
+    uint16_t nibble;
+    for (uint16_t e : expected) {
+        ASSERT_EQ(fr_takeU16LE(&r, &nibble), Read_Ok);
+        ASSERT_EQ(nibble, e);
+    }
 
     ASSERT_NE(fr_takeU16LE(&r, &nibble), Read_Ok);
 
