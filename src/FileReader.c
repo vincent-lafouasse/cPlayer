@@ -9,8 +9,7 @@ FileReader fr_new(const char* path)
 {
     int fd = open(path, O_RDONLY);
 
-    return (FileReader){
-        .fd = fd, .head = 0, .len = 0};
+    return (FileReader){.fd = fd, .head = 0, .len = 0};
 }
 
 void fr_close(FileReader* fr)

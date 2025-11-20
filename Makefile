@@ -42,13 +42,19 @@ clean:
 fclean: clean
 	rm -rf $(BUILD_DIR)
 
+.PHONY: format
+format:
+	clang-format -i $(shell find src -name '*.c' -or -name '*.h')
+	clang-format -i $(shell find test -name '*.cpp' -or -name '*.hpp' -or -name '*.h')
+
 # aliases
-.PHONY: b c r fc t vt
+.PHONY: b c r fc t vt fmt
 b: build
 c: clean
 fc: fclean
 r: run
 t: test
 vt: vtest
+fmt: format
 
 -include $(DEPS)
