@@ -2,6 +2,7 @@
 
 #include "FileReader.h"
 
-TEST(Dummy, Dummy) {
+TEST(Dummy, Dummy)
+{
     FileReader r;
 }
