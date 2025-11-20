@@ -58,7 +58,7 @@ ReadResult fr_peekU16LE(FileReader* fr, u16* out)
 
     u16 lowByte = fr->buffer[0];
     u16 highByte = fr->buffer[1];
-    *out = lowByte + (highByte >> 8);
+    *out = lowByte + (highByte << 8);
     return Read_Ok;
 }
 
