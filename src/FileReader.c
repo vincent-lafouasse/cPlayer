@@ -21,6 +21,18 @@ void fr_close(FileReader* fr)
 
 ReadResult fr_takeByte(FileReader* fr, char* out)
 {
+    char c;
+    ReadResult res = fr_peekByte(fr, &c);
+
+    if (res == Ok) {
+        *out = c;
+        fr->head += 1;
+    }
+    return res;
+}
+
+ReadResult fr_peekByte(FileReader* fr, char* out)
+{
     if (fr == NULL) {
         return Err;
     }
@@ -34,7 +46,7 @@ ReadResult fr_takeByte(FileReader* fr, char* out)
         fr->len = bytesRead;
         fr->head = 0;
     }
-    *out = fr->buffer[fr->head++];
+    *out = fr->buffer[fr->head];
     return Ok;
 }
 
