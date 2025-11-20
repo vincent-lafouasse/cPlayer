@@ -3,12 +3,14 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+static const size_t _buffer_size = BUFFER_SIZE;
+
 FileReader fr_new(const char* path)
 {
     int fd = open(path, O_RDONLY);
 
     return (FileReader){
-        .fd = fd, .head = 0, .len = 0, .buffer_size = BUFFER_SIZE};
+        .fd = fd, .head = 0, .len = 0};
 }
 
 void fr_close(FileReader* fr)
@@ -37,7 +39,7 @@ ReadResult fr_peekByte(FileReader* fr, u8* out)
         return Read_Err;
     }
     if (fr->len == 0 || fr->head == fr->len) {
-        ssize_t bytesRead = read(fr->fd, fr->buffer, fr->buffer_size);
+        ssize_t bytesRead = read(fr->fd, fr->buffer, _buffer_size);
         if (bytesRead < 0) {
             return Read_Err;
         } else if (bytesRead == 0) {

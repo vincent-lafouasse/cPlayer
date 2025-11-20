@@ -19,7 +19,6 @@ typedef struct {
     u8 buffer[BUFFER_SIZE];
     size_t head;
     size_t len;
-    const size_t buffer_size;
 } FileReader;
 
 FileReader fr_new(const char* path);
