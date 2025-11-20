@@ -43,6 +43,25 @@ static ReadResult fr_fillRemaining(FileReader* r)
     return Read_Ok;
 }
 
+ReadResult fr_peekU16LE(FileReader* fr, u16* out)
+{
+    if (fr->len - fr->head < 2) {
+        fr_reseatHead(fr);
+        ReadResult res = fr_fillRemaining(fr);
+        if (res == Read_Err) {
+            return Read_Err;
+        }
+    }
+    if (fr->len < 2) {
+        return Read_Err;
+    }
+
+    u16 lowByte = fr->buffer[0];
+    u16 highByte = fr->buffer[1];
+    *out = lowByte + (highByte >> 8);
+    return Read_Ok;
+}
+
 ReadResult fr_takeByte(FileReader* fr, u8* out)
 {
     u8 c;

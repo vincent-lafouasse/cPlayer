@@ -32,4 +32,4 @@ typedef enum {
     BigEndian,
 } Endianness;
 
-ReadResult fr_peekU16(FileReader* fr, Endianness endian, u16* out);
+ReadResult fr_peekU16LE(FileReader* fr, u16* out);
