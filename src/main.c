@@ -16,10 +16,8 @@ typedef struct {
 
 AudioPlayer ap_init(const AudioData* data)
 {
-    return (AudioPlayer){.left = data->left,
-                         .right = data->right,
-                         .head = 0,
-                         .len = data->h.size};
+    return (AudioPlayer){
+        .left = data->left, .right = data->right, .head = 0, .len = data->size};
 }
 
 #define STREAM_BUFFER_SIZE 256

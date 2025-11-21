@@ -114,7 +114,10 @@ AudioData readWavData(FileReader* reader, Header h)
     }
     dumpFloatCsv(data, h.size, DUMP_PREFIX "float" DUMP_SUFFIX);
 
-    return (AudioData){.h = h, .left = data, .right = data};
+    return (AudioData){.left = data,
+                       .right = data,
+                       .size = h.size,
+                       .sampleRate = h.sampleRate};
 }
 
 Header readWavHeader(FileReader* reader)
