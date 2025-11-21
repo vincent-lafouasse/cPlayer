@@ -4,7 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 
-static const size_t _buffer_size = BUFFER_SIZE;
+static const size_t buffer_size = BUFFER_SIZE;
 
 FileReader fr_open(const char* path)
 {
@@ -32,7 +32,8 @@ static void fr_reseatHead(FileReader* r)
 
 static ReadResult fr_fillRemaining(FileReader* r)
 {
-    const ssize_t bytesRead = read(r->fd, r->buffer + r->len, _buffer_size - r->len);
+    const ssize_t bytesRead =
+        read(r->fd, r->buffer + r->len, buffer_size - r->len);
 
     if (bytesRead < 0) {
         return Read_Err;
@@ -90,7 +91,7 @@ ReadResult fr_peekByte(FileReader* fr, uint8_t* out)
         return Read_Err;
     }
     if (fr->len == 0 || fr->head == fr->len) {
-        const ssize_t bytesRead = read(fr->fd, fr->buffer, _buffer_size);
+        const ssize_t bytesRead = read(fr->fd, fr->buffer, buffer_size);
         if (bytesRead < 0) {
             return Read_Err;
         } else if (bytesRead == 0) {
