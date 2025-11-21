@@ -110,6 +110,19 @@ WavHeader readWavHeader(FileReader* reader)
     float runtime = (float)nBlocks / (float)sampleRate;
     logFn("runtime:\t\t%f secs\n", runtime);
 
+    logFn("\n");
     return (WavHeader){
         .nChannels = nChannels, .sampleRate = sampleRate, .size = nBlocks};
+}
+
+void logWavHeader(const WavHeader* wh, const char* name)
+{
+    const char* resolvedName = name != NULL ? name : "WavHeader";
+
+    logFn("%s {\n", resolvedName);
+    logFn("\tnumber of Channels:\t%u\n", wh->nChannels);
+    logFn("\tsample rate:\t\t%u Hz\n", wh->sampleRate);
+    logFn("\tbit depth:\t\t%u bit\n", wh->bitDepth);
+    logFn("\tnumber of samples:\t%u\n", wh->size);
+    logFn("}\n\n");
 }

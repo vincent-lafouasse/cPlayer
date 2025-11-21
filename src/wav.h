@@ -12,3 +12,4 @@ typedef struct {
 } WavHeader;
 
 WavHeader readWavHeader(FileReader* reader);
+void logWavHeader(const WavHeader* wh, const char* name);
