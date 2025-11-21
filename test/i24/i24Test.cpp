@@ -13,3 +13,8 @@ TEST(i24, PositiveNumbers)
     EXPECT_EQ(i24_asI32(Int24{0x11, 0x11, 0x11}), 0x111111);
     EXPECT_EQ(i24_asI32(Int24{0x7f, 0xff, 0xff}), 0x007fffff);
 }
+
+TEST(i24, NegativeNumbers)
+{
+    EXPECT_EQ(i24_asI32(Int24{0xff, 0xff, 0xff}), -1);
+}
