@@ -2,6 +2,8 @@
 
 int32_t i24_asI32(Int24 i)
 {
-    (void)i;
-    return 0;
+    int32_t highByte = i.highByte;
+    int32_t middleByte = i.middleByte;
+    int32_t lowByte = i.lowByte;
+    return (lowByte) + (middleByte << 8) + (highByte << 16);
 }
