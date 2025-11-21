@@ -19,6 +19,21 @@ void writeFile(const std::string& path, const std::vector<uint8_t>& data)
     }
 }
 
+void logReader(const FileReader& r)
+{
+    std::cerr << std::format("FileReader {{\n");
+    std::cerr << std::format("\tfd:\t{}\n", r.fd);
+    std::cerr << std::format("\thead:\t{}\n", r.head);
+    std::cerr << std::format("\tlen:\t{}\n", r.len);
+
+    std::cerr << "\t\"";
+    for (size_t i = 0; i < r.len; ++i) {
+        std::cerr << std::hex << +r.buffer[i];
+    }
+    std::cerr << std::format("\"\n");
+    std::cerr << std::format("}}\n");
+}
+
 TEST(Read, ReadBytes)
 {
     const std::vector<uint8_t> data = {1, 4, 9, 240, 42, 67};
@@ -85,11 +100,15 @@ TEST(Read, TakeU16Basic)
 
     FileReader r = fr_open(path.c_str());
 
+    logReader(r);
+
     uint16_t actual;
     constexpr uint16_t expected = 42;
     ASSERT_EQ(fr_takeU16LE(&r, &actual), Read_Ok);
     ASSERT_EQ(actual, expected);
     ASSERT_EQ(r.head, r.len);
+
+    logReader(r);
 
     ASSERT_NE(fr_takeU16LE(&r, &actual), Read_Ok);
 
