@@ -5,6 +5,26 @@
 
 #include "FileReader.h"
 
+// or double, go nuts
+#define FLOAT float
+
+typedef struct {
+    uint8_t nChannels;
+    uint32_t sampleRate;
+    uint32_t size;
+} WavHeader;
+
+WavHeader parseWavHeader(FileReader* reader);
+
+typedef struct {
+    size_t nChannels;
+    uint32_t sampleRate;
+    FLOAT* left;
+    FLOAT* right;
+} AudioData;
+
+AudioData parseWav(FileReader* reader);
+
 int main(void)
 {
     const char* path = "./wav/f1_32bit.wav";
