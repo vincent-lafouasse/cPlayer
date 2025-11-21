@@ -104,6 +104,10 @@ int main(void)
     assert(fr_takeU16LE(&reader, &nChannels) == Read_Ok);
     logFn("n. channels:\t\t%x\n", nChannels);
 
+    uint32_t sampleRate;
+    assert(fr_takeU32LE(&reader, &sampleRate) == Read_Ok);
+    logFn("sample rate:\t\t%u\n", sampleRate);
+
     logFn("ok\n");
     fr_close(&reader);
 }
