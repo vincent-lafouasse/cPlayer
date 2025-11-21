@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 
-// non owning
 typedef struct {
     float* left;
     float* right;

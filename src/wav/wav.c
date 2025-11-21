@@ -94,6 +94,26 @@ void dumpFloatCsv(float* data, unsigned sz, const char* path)
 #endif
 }
 
+typedef struct {
+    uint8_t nChannels;
+    uint32_t sampleRate;
+    uint16_t bitDepth;
+    uint32_t size;
+    uint32_t runtimeMs;
+} Header;
+
+static Header readWavHeader(FileReader* reader);
+static void logHeader(const Header* wh);
+static AudioData readWavData(FileReader* reader, Header h);
+
+AudioData decodeWav(FileReader* reader)
+{
+    Header header = readWavHeader(reader);
+    logHeader(&header);
+
+    return readWavData(reader, header);
+}
+
 AudioData readWavData(FileReader* reader, Header h)
 {
     int32_t* intData = malloc(h.size * sizeof(int32_t));
@@ -203,11 +223,9 @@ Header readWavHeader(FileReader* reader)
     };
 }
 
-void logHeader(const Header* wh, const char* name)
+static void logHeader(const Header* wh)
 {
-    const char* resolvedName = name != NULL ? name : "Header";
-
-    logFn(Info, "%s {\n", resolvedName);
+    logFn(Info, "%s {\n", "WavHeader");
     logFn(Info, "\tnumber of Channels:\t%u\n", wh->nChannels);
     logFn(Info, "\tsample rate:\t\t%u Hz\n", wh->sampleRate);
     logFn(Info, "\tbit depth:\t\t%u bit\n", wh->bitDepth);

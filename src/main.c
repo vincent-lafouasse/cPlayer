@@ -64,12 +64,10 @@ int main(int ac, char** av)
         exit(1);
     }
 
-    Header header = readWavHeader(&reader);
-    logHeader(&header, path);
-
-    AudioData audio = readWavData(&reader, header);
-    AudioPlayer player = ap_init(&audio);
+    AudioData audio = decodeWav(&reader);
     fr_close(&reader);
+
+    AudioPlayer track = ap_init(&audio);
 
     Pa_Initialize();
 
@@ -88,8 +86,8 @@ int main(int ac, char** av)
     };
 
     PaStream* stream;
-    Pa_OpenStream(&stream, NULL, &outParams, header.sampleRate, 256, paNoFlag,
-                  callback, &player);
+    Pa_OpenStream(&stream, NULL, &outParams, audio.sampleRate, 256, paNoFlag,
+                  callback, &track);
 
     Pa_StartStream(stream);
 
