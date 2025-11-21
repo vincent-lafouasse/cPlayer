@@ -62,7 +62,7 @@ ReadResult fr_peekSlice(FileReader* fr, uint8_t* out, size_t sz)
             return res;
         }
     }
-    if (fr->len < sizeof(*out)) {
+    if (fr->len < sz) {
         return Read_Err;
     }
 
