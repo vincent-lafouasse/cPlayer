@@ -111,8 +111,10 @@ WavHeader readWavHeader(FileReader* reader)
     logFn("runtime:\t\t%f secs\n", runtime);
 
     logFn("\n");
-    return (WavHeader){
-        .nChannels = nChannels, .sampleRate = sampleRate, .size = nBlocks};
+    return (WavHeader){.nChannels = nChannels,
+                       .sampleRate = sampleRate,
+                       .bitDepth = bitDepth,
+                       .size = nBlocks};
 }
 
 void logWavHeader(const WavHeader* wh, const char* name)
