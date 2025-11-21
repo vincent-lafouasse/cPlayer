@@ -36,10 +36,8 @@ AudioData audio_dumpCsv(const AudioData* audio);
 
 ReadResult readFourCC(FileReader* reader, uint8_t* out)
 {
-    ReadResult res;
-
     for (size_t i = 0; i < 4; ++i) {
-        res = fr_takeByte(reader, out + i);
+        const ReadResult res = fr_takeByte(reader, out + i);
         if (res != Read_Ok) {
             return res;
         }
