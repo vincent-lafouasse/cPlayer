@@ -45,7 +45,7 @@ int main(void)
     const char* path = "./wav/f1_32bit.wav";
     FileReader reader = fr_open(path);
     if (!fr_isOpened(&reader)) {
-        printf("Failed to open file %s\n", path);
+        fprintf(stderr, "Failed to open file %s\n", path);
         exit(1);
     }
 
@@ -53,6 +53,6 @@ int main(void)
     assert(readFourCC(&reader, chunkID) == Read_Ok);
     assert(strncmp((const char*)chunkID, "RIFF", 4) == 0);
 
-    printf("ok\n");
+    fprintf(stderr, "ok\n");
     fr_close(&reader);
 }
