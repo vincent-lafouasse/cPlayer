@@ -28,7 +28,7 @@ void logReader(const FileReader& r)
 
     std::cerr << "\t\"";
     for (size_t i = 0; i < r.len; ++i) {
-        std::cerr << std::hex << +r.buffer[i];
+        std::cerr << std::format("{:02x}", r.buffer[i]);
     }
     std::cerr << std::format("\"\n");
     std::cerr << std::format("}}\n");
@@ -100,15 +100,11 @@ TEST(Read, TakeU16Basic)
 
     FileReader r = fr_open(path.c_str());
 
-    logReader(r);
-
     uint16_t actual;
     constexpr uint16_t expected = 42;
     ASSERT_EQ(fr_takeU16LE(&r, &actual), Read_Ok);
     ASSERT_EQ(actual, expected);
     ASSERT_EQ(r.head, r.len);
-
-    logReader(r);
 
     ASSERT_NE(fr_takeU16LE(&r, &actual), Read_Ok);
 
@@ -125,6 +121,10 @@ TEST(Read, TakeU16)
     writeFile(path, data);
 
     FileReader r = fr_open(path.c_str());
+
+    uint8_t foo;
+    (void)fr_peekByte(&r, &foo);
+    logReader(r);
 
     uint16_t actual;
     for (uint16_t expected : expectedValues) {
