@@ -2,6 +2,10 @@
 
 #include <stdint.h>
 
+#define INT32_UNIT ((int32_t)1)
+#define INT24_MAX ((INT32_UNIT << 23) - 1)
+#define INT24_MIN (-(INT32_UNIT << 23))
+
 typedef struct {
     uint8_t highByte;
     uint8_t middleByte;
