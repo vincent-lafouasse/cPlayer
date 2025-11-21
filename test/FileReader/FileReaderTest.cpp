@@ -10,7 +10,7 @@ extern "C" {
 
 const std::string prefix = "../build/test/";
 const std::string suffix = ".dat";
-static constexpr std::size_t buffer_size = BUFFER_SIZE;
+static constexpr std::size_t buffer_size = FILE_READER_BUFFER_SIZE;
 
 void writeFile(const std::string& path, const std::vector<uint8_t>& data)
 {
