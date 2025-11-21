@@ -7,9 +7,12 @@ FULL_PATH = $(INSTALL_PREFIX)/$(NAME)
 .PHONY: all
 all: build
 
-.PHONY: build
-build:
+.PHONY: buildsystem
+buildsystem:
 	cmake -B $(BUILD_DIR) -G Ninja
+
+.PHONY: build
+build: buildsystem
 	cmake --build build --target $(NAME)
 
 .PHONY: run
@@ -20,7 +23,7 @@ run: build
 re: fclean build
 
 .PHONY: qtest
-qtest: build
+qtest: buildsystem
 	cmake --build build
 	GTEST_COLOR=1 ctest --test-dir build $(CTEST_OPT)
 
