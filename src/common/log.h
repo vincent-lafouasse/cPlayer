@@ -14,6 +14,7 @@
 #define Ansi_Reset "\x1b[0m"
 
 #define LOGGING 1
+#define GLOBAL_LOG_LEVEL_THRESHOLD Debug
 
 typedef enum {
     Error = 0,
@@ -37,8 +38,6 @@ static inline const char* logLevelStr(LogLevel level)
             return "[?]";
     }
 }
-
-#define GLOBAL_LOG_LEVEL_THRESHOLD Debug
 
 static inline void logFn(LogLevel level, const char* fmt, ...)
 {
