@@ -15,8 +15,8 @@ int main(void)
         exit(1);
     }
 
-    WavHeader header = readWavHeader(&reader);
-    logWavHeader(&header, path);
+    Header header = readWavHeader(&reader);
+    logHeader(&header, path);
 
     logFn("ok\n");
     fr_close(&reader);

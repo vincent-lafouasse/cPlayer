@@ -9,7 +9,7 @@ typedef struct {
     uint32_t sampleRate;
     uint16_t bitDepth;
     uint32_t size;
-} WavHeader;
+} Header;
 
-WavHeader readWavHeader(FileReader* reader);
-void logWavHeader(const WavHeader* wh, const char* name);
+Header readWavHeader(FileReader* reader);
+void logHeader(const Header* wh, const char* name);

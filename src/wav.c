@@ -37,7 +37,7 @@ static ReadResult readI24AsI32LE(FileReader* reader, int32_t* out)
     return Read_Ok;
 }
 
-WavHeader readWavHeader(FileReader* reader)
+Header readWavHeader(FileReader* reader)
 {
     uint8_t masterChunkID[5] = {0};
     assert(readFourCC(reader, masterChunkID) == Read_Ok);
@@ -111,15 +111,15 @@ WavHeader readWavHeader(FileReader* reader)
     logFn("runtime:\t\t%f secs\n", runtime);
 
     logFn("\n");
-    return (WavHeader){.nChannels = nChannels,
-                       .sampleRate = sampleRate,
-                       .bitDepth = bitDepth,
-                       .size = nBlocks};
+    return (Header){.nChannels = nChannels,
+                    .sampleRate = sampleRate,
+                    .bitDepth = bitDepth,
+                    .size = nBlocks};
 }
 
-void logWavHeader(const WavHeader* wh, const char* name)
+void logHeader(const Header* wh, const char* name)
 {
-    const char* resolvedName = name != NULL ? name : "WavHeader";
+    const char* resolvedName = name != NULL ? name : "Header";
 
     logFn("%s {\n", resolvedName);
     logFn("\tnumber of Channels:\t%u\n", wh->nChannels);
