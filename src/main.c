@@ -78,13 +78,19 @@ int main(void)
     logFn("format chunk size:\t%u bytes\n", fmtChunkSize);
 
     uint16_t waveFormat;
-    assert(fr_takeU16LE(&reader, &waveFormat)== Read_Ok);
-    logFn("wave format:\t\t%x\n", waveFormat);
+    assert(fr_takeU16LE(&reader, &waveFormat) == Read_Ok);
+    logFn("wave format:\t\t0x%04:x\n", waveFormat);
+
+    uint16_t nChannels;
+    assert(fr_takeU16LE(&reader, &nChannels) == Read_Ok);
+    logFn("n. channels:\t\t%x\n", nChannels);
+    /*
     if (waveFormat != WAVE_FORMAT_PCM) {
         logFn("\nError:\n\tUnsupported wave format\n");
         logFn("Only PCM is supported for now\n");
         exit(1);
     }
+    */
 
     logFn("ok\n");
     fr_close(&reader);
