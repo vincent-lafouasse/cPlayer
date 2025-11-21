@@ -54,17 +54,25 @@ int main(void)
         exit(1);
     }
 
-    uint8_t chunkID[4];
-    assert(readFourCC(&reader, chunkID) == Read_Ok);
-    assert(strncmp((const char*)chunkID, "RIFF", 4) == 0);
+    uint8_t masterChunkID[4];
+    assert(readFourCC(&reader, masterChunkID) == Read_Ok);
+    assert(strncmp((const char*)masterChunkID, "RIFF", 4) == 0);
 
-    uint32_t chunkSize;
-    assert(fr_takeU32LE(&reader, &chunkSize) == Read_Ok);
-    logFn("chunk size: %u bytes\n", chunkSize);
+    uint32_t masterChunkSize;
+    assert(fr_takeU32LE(&reader, &masterChunkSize) == Read_Ok);
+    logFn("chunk size: %u bytes\n", masterChunkSize);
 
     uint8_t wavChunkID[4];
     assert(readFourCC(&reader, wavChunkID) == Read_Ok);
     assert(strncmp((const char*)wavChunkID, "WAVE", 4) == 0);
+
+    uint8_t fmtChunkID[4];
+    assert(readFourCC(&reader, fmtChunkID) == Read_Ok);
+    assert(strncmp((const char*)fmtChunkID, "fmt ", 4) == 0);
+
+    uint32_t fmtChunkSize;
+    assert(fr_takeU32LE(&reader, &fmtChunkSize) == Read_Ok);
+    logFn("format chunk size: %u bytes\n", fmtChunkSize);
 
     logFn("ok\n");
     fr_close(&reader);
