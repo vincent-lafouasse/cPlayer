@@ -6,18 +6,29 @@
 
 extern "C" {
 #include "FileReader.h"
+#include "unistd.h"
 }
 
-const std::string prefix = "../build/test/";
-const std::string suffix = ".dat";
+namespace {
 static constexpr std::size_t buffer_size = FILE_READER_BUFFER_SIZE;
 
-void writeFile(const std::string& path, const std::vector<uint8_t>& data)
+void writeData(int fd, const std::vector<uint8_t>& data)
 {
-    std::ofstream os(path);
-    for (const uint8_t byte : data) {
-        os << byte;
+    const uint8_t* bytes = data.data();
+    const size_t size = data.size();
+    write(fd, bytes, size);
+}
+std::string writeTempFile(const std::vector<uint8_t>& data)
+{
+    char path[] = "/tmp/fr_testXXXXXX";
+    int fd = mkstemp(path);
+    if (fd < 0) {
+        perror("mkstemp");
+        abort();
     }
+    writeData(fd, data);
+    close(fd);
+    return path;
 }
 
 [[maybe_unused]] void logReader(const FileReader& r)
@@ -34,14 +45,12 @@ void writeFile(const std::string& path, const std::vector<uint8_t>& data)
     std::cerr << std::format("\"\n");
     std::cerr << std::format("}}\n");
 }
+}  // namespace
 
 TEST(Read, ReadBytes)
 {
     const std::vector<uint8_t> data = {1, 4, 9, 240, 42, 67};
-    const std::string name = "takeByte";
-
-    const std::string path = prefix + name + suffix;
-    writeFile(path, data);
+    const std::string path = writeTempFile(data);
 
     FileReader r = fr_open(path.c_str());
     if (!fr_isOpened(&r)) {
@@ -61,10 +70,7 @@ TEST(Read, ReadBytes)
 TEST(Read, PeekByteDoesntAdvance)
 {
     const std::vector<uint8_t> data = {0, 1};
-    const std::string name = "peekByte";
-
-    const std::string path = prefix + name + suffix;
-    writeFile(path, data);
+    const std::string path = writeTempFile(data);
 
     FileReader r = fr_open(path.c_str());
     if (!fr_isOpened(&r)) {
@@ -97,10 +103,7 @@ TEST(Read, PeekByteDoesntAdvance)
 TEST(Read, TakeU16Basic)
 {
     const std::vector<uint8_t> data = {42, 0};
-    const std::string name = "takeU16_basic";
-
-    const std::string path = prefix + name + suffix;
-    writeFile(path, data);
+    const std::string path = writeTempFile(data);
 
     FileReader r = fr_open(path.c_str());
     if (!fr_isOpened(&r)) {
@@ -122,10 +125,8 @@ TEST(Read, TakeU16)
 {
     const std::vector<uint8_t> data = {0, 1};
     const std::vector<uint16_t> expectedValues = {0x100};
-    const std::string name = "takeU16";
 
-    const std::string path = prefix + name + suffix;
-    writeFile(path, data);
+    const std::string path = writeTempFile(data);
 
     FileReader r = fr_open(path.c_str());
     if (!fr_isOpened(&r)) {
@@ -146,10 +147,7 @@ TEST(Read, TakeU16)
 TEST(Read, TakeU16_DoesntAdvanceOnReadError)
 {
     const std::vector<uint8_t> data = {67};
-    const std::string name = "takeU16_NotEnough";
-
-    const std::string path = prefix + name + suffix;
-    writeFile(path, data);
+    const std::string path = writeTempFile(data);
 
     FileReader r = fr_open(path.c_str());
     if (!fr_isOpened(&r)) {
@@ -171,8 +169,6 @@ TEST(Read, TakeU16_DoesntAdvanceOnReadError)
 
 TEST(Read, TakeU16_PastBuffer)
 {
-    const std::string name = "takeU16_PastBuffer";
-
     std::vector<uint8_t> data;
     for (std::size_t i = 0; i < buffer_size - 1; ++i) {
         data.push_back(67);
@@ -180,8 +176,7 @@ TEST(Read, TakeU16_PastBuffer)
     data.push_back(0x34);
     data.push_back(0x12);
 
-    const std::string path = prefix + name + suffix;
-    writeFile(path, data);
+    const std::string path = writeTempFile(data);
 
     FileReader r = fr_open(path.c_str());
     if (!fr_isOpened(&r)) {
