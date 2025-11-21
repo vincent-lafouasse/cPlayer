@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <format>
 #include <fstream>
 
 #include "gtest/gtest.h"
@@ -8,10 +9,11 @@ extern "C" {
 }
 
 const std::string prefix = "../build/test/";
+const std::string suffix = ".dat";
 
 void writeFile(const std::string& path, const std::vector<uint8_t>& data)
 {
-    std::ofstream os(path + ".dat");
+    std::ofstream os(path);
     for (const uint8_t byte : data) {
         os << byte;
     }
@@ -22,10 +24,13 @@ TEST(Read, ReadBytes)
     const std::vector<uint8_t> data = {1, 4, 9, 240, 42, 67};
     const std::string name = "takeByte";
 
-    const std::string path = prefix + name;
+    const std::string path = prefix + name + suffix;
     writeFile(path, data);
 
     FileReader r = fr_open(path.c_str());
+    if (r.fd == -1) {
+        FAIL() << std::format("Failed to open file {}", path);
+    }
 
     uint8_t byte;
     for (const uint8_t expected : data) {
@@ -42,7 +47,7 @@ TEST(Read, PeekByteDoesntAdvance)
     const std::vector<uint8_t> data = {0, 1};
     const std::string name = "peekByte";
 
-    const std::string path = prefix + name;
+    const std::string path = prefix + name + suffix;
     writeFile(path, data);
 
     FileReader r = fr_open(path.c_str());
@@ -75,7 +80,7 @@ TEST(Read, TakeU16Basic)
     const std::vector<uint8_t> data = {42, 0};
     const std::string name = "takeU16_basic";
 
-    const std::string path = prefix + name;
+    const std::string path = prefix + name + suffix;
     writeFile(path, data);
 
     FileReader r = fr_open(path.c_str());
@@ -97,7 +102,7 @@ TEST(Read, TakeU16)
     const std::vector<uint16_t> expectedValues = {16};
     const std::string name = "takeU16";
 
-    const std::string path = prefix + name;
+    const std::string path = prefix + name + suffix;
     writeFile(path, data);
 
     FileReader r = fr_open(path.c_str());
@@ -118,7 +123,7 @@ TEST(Read, TakeU16_DoesntAdvanceOnReadError)
     const std::vector<uint8_t> data = {67};
     const std::string name = "takeU16_NotEnough";
 
-    const std::string path = prefix + name;
+    const std::string path = prefix + name + suffix;
     writeFile(path, data);
 
     FileReader r = fr_open(path.c_str());
