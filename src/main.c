@@ -52,9 +52,13 @@ int callback(const void* input,
     return 0;
 }
 
-int main(void)
+int main(int ac, char** av)
 {
-    const char* path = "./wav/f1_24bit.wav";
+    if (ac != 2) {
+        logFn("Usage: %s track.wav\n", av[0]);
+        exit(1);
+    }
+    const char* path = av[1];
     logFn("-----Reading file\t%s-----\n", path);
     FileReader reader = fr_open(path);
     if (!fr_isOpened(&reader)) {
