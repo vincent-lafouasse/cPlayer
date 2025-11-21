@@ -24,9 +24,11 @@ i32 i24_asI32(i24 i)
     u8 middleByte = i.middleByte;
     u8 lowByte = i.lowByte;
 
-    // move sign bit
+    // get sign bit into sign byte (top byte)
     u8 signByte = highByte & (1 << 7);
-    highByte |= (1 << 7);
+
+    // remove sign bit from the high byte
+    highByte &= ~(1 << 7);
 
     return combine(signByte, highByte, middleByte, lowByte);
 }
