@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -22,14 +23,10 @@ typedef struct {
 
 FileReader fr_open(const char* path);
 void fr_close(FileReader* fr);
+bool fr_isOpened(const FileReader* fr);
 
-ReadResult fr_takeByte(FileReader* fr, uint8_t* out);
 ReadResult fr_peekByte(FileReader* fr, uint8_t* out);
-
-typedef enum {
-    LittleEndian,
-    BigEndian,
-} Endianness;
+ReadResult fr_takeByte(FileReader* fr, uint8_t* out);
 
 ReadResult fr_peekU16LE(FileReader* fr, uint16_t* out);
 ReadResult fr_takeU16LE(FileReader* fr, uint16_t* out);

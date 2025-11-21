@@ -21,6 +21,11 @@ void fr_close(FileReader* fr)
     fr->fd = -1;
 }
 
+bool fr_isOpened(const FileReader* fr)
+{
+    return fr && fr->fd != -1;
+}
+
 static void fr_reseatHead(FileReader* r)
 {
     const size_t newLen = r->len - r->head;

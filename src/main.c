@@ -9,7 +9,7 @@ int main(void)
 {
     const char* path = "./wav/f1_32bit.wav";
     FileReader reader = fr_open(path);
-    if (reader.fd == -1) {
+    if (!fr_isOpened(&reader)) {
         printf("Failed to open file %s\n", path);
         exit(1);
     }

@@ -44,7 +44,7 @@ TEST(Read, ReadBytes)
     writeFile(path, data);
 
     FileReader r = fr_open(path.c_str());
-    if (r.fd == -1) {
+    if (!fr_isOpened(&r)) {
         FAIL() << std::format("Failed to open file {}", path);
     }
 
@@ -67,6 +67,9 @@ TEST(Read, PeekByteDoesntAdvance)
     writeFile(path, data);
 
     FileReader r = fr_open(path.c_str());
+    if (!fr_isOpened(&r)) {
+        FAIL() << std::format("Failed to open file {}", path);
+    }
 
     constexpr int nPeeks = 67;
     uint8_t byte;
@@ -100,6 +103,9 @@ TEST(Read, TakeU16Basic)
     writeFile(path, data);
 
     FileReader r = fr_open(path.c_str());
+    if (!fr_isOpened(&r)) {
+        FAIL() << std::format("Failed to open file {}", path);
+    }
 
     uint16_t actual;
     constexpr uint16_t expected = 42;
@@ -122,6 +128,9 @@ TEST(Read, TakeU16)
     writeFile(path, data);
 
     FileReader r = fr_open(path.c_str());
+    if (!fr_isOpened(&r)) {
+        FAIL() << std::format("Failed to open file {}", path);
+    }
 
     uint16_t actual;
     for (uint16_t expected : expectedValues) {
@@ -143,6 +152,9 @@ TEST(Read, TakeU16_DoesntAdvanceOnReadError)
     writeFile(path, data);
 
     FileReader r = fr_open(path.c_str());
+    if (!fr_isOpened(&r)) {
+        FAIL() << std::format("Failed to open file {}", path);
+    }
 
     uint16_t actual;
     ASSERT_EQ(fr_takeU16LE(&r, &actual), Read_Err);
