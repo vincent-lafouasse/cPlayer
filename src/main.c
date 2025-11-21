@@ -42,8 +42,8 @@ int callback(const void* input,
             buffer[2 * i + 1] = player->right[player->head];
             player->head += 1;
         } else {
-            buffer[2 * i] = 0.0;
-            buffer[2 * i + 1] = 0.0;
+            buffer[2 * i] = 0.0f;
+            buffer[2 * i + 1] = 0.0f;
         }
     }
 
