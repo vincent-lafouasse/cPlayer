@@ -27,7 +27,7 @@ static ReadResult readFourCC(FileReader* reader, uint8_t* out)
 static ReadResult readI24AsI32LE(FileReader* reader, int32_t* out)
 {
     uint8_t bytes[3];
-    for (size_t i = 0; i < 4; ++i) {
+    for (size_t i = 0; i < 3; ++i) {
         const ReadResult res = fr_takeByte(reader, bytes + i);
         if (res != Read_Ok) {
             return res;
@@ -55,9 +55,13 @@ static int32_t maxAbs(int32_t* data, uint32_t sz)
 
 #include <stdio.h>
 
-void dumpCsv(int* data, unsigned sz)
+#define DUMP_PREFIX "./build/dump_"
+#define DUMP_SUFFIX ".csv"
+
+void dumpIntCsv(int* data, unsigned sz, const char* path)
 {
-    FILE* dump = fopen("./build/dump.csv", "w");
+#if LOGGING
+    FILE* dump = fopen(path, "w");
 
     for (unsigned i = 0; i < sz; ++i) {
         fprintf(dump, "%i,", data[i]);
@@ -65,6 +69,29 @@ void dumpCsv(int* data, unsigned sz)
     fprintf(dump, "\n");
 
     fclose(dump);
+#else
+    (void)data;
+    (void)sz;
+    (void)path;
+#endif
+}
+
+void dumpFloatCsv(float* data, unsigned sz, const char* path)
+{
+#if LOGGING
+    FILE* dump = fopen(path, "w");
+
+    for (unsigned i = 0; i < sz; ++i) {
+        fprintf(dump, "%f,", data[i]);
+    }
+    fprintf(dump, "\n");
+
+    fclose(dump);
+#else
+    (void)data;
+    (void)sz;
+    (void)path;
+#endif
 }
 
 AudioData readWavData(FileReader* reader, Header h)
@@ -72,21 +99,20 @@ AudioData readWavData(FileReader* reader, Header h)
     int32_t* intData = malloc(h.size * sizeof(int32_t));
 
     for (uint32_t i = 0; i < h.size; ++i) {
-        if (readI24AsI32LE(reader, intData + i) != Read_Ok) {
-            dumpCsv(intData, i);
-            assert(readI24AsI32LE(reader, intData + i) == Read_Ok);
-        }
+        assert(readI24AsI32LE(reader, intData + i) == Read_Ok);
         uint8_t garbage;
         assert(fr_takeByte(reader, &garbage) == Read_Ok);
         assert(fr_takeByte(reader, &garbage) == Read_Ok);
         assert(fr_takeByte(reader, &garbage) == Read_Ok);
     }
+    dumpIntCsv(intData, h.size, DUMP_PREFIX "i24" DUMP_SUFFIX);
 
     float* data = malloc(h.size * sizeof(float));
     const float normalisationFactor = (float)maxAbs(intData, h.size);
     for (uint32_t i = 0; i < h.size; ++i) {
         data[i] = (float)intData[i] / normalisationFactor;
     }
+    dumpFloatCsv(data, h.size, DUMP_PREFIX "float" DUMP_SUFFIX);
 
     return (AudioData){.h = h, .left = data, .right = data};
 }
