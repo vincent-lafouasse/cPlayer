@@ -101,24 +101,28 @@ TEST(FileReader, PeekAndTakeSlice)
     uint8_t out[4];
 
     // Peek first 3 bytes
+    memset(out, 255, 4);
     EXPECT_EQ(fr_peekSlice(&fr, out, 3), Read_Ok);
     EXPECT_EQ(out[0], 1);
     EXPECT_EQ(out[1], 2);
     EXPECT_EQ(out[2], 3);
+    EXPECT_EQ(out[3], 255);
 
     // Peek again — still same
-    memset(out, 0, 4);
+    memset(out, 67, 4);
     EXPECT_EQ(fr_peekSlice(&fr, out, 3), Read_Ok);
     EXPECT_EQ(out[0], 1);
     EXPECT_EQ(out[1], 2);
     EXPECT_EQ(out[2], 3);
+    EXPECT_EQ(out[3], 67);
 
     // Take 3 bytes
-    memset(out, 0, 4);
+    memset(out, 42, 4);
     EXPECT_EQ(fr_takeSlice(&fr, out, 3), Read_Ok);
     EXPECT_EQ(out[0], 1);
     EXPECT_EQ(out[1], 2);
     EXPECT_EQ(out[2], 3);
+    EXPECT_EQ(out[3], 42);
 
     // 1 byte left
     uint8_t b = 0;
