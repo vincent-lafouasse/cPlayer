@@ -3,6 +3,7 @@ add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME}
 PRIVATE
 	main.c
+	wav.c
 	int24.c
 )
 
