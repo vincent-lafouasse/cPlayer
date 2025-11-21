@@ -17,6 +17,8 @@ AudioPlayer ap_init(const AudioData* data)
     return (AudioPlayer){.data = data, .head = 0};
 }
 
+#define STREAM_BUFFER_SIZE 256
+
 int callback(const void* input,
              void* output,
              unsigned long frameCount,
@@ -62,6 +64,22 @@ int main(void)
 
     AudioData audio = readWavData(&reader, header);
     AudioPlayer player = ap_init(&audio);
+
+    if (Pa_Initialize() != paNoError) {
+        logFn("Failed to init portaudio\n");
+        exit(1);
+    }
+
+    if (Pa_Terminate() != paNoError) {
+        logFn("Failed to terminate portaudio\n");
+        exit(1);
+    }
+
+    PaStream* stream;
+    Pa_OpenDefaultStream(&stream, 0, 2, paFloat32, header.sampleRate,
+                         STREAM_BUFFER_SIZE, callback, &player);
+    Pa_StartStream(stream);
+    Pa_Sleep(header.runtimeMs + 300);
 
     logFn("ok\n");
     fr_close(&reader);

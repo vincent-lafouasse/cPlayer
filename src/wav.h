@@ -9,6 +9,7 @@ typedef struct {
     uint32_t sampleRate;
     uint16_t bitDepth;
     uint32_t size;
+    uint32_t runtimeMs;
 } Header;
 
 Header readWavHeader(FileReader* reader);

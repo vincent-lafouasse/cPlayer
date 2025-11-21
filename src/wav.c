@@ -191,10 +191,13 @@ Header readWavHeader(FileReader* reader)
     logFn("runtime:\t\t%f secs\n", runtime);
 
     logFn("\n");
-    return (Header){.nChannels = nChannels,
-                    .sampleRate = sampleRate,
-                    .bitDepth = bitDepth,
-                    .size = nBlocks};
+    return (Header){
+        .nChannels = nChannels,
+        .sampleRate = sampleRate,
+        .bitDepth = bitDepth,
+        .size = nBlocks,
+        .runtimeMs = (uint32_t)(1000.0f * runtime),
+    };
 }
 
 void logHeader(const Header* wh, const char* name)
