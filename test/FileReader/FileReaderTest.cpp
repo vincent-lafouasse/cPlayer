@@ -1,6 +1,5 @@
 #include <cstdint>
 #include <format>
-#include <fstream>
 
 #include "gtest/gtest.h"
 
@@ -10,14 +9,13 @@ extern "C" {
 }
 
 namespace {
-static constexpr std::size_t buffer_size = FILE_READER_BUFFER_SIZE;
-
 void writeData(int fd, const std::vector<uint8_t>& data)
 {
     const uint8_t* bytes = data.data();
     const size_t size = data.size();
     write(fd, bytes, size);
 }
+
 std::string writeTempFile(const std::vector<uint8_t>& data)
 {
     char path[] = "/tmp/fr_testXXXXXX";
@@ -47,55 +45,149 @@ std::string writeTempFile(const std::vector<uint8_t>& data)
 }
 }  // namespace
 
-TEST(Read, ReadBytes)
+TEST(FileReader, OpenClose)
 {
-    const std::vector<uint8_t> data = {1, 4, 9, 240, 42, 67};
-    const std::string path = writeTempFile(data);
-
-    FileReader r = fr_open(path.c_str());
-    if (!fr_isOpened(&r)) {
-        FAIL() << std::format("Failed to open file {}", path);
-    }
-
-    uint8_t byte;
-    for (const uint8_t expected : data) {
-        ASSERT_EQ(fr_takeByte(&r, &byte), Read_Ok);
-        ASSERT_EQ(byte, expected);
-    }
-    ASSERT_EQ(fr_takeByte(&r, &byte), Read_Done);
-
-    fr_close(&r);
+    auto file = writeTempFile({1, 2, 3});
+    FileReader fr = fr_open(file.c_str());
+    ASSERT_TRUE(fr_isOpened(&fr));
+    fr_close(&fr);
+    ASSERT_FALSE(fr_isOpened(&fr));
 }
 
-TEST(Read, PeekByteDoesntAdvance)
+// peek doesn't advance, take does
+TEST(FileReader, PeekAndTakeByte)
 {
-    const std::vector<uint8_t> data = {0, 1};
-    const std::string path = writeTempFile(data);
+    auto file = writeTempFile({10, 20, 30});
+    FileReader fr = fr_open(file.c_str());
 
-    FileReader r = fr_open(path.c_str());
-    if (!fr_isOpened(&r)) {
-        FAIL() << std::format("Failed to open file {}", path);
-    }
+    uint8_t b;
 
-    constexpr int nPeeks = 67;
-    uint8_t byte;
-    for (int _ = 0; _ < nPeeks; ++_) {
-        ASSERT_EQ(fr_peekByte(&r, &byte), Read_Ok);
-        ASSERT_EQ(byte, 0);
-    }
+    // Peek first byte
+    EXPECT_EQ(fr_peekByte(&fr, &b), Read_Ok);
+    EXPECT_EQ(b, 10);
 
-    ASSERT_EQ(fr_takeByte(&r, &byte), Read_Ok);
-    ASSERT_EQ(byte, 0);
+    // Peek again: should still be 10
+    b = 0;
+    EXPECT_EQ(fr_peekByte(&fr, &b), Read_Ok);
+    EXPECT_EQ(b, 10);
 
-    for (int _ = 0; _ < nPeeks; ++_) {
-        ASSERT_EQ(fr_peekByte(&r, &byte), Read_Ok);
-        ASSERT_EQ(byte, 1);
-    }
+    // Take now
+    b = 0;
+    EXPECT_EQ(fr_takeByte(&fr, &b), Read_Ok);
+    EXPECT_EQ(b, 10);
 
-    ASSERT_EQ(fr_takeByte(&r, &byte), Read_Ok);
-    ASSERT_EQ(byte, 1);
+    // Next byte is 20
+    b = 0;
+    EXPECT_EQ(fr_takeByte(&fr, &b), Read_Ok);
+    EXPECT_EQ(b, 20);
 
-    ASSERT_EQ(fr_takeByte(&r, &byte), Read_Done);
+    // Next is 30
+    b = 0;
+    EXPECT_EQ(fr_takeByte(&fr, &b), Read_Ok);
+    EXPECT_EQ(b, 30);
 
-    fr_close(&r);
+    // Now EOF
+    EXPECT_EQ(fr_peekByte(&fr, &b), Read_Done);
+    EXPECT_EQ(fr_takeByte(&fr, &b), Read_Done);
+
+    fr_close(&fr);
+}
+
+// -------------------------------------------------------------
+// SLICE: peek does NOT advance, take DOES advance
+// -------------------------------------------------------------
+TEST(FileReader, PeekAndTakeSlice)
+{
+    auto file = writeTempFile({1, 2, 3, 4});
+    FileReader fr = fr_open(file.c_str());
+
+    uint8_t out[4];
+
+    // Peek first 3 bytes
+    EXPECT_EQ(fr_peekSlice(&fr, out, 3), Read_Ok);
+    EXPECT_EQ(out[0], 1);
+    EXPECT_EQ(out[1], 2);
+    EXPECT_EQ(out[2], 3);
+
+    // Peek again — still same
+    memset(out, 0, 4);
+    EXPECT_EQ(fr_peekSlice(&fr, out, 3), Read_Ok);
+    EXPECT_EQ(out[0], 1);
+    EXPECT_EQ(out[1], 2);
+    EXPECT_EQ(out[2], 3);
+
+    // Take 3 bytes
+    memset(out, 0, 4);
+    EXPECT_EQ(fr_takeSlice(&fr, out, 3), Read_Ok);
+    EXPECT_EQ(out[0], 1);
+    EXPECT_EQ(out[1], 2);
+    EXPECT_EQ(out[2], 3);
+
+    // 1 byte left
+    uint8_t b = 0;
+    EXPECT_EQ(fr_takeByte(&fr, &b), Read_Ok);
+    EXPECT_EQ(b, 4);
+
+    // EOF
+    EXPECT_EQ(fr_peekSlice(&fr, out, 1), Read_Done);
+    EXPECT_EQ(fr_takeSlice(&fr, out, 1), Read_Done);
+
+    fr_close(&fr);
+}
+
+// partial slice does not advance
+TEST(FileReader, SlicePartialReadFailsAndDoesNotAdvance)
+{
+    auto file = writeTempFile({9, 8});
+    FileReader fr = fr_open(file.c_str());
+
+    uint8_t out[4];
+
+    // Try reading 3 bytes but file has only 2
+    memset(out, 0, 4);
+    EXPECT_EQ(fr_peekSlice(&fr, out, 3), Read_Err);
+
+    // Ensure buffer hasn't advanced: peek a byte -> should be 9
+    uint8_t b = 0;
+    EXPECT_EQ(fr_peekByte(&fr, &b), Read_Ok);
+    EXPECT_EQ(b, 9);
+
+    // take a byte, ensure it's still 9
+    b = 0;
+    EXPECT_EQ(fr_takeByte(&fr, &b), Read_Ok);
+    EXPECT_EQ(b, 9);
+
+    // now only 1 byte remains
+    b = 0;
+    EXPECT_EQ(fr_takeByte(&fr, &b), Read_Ok);
+    EXPECT_EQ(b, 8);
+
+    // EOF
+    EXPECT_EQ(fr_peekSlice(&fr, out, 1), Read_Done);
+
+    fr_close(&fr);
+}
+
+// across buffer
+TEST(FileReader, CrossesBufferBoundary)
+{
+    std::vector<uint8_t> data(FILE_READER_BUFFER_SIZE + 5);
+    for (size_t i = 0; i < data.size(); ++i)
+        data[i] = uint8_t(i & 0xFF);
+
+    auto file = writeTempFile(data);
+    FileReader fr = fr_open(file.c_str());
+
+    uint8_t out[16];
+
+    // take a slice that ends exactly at interior boundary
+    EXPECT_EQ(fr_takeSlice(&fr, out, FILE_READER_BUFFER_SIZE - 2), Read_Ok);
+
+    // next slice crosses buffer boundary
+    memset(out, 0, 16);
+    EXPECT_EQ(fr_takeSlice(&fr, out, 6), Read_Ok);
+    EXPECT_EQ(out[0], data[FILE_READER_BUFFER_SIZE - 2]);
+    EXPECT_EQ(out[5], data[FILE_READER_BUFFER_SIZE + 3]);
+
+    fr_close(&fr);
 }
