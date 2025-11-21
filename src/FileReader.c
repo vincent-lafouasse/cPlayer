@@ -8,7 +8,7 @@ static const size_t _buffer_size = BUFFER_SIZE;
 
 FileReader fr_open(const char* path)
 {
-    int fd = open(path, O_RDONLY);
+    const int fd = open(path, O_RDONLY);
 
     return (FileReader){.fd = fd, .head = 0, .len = 0};
 }
@@ -32,7 +32,7 @@ static void fr_reseatHead(FileReader* r)
 
 static ReadResult fr_fillRemaining(FileReader* r)
 {
-    ssize_t bytesRead = read(r->fd, r->buffer + r->len, _buffer_size - r->len);
+    const ssize_t bytesRead = read(r->fd, r->buffer + r->len, _buffer_size - r->len);
 
     if (bytesRead < 0) {
         return Read_Err;
@@ -48,7 +48,7 @@ ReadResult fr_peekU16LE(FileReader* fr, uint16_t* out)
 {
     if (fr->len - fr->head < 2) {
         fr_reseatHead(fr);
-        ReadResult res = fr_fillRemaining(fr);
+        const ReadResult res = fr_fillRemaining(fr);
         if (res == Read_Err) {
             return Read_Err;
         }
@@ -57,15 +57,15 @@ ReadResult fr_peekU16LE(FileReader* fr, uint16_t* out)
         return Read_Err;
     }
 
-    uint16_t lowByte = fr->buffer[fr->head];
-    uint16_t highByte = fr->buffer[fr->head + 1];
+    const uint16_t lowByte = fr->buffer[fr->head];
+    const uint16_t highByte = fr->buffer[fr->head + 1];
     *out = lowByte + (highByte << 8);
     return Read_Ok;
 }
 
 ReadResult fr_takeU16LE(FileReader* fr, uint16_t* out)
 {
-    ReadResult res = fr_peekU16LE(fr, out);
+    const ReadResult res = fr_peekU16LE(fr, out);
     if (res == Read_Ok) {
         fr->head += 2;
     }
@@ -75,7 +75,7 @@ ReadResult fr_takeU16LE(FileReader* fr, uint16_t* out)
 ReadResult fr_takeByte(FileReader* fr, uint8_t* out)
 {
     uint8_t byte;
-    ReadResult res = fr_peekByte(fr, &byte);
+    const ReadResult res = fr_peekByte(fr, &byte);
 
     if (res == Read_Ok) {
         *out = byte;
@@ -90,7 +90,7 @@ ReadResult fr_peekByte(FileReader* fr, uint8_t* out)
         return Read_Err;
     }
     if (fr->len == 0 || fr->head == fr->len) {
-        ssize_t bytesRead = read(fr->fd, fr->buffer, _buffer_size);
+        const ssize_t bytesRead = read(fr->fd, fr->buffer, _buffer_size);
         if (bytesRead < 0) {
             return Read_Err;
         } else if (bytesRead == 0) {
