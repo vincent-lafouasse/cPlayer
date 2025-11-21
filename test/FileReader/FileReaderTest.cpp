@@ -93,9 +93,6 @@ TEST(FileReader, PeekAndTakeByte)
     fr_close(&fr);
 }
 
-// -------------------------------------------------------------
-// SLICE: peek does NOT advance, take DOES advance
-// -------------------------------------------------------------
 TEST(FileReader, PeekAndTakeSlice)
 {
     auto file = writeTempFile({1, 2, 3, 4});
