@@ -1,6 +1,6 @@
 build/
 cPlayer
 .cache
-./wav/
 .idea
 .DS_Store
+*.asd
