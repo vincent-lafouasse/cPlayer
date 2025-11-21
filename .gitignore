@@ -3,3 +3,4 @@ cPlayer
 .cache
 wav/
 .idea
+.DS_Store
