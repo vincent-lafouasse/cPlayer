@@ -7,6 +7,46 @@
 #include "log.h"
 #include "wav.h"
 
+typedef struct {
+    const AudioData* data;
+    size_t head;
+} AudioPlayer;
+
+AudioPlayer ap_init(const AudioData* data)
+{
+    return (AudioPlayer){.data = data, .head = 0};
+}
+
+int callback(const void* input,
+             void* output,
+             unsigned long frameCount,
+             const PaStreamCallbackTimeInfo* timeInfo,
+             PaStreamCallbackFlags statusFlags,
+             void* userData)
+{
+    (void)input;
+    (void)timeInfo;
+    (void)statusFlags;
+
+    AudioPlayer* player = (AudioPlayer*)userData;
+    const float* left = player->data->left;
+    const float* right = player->data->right;
+
+    float* buffer = (float*)output;
+    for (unsigned long _ = 0; _ < frameCount; ++_) {
+        if (player->head < player->data->h.size) {
+            *buffer++ = left[player->head];
+            *buffer++ = right[player->head];
+            player->head++;
+        } else {
+            *buffer++ = 0.0;
+            *buffer++ = 0.0;
+        }
+    }
+
+    return 0;
+}
+
 int main(void)
 {
     const char* path = "./wav/f1_24bit.wav";
@@ -21,6 +61,7 @@ int main(void)
     logHeader(&header, path);
 
     AudioData audio = readWavData(&reader, header);
+    AudioPlayer player = ap_init(&audio);
 
     logFn("ok\n");
     fr_close(&reader);
