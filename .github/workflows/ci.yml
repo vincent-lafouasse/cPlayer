@@ -19,5 +19,6 @@ jobs:
       
     - name: build
       run: cmake --build build
-      
-# no tests yet
+
+    - name: run tests
+      run: 	GTEST_COLOR=1 ctest --test-dir build -V
