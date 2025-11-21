@@ -37,6 +37,60 @@ static ReadResult readI24AsI32LE(FileReader* reader, int32_t* out)
     return Read_Ok;
 }
 
+// unsafe to use with actual i32 but i24 will never reach i32 min/max so it's
+// fine
+static int32_t maxAbs(int32_t* data, uint32_t sz)
+{
+    int32_t out = -1;
+
+    for (uint32_t i = 0; i < sz; ++i) {
+        int32_t abs = data[i] > 0 ? data[i] : -data[i];
+        if (abs > out) {
+            out = abs;
+        }
+    }
+
+    return out;
+}
+
+#include <stdio.h>
+
+void dumpCsv(int* data, unsigned sz)
+{
+    FILE* dump = fopen("./build/dump.csv", "w");
+
+    for (unsigned i = 0; i < sz; ++i) {
+        fprintf(dump, "%i,", data[i]);
+    }
+    fprintf(dump, "\n");
+
+    fclose(dump);
+}
+
+AudioData readWavData(FileReader* reader, Header h)
+{
+    int32_t* intData = malloc(h.size * sizeof(int32_t));
+
+    for (uint32_t i = 0; i < h.size; ++i) {
+        if (readI24AsI32LE(reader, intData + i) != Read_Ok) {
+            dumpCsv(intData, i);
+            assert(readI24AsI32LE(reader, intData + i) == Read_Ok);
+        }
+        uint8_t garbage;
+        assert(fr_takeByte(reader, &garbage) == Read_Ok);
+        assert(fr_takeByte(reader, &garbage) == Read_Ok);
+        assert(fr_takeByte(reader, &garbage) == Read_Ok);
+    }
+
+    float* data = malloc(h.size * sizeof(float));
+    const float normalisationFactor = (float)maxAbs(intData, h.size);
+    for (uint32_t i = 0; i < h.size; ++i) {
+        data[i] = (float)intData[i] / normalisationFactor;
+    }
+
+    return (AudioData){.h = h, .left = data, .right = data};
+}
+
 Header readWavHeader(FileReader* reader)
 {
     uint8_t masterChunkID[5] = {0};

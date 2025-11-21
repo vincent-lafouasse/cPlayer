@@ -18,6 +18,8 @@ int main(void)
     Header header = readWavHeader(&reader);
     logHeader(&header, path);
 
+    AudioData audio = readWavData(&reader, header);
+
     logFn("ok\n");
     fr_close(&reader);
 }
