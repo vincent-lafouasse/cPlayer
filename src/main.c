@@ -27,6 +27,19 @@ typedef struct {
 AudioData audio_parseWav(FileReader* reader);
 AudioData audio_dumpCsv(const AudioData* audio);
 
+ReadResult readFourCC(FileReader* reader, uint8_t* out)
+{
+    ReadResult res;
+
+    for (size_t i = 0; i < 4; ++i) {
+        res = fr_takeByte(reader, out + i);
+        if (res != Read_Ok) {
+            return res;
+        }
+    }
+    return Read_Ok;
+}
+
 int main(void)
 {
     const char* path = "./wav/f1_32bit.wav";
@@ -37,11 +50,9 @@ int main(void)
     }
 
     uint8_t chunkID[4];
-    fr_takeByte(&reader, chunkID);
-    fr_takeByte(&reader, chunkID + 1);
-    fr_takeByte(&reader, chunkID + 2);
-    fr_takeByte(&reader, chunkID + 3);
+    assert(readFourCC(&reader, chunkID) == Read_Ok);
     assert(strncmp((const char*)chunkID, "RIFF", 4) == 0);
 
+    printf("ok\n");
     fr_close(&reader);
 }
