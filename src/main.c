@@ -108,6 +108,25 @@ int main(void)
     assert(fr_takeU32LE(&reader, &sampleRate) == Read_Ok);
     logFn("sample rate:\t\t%u\n", sampleRate);
 
+    uint32_t bytesPerSec;
+    assert(fr_takeU32LE(&reader, &bytesPerSec) == Read_Ok);
+    logFn("data rate:\t\t%u bytes per sec\n", bytesPerSec);
+
+    uint16_t blockSize;
+    assert(fr_takeU16LE(&reader, &blockSize) == Read_Ok);
+    logFn("block size:\t\t%u bytes\n", blockSize);
+
+    uint16_t bitDepth;
+    assert(fr_takeU16LE(&reader, &bitDepth) == Read_Ok);
+    logFn("bit depth:\t\t%u bits\n", bitDepth);
+
+    uint16_t formatChunkExtensionSize = fmtChunkSize - 16;
+    logFn("fmt extension:\t\t%u bytes\n", formatChunkExtensionSize);
+    for (uint16_t i = 0; i < formatChunkExtensionSize; ++i) {
+        uint8_t garbage;
+        assert(fr_takeByte(&reader, &garbage) == Read_Ok);
+    }
+
     logFn("ok\n");
     fr_close(&reader);
 }
