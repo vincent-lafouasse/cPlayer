@@ -127,6 +127,18 @@ int main(void)
         assert(fr_takeByte(&reader, &garbage) == Read_Ok);
     }
 
+    uint8_t chunkID[5] = {0};
+    assert(readFourCC(&reader, chunkID) == Read_Ok);
+    logFn("next chunk ID:\t\t%s\n", chunkID);
+
+    uint32_t dataSize;
+    assert(fr_takeU32LE(&reader, &dataSize) == Read_Ok);
+    logFn("data size:\t\t%u\n", dataSize);
+    uint32_t nBlocks = 8 * dataSize / bitDepth / nChannels;
+    logFn("n blocks:\t\t%u\n", nBlocks);
+    float runtime = (float)nBlocks / (float)sampleRate;
+    logFn("runtime:\t\t%f secs\n", runtime);
+
     logFn("ok\n");
     fr_close(&reader);
 }
