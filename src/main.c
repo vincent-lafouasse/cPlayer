@@ -17,13 +17,15 @@ typedef struct {
 WavHeader parseWavHeader(FileReader* reader);
 
 typedef struct {
-    size_t nChannels;
+    uint8_t nChannels;
     uint32_t sampleRate;
+    uint32_t size;
     FLOAT* left;
     FLOAT* right;
 } AudioData;
 
-AudioData parseWav(FileReader* reader);
+AudioData audio_parseWav(FileReader* reader);
+AudioData audio_dumpCsv(const AudioData* audio);
 
 int main(void)
 {
