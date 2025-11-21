@@ -19,17 +19,17 @@ run: build
 .PHONY: re
 re: fclean build
 
-.PHONY: test
-test: build
+.PHONY: qtest
+qtest: build
 	cmake --build build
 	GTEST_COLOR=1 ctest --test-dir build $(CTEST_OPT)
 
-.PHONY: vtest
+.PHONY: test
 ifneq ($(TEST_WITH_MEMCHECK),)
-vtest: CTEST_OPT += -T memcheck
+test: CTEST_OPT += -T memcheck
 endif
-vtest: CTEST_OPT += -V
-vtest: test
+test: CTEST_OPT += -V
+test: qtest
 
 
 .PHONY: clean
@@ -47,13 +47,13 @@ format:
 	clang-format -i $(shell find test -name '*.cpp' -or -name '*.hpp' -or -name '*.h')
 
 # aliases
-.PHONY: b c r fc t vt fmt
+.PHONY: b c r fc t qt fmt
 b: build
 c: clean
 fc: fclean
 r: run
 t: test
-vt: vtest
+qt: qtest
 fmt: format
 
 -include $(DEPS)
