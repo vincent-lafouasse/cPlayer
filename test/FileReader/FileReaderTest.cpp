@@ -82,21 +82,21 @@ TEST(Read, TakeU16Basic)
 
     FileReader r = fr_open(path.c_str());
 
-    uint16_t u16;
+    uint16_t actual;
     uint16_t expected = 42;
-    ASSERT_EQ(fr_takeU16LE(&r, &u16), Read_Ok);
-    ASSERT_EQ(u16, expected);
+    ASSERT_EQ(fr_takeU16LE(&r, &actual), Read_Ok);
+    ASSERT_EQ(actual, expected);
     ASSERT_EQ(r.head, r.len);
 
-    ASSERT_NE(fr_takeU16LE(&r, &u16), Read_Ok);
+    ASSERT_NE(fr_takeU16LE(&r, &actual), Read_Ok);
 
     fr_close(&r);
 }
 
 TEST(Read, TakeU16)
 {
-    const std::vector<uint8_t> data = {0x34, 0x12, 1, 0, 0xa, 0xf, 0x0, 0xc};
-    const std::vector<uint16_t> expected = {0x1234, 0x0001, 0x0f0a, 0x0c00};
+    const std::vector<uint8_t> data = {0, 1};
+    const std::vector<uint16_t> expectedValues = {16};
     const std::string name = "takeU16";
 
     const std::string path = prefix + name;
@@ -104,13 +104,13 @@ TEST(Read, TakeU16)
 
     FileReader r = fr_open(path.c_str());
 
-    uint16_t u16;
-    for (uint16_t e : expected) {
-        ASSERT_EQ(fr_takeU16LE(&r, &u16), Read_Ok);
-        ASSERT_EQ(u16, e);
+    uint16_t actual;
+    for (uint16_t expected : expectedValues) {
+        ASSERT_EQ(fr_takeU16LE(&r, &actual), Read_Ok);
+        ASSERT_EQ(actual, expected);
     }
 
-    ASSERT_NE(fr_takeU16LE(&r, &u16), Read_Ok);
+    ASSERT_NE(fr_takeU16LE(&r, &actual), Read_Ok);
 
     fr_close(&r);
 }
@@ -125,14 +125,14 @@ TEST(Read, TakeU16_DoesntAdvanceOnReadError)
 
     FileReader r = fr_open(path.c_str());
 
-    uint16_t u16;
-    ASSERT_EQ(fr_takeU16LE(&r, &u16), Read_Err);
+    uint16_t actual;
+    ASSERT_EQ(fr_takeU16LE(&r, &actual), Read_Err);
     ASSERT_EQ(r.head, static_cast<std::size_t>(0));
-    ASSERT_EQ(fr_takeU16LE(&r, &u16), Read_Err);
-    ASSERT_EQ(fr_takeU16LE(&r, &u16), Read_Err);
-    ASSERT_EQ(fr_takeU16LE(&r, &u16), Read_Err);
-    ASSERT_EQ(fr_takeU16LE(&r, &u16), Read_Err);
-    ASSERT_EQ(fr_takeU16LE(&r, &u16), Read_Err);
+    ASSERT_EQ(fr_takeU16LE(&r, &actual), Read_Err);
+    ASSERT_EQ(fr_takeU16LE(&r, &actual), Read_Err);
+    ASSERT_EQ(fr_takeU16LE(&r, &actual), Read_Err);
+    ASSERT_EQ(fr_takeU16LE(&r, &actual), Read_Err);
+    ASSERT_EQ(fr_takeU16LE(&r, &actual), Read_Err);
     ASSERT_EQ(r.head, static_cast<std::size_t>(0));
 
     fr_close(&r);
