@@ -4,8 +4,8 @@
 
 #include "FileReader.h"
 
-#include "log.h"
-#include "wav.h"
+#include "common/log.h"
+#include "wav/wav.h"
 
 typedef struct {
     const float* left;

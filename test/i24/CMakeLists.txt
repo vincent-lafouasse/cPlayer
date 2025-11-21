@@ -8,11 +8,12 @@ PRIVATE
 	./main.cpp
 	./i24Test.cpp
 
-	${testedSourceDir}/int24.c
+	${testedSourceDir}/common/int24.c
 )
 
 target_include_directories(${TEST_RUNNER_NAME} PUBLIC
 	${testedSourceDir}
+	${testedSourceDir}/common/
 )
 
 target_link_libraries(${TEST_RUNNER_NAME}
