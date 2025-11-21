@@ -70,21 +70,21 @@ int main(void)
 
     Pa_Initialize();
 
-    PaStream* stream;
-    PaStreamParameters outParams;
-
-    outParams.device = Pa_GetDefaultOutputDevice();
-    if (outParams.device == paNoDevice) {
+    PaDeviceIndex device = Pa_GetDefaultOutputDevice();
+    if (device == paNoDevice) {
         logFn("No output device.\n");
         exit(1);
     }
 
-    outParams.channelCount = 2;          // stereo
-    outParams.sampleFormat = paFloat32;  // float samples
-    outParams.suggestedLatency =
-        Pa_GetDeviceInfo(outParams.device)->defaultLowOutputLatency;
-    outParams.hostApiSpecificStreamInfo = NULL;
+    PaStreamParameters outParams = (PaStreamParameters){
+        .device = device,
+        .channelCount = 2,
+        .sampleFormat = paFloat32,
+        .suggestedLatency = Pa_GetDeviceInfo(device)->defaultLowOutputLatency,
+        .hostApiSpecificStreamInfo = NULL,
+    };
 
+    PaStream* stream;
     Pa_OpenStream(&stream,
                   NULL,               // no input
                   &outParams,         // output
