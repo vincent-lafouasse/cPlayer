@@ -4,7 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 
-static const size_t buffer_size = BUFFER_SIZE;
+static const size_t buffer_size = FILE_READER_BUFFER_SIZE;
 
 FileReader fr_open(const char* path)
 {

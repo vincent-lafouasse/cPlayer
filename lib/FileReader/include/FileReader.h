@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define BUFFER_SIZE 64
+#define FILE_READER_BUFFER_SIZE 64
 
 typedef enum {
     Read_Ok,
@@ -16,7 +16,7 @@ const char* rr_repr(ReadResult rr);
 
 typedef struct {
     int fd;
-    uint8_t buffer[BUFFER_SIZE];
+    uint8_t buffer[FILE_READER_BUFFER_SIZE];
     size_t head;
     size_t len;
 } FileReader;
