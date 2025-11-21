@@ -2,3 +2,4 @@ build/
 cPlayer
 .cache
 wav/
+.idea
