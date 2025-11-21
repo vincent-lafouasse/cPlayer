@@ -7,5 +7,11 @@ PRIVATE
 	int24.c
 )
 
-target_include_directories(${PROJECT_NAME} PUBLIC ./)
-target_link_libraries(${PROJECT_NAME} PRIVATE FileReader)
+target_include_directories(${PROJECT_NAME} PUBLIC
+	./
+	${portaudio_SOURCE_DIR}/include
+)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+	FileReader
+	portaudio
+)

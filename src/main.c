@@ -1,5 +1,7 @@
 #include <stdlib.h>
 
+#include <portaudio.h>
+
 #include "FileReader.h"
 
 #include "log.h"
