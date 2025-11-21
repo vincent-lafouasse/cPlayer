@@ -67,6 +67,7 @@ int main(void)
 
     AudioData audio = readWavData(&reader, header);
     AudioPlayer player = ap_init(&audio);
+    fr_close(&reader);
 
     Pa_Initialize();
 
@@ -85,12 +86,8 @@ int main(void)
     };
 
     PaStream* stream;
-    Pa_OpenStream(&stream,
-                  NULL,               // no input
-                  &outParams,         // output
-                  header.sampleRate,  // sample rate
-                  256,                // frames per buffer (suggested)
-                  paNoFlag, callback, &player);
+    Pa_OpenStream(&stream, NULL, &outParams, header.sampleRate, 256, paNoFlag,
+                  callback, &player);
 
     Pa_StartStream(stream);
 
@@ -99,9 +96,7 @@ int main(void)
         Pa_Sleep(20);
 
     Pa_CloseStream(stream);
-
     Pa_Terminate();
 
-    fr_close(&reader);
     logFn("ok\n");
 }
