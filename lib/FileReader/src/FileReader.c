@@ -1,5 +1,6 @@
 #include "FileReader.h"
 
+#include <assert.h>
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
@@ -50,22 +51,48 @@ static ReadResult fr_fillRemaining(FileReader* r)
     return Read_Ok;
 }
 
-ReadResult fr_peekU16LE(FileReader* fr, uint16_t* out)
+ReadResult fr_peekSlice(FileReader* fr, uint8_t* out, size_t sz)
 {
-    if (fr->len - fr->head < sizeof(*out)) {
+    assert(sz < buffer_size);
+
+    if (fr->len - fr->head < sz) {
         fr_reseatHead(fr);
         const ReadResult res = fr_fillRemaining(fr);
-        if (res == Read_Err) {
-            return Read_Err;
+        if (res != Read_Ok) {
+            return res;
         }
     }
     if (fr->len < sizeof(*out)) {
         return Read_Err;
     }
 
-    const uint16_t lowByte = fr->buffer[fr->head];
-    const uint16_t highByte = fr->buffer[fr->head + 1];
-    *out = lowByte + (highByte << 8);
+    // a correct read is assured here
+    for (size_t i = 0; i < sz; ++i) {
+        out[i] = fr->buffer[fr->head + i];
+    }
+    return Read_Ok;
+}
+
+ReadResult fr_takeSlice(FileReader* fr, uint8_t* out, size_t sz)
+{
+    const ReadResult res = fr_peekSlice(fr, out, sz);
+    if (res == Read_Ok) {
+        fr->head += sz;
+    }
+    return res;
+}
+
+ReadResult fr_peekU16LE(FileReader* fr, uint16_t* out)
+{
+    uint8_t bytes[2];
+    const ReadResult res = fr_peekSlice(fr, bytes, 2);
+    if (res != Read_Ok) {
+        return res;
+    }
+
+    uint16_t low = bytes[0];
+    uint16_t high = bytes[1];
+    *out = low + (high << 8);
     return Read_Ok;
 }
 
