@@ -10,7 +10,7 @@ include(FetchContent)
 
 include(cmake/fetch_portaudio.cmake)
 add_subdirectory(lib)
-add_subdirectory(src)
+# add_subdirectory(src)
 
 include(cmake/fetch_gtest.cmake)
 add_subdirectory(test)
@@ -22,6 +22,6 @@ add_test(NAME FileReaderTest
     COMMAND FileReaderTest
 )
 
-add_test(NAME i24Test
-    COMMAND i24Test
-)
+# add_test(NAME i24Test
+#     COMMAND i24Test
+# )

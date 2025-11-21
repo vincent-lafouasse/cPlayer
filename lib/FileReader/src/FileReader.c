@@ -82,59 +82,6 @@ ReadResult fr_takeSlice(FileReader* fr, uint8_t* out, size_t sz)
     return res;
 }
 
-ReadResult fr_peekU16LE(FileReader* fr, uint16_t* out)
-{
-    uint8_t bytes[2];
-    const ReadResult res = fr_peekSlice(fr, bytes, 2);
-    if (res != Read_Ok) {
-        return res;
-    }
-
-    uint16_t low = bytes[0];
-    uint16_t high = bytes[1];
-    *out = low + (high << 8);
-    return Read_Ok;
-}
-
-ReadResult fr_takeU16LE(FileReader* fr, uint16_t* out)
-{
-    const ReadResult res = fr_peekU16LE(fr, out);
-    if (res == Read_Ok) {
-        fr->head += sizeof(*out);
-    }
-    return res;
-}
-
-ReadResult fr_peekU32LE(FileReader* fr, uint32_t* out)
-{
-    if (fr->len - fr->head < sizeof(*out)) {
-        fr_reseatHead(fr);
-        const ReadResult res = fr_fillRemaining(fr);
-        if (res == Read_Err) {
-            return Read_Err;
-        }
-    }
-    if (fr->len < sizeof(*out)) {
-        return Read_Err;
-    }
-
-    const uint32_t b0 = fr->buffer[fr->head];
-    const uint32_t b1 = fr->buffer[fr->head + 1];
-    const uint32_t b2 = fr->buffer[fr->head + 2];
-    const uint32_t b3 = fr->buffer[fr->head + 3];
-    *out = b0 + (b1 << 8) + (b2 << 16) + (b3 << 24);
-    return Read_Ok;
-}
-
-ReadResult fr_takeU32LE(FileReader* fr, uint32_t* out)
-{
-    const ReadResult res = fr_peekU32LE(fr, out);
-    if (res == Read_Ok) {
-        fr->head += sizeof(*out);
-    }
-    return res;
-}
-
 ReadResult fr_takeByte(FileReader* fr, uint8_t* out)
 {
     uint8_t byte;
