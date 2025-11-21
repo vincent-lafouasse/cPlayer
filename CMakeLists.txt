@@ -6,6 +6,7 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_FLAGS "-Wall -Wextra -pedantic -fdiagnostics-color=always -g3")
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
+add_subdirectory(lib)
 add_subdirectory(src)
 
 include(cmake/fetch_gtest.cmake)
