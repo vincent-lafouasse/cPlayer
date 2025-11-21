@@ -61,7 +61,7 @@ ReadResult readI24AsI32LE(FileReader* reader, int32_t* out)
 
 int main(void)
 {
-    const char* path = "./wav/f1_32bit.wav";
+    const char* path = "./wav/f1_24bit.wav";
     FileReader reader = fr_open(path);
     if (!fr_isOpened(&reader)) {
         logFn("Failed to open file %s\n", path);
@@ -94,17 +94,15 @@ int main(void)
     uint16_t waveFormat;
     assert(fr_takeU16LE(&reader, &waveFormat) == Read_Ok);
     logFn("wave format:\t\t0x%04:x\n", waveFormat);
-
-    uint16_t nChannels;
-    assert(fr_takeU16LE(&reader, &nChannels) == Read_Ok);
-    logFn("n. channels:\t\t%x\n", nChannels);
-    /*
     if (waveFormat != WAVE_FORMAT_PCM) {
         logFn("\nError:\n\tUnsupported wave format\n");
         logFn("Only PCM is supported for now\n");
         exit(1);
     }
-    */
+
+    uint16_t nChannels;
+    assert(fr_takeU16LE(&reader, &nChannels) == Read_Ok);
+    logFn("n. channels:\t\t%x\n", nChannels);
 
     logFn("ok\n");
     fr_close(&reader);
