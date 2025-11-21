@@ -27,13 +27,13 @@ static inline const char* logLevelStr(LogLevel level)
 {
     switch (level) {
         case Error:
-            return Ansi_Red "[Error]" Ansi_Reset;
+            return Ansi_Red "[Error  ]" Ansi_Reset;
         case Warning:
             return Ansi_Yellow "[Warning]" Ansi_Reset;
         case Info:
-            return Ansi_Green "[Info]" Ansi_Reset;
+            return Ansi_Green "[Info   ]" Ansi_Reset;
         case Debug:
-            return Ansi_Blue "[Debug]" Ansi_Reset;
+            return Ansi_Blue "[Debug  ]" Ansi_Reset;
         default:
             return "[?]";
     }
@@ -43,7 +43,7 @@ static inline void logFn(LogLevel level, const char* fmt, ...)
 {
 #if LOGGING
     if (level <= GLOBAL_LOG_LEVEL_THRESHOLD) {
-        fprintf(stderr, "%s\t", logLevelStr(level));
+        fprintf(stderr, "%s ", logLevelStr(level));
 
         va_list args;
         va_start(args, fmt);
