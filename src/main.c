@@ -38,14 +38,14 @@ int callback(const void* input,
     AudioPlayer* player = (AudioPlayer*)userData;
 
     float* buffer = (float*)output;
-    for (unsigned long _ = 0; _ < frameCount; ++_) {
+    for (unsigned long i = 0; i < frameCount; ++i) {
         if (player->head < player->len) {
-            *buffer++ = player->left[player->head];
-            *buffer++ = player->right[player->head];
-            player->head++;
+            buffer[2 * i] = player->left[player->head];
+            buffer[2 * i + 1] = player->right[player->head];
+            player->head += 1;
         } else {
-            *buffer++ = 0.0;
-            *buffer++ = 0.0;
+            buffer[2 * i] = 0.0;
+            buffer[2 * i + 1] = 0.0;
         }
     }
 
@@ -69,16 +69,38 @@ int main(void)
     AudioPlayer player = ap_init(&audio);
 
     Pa_Initialize();
-    Pa_Terminate();
 
     PaStream* stream;
-    Pa_OpenDefaultStream(&stream, 0, 2, paFloat32, header.sampleRate,
-                         STREAM_BUFFER_SIZE, callback, &player);
-    Pa_StartStream(stream);
-    Pa_Sleep(header.runtimeMs + 300);
+    PaStreamParameters outParams;
 
-    Pa_StopStream(stream);
+    outParams.device = Pa_GetDefaultOutputDevice();
+    if (outParams.device == paNoDevice) {
+        logFn("No output device.\n");
+        exit(1);
+    }
+
+    outParams.channelCount = 2;          // stereo
+    outParams.sampleFormat = paFloat32;  // float samples
+    outParams.suggestedLatency =
+        Pa_GetDeviceInfo(outParams.device)->defaultLowOutputLatency;
+    outParams.hostApiSpecificStreamInfo = NULL;
+
+    Pa_OpenStream(&stream,
+                  NULL,               // no input
+                  &outParams,         // output
+                  header.sampleRate,  // sample rate
+                  256,                // frames per buffer (suggested)
+                  paNoFlag, callback, &player);
+
+    Pa_StartStream(stream);
+
+    /* ----------- BLOCK UNTIL DONE ----------- */
+    while (Pa_IsStreamActive(stream) == 1)
+        Pa_Sleep(20);
+
     Pa_CloseStream(stream);
+
+    Pa_Terminate();
 
     fr_close(&reader);
     logFn("ok\n");
