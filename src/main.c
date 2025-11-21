@@ -8,13 +8,18 @@
 #include "wav.h"
 
 typedef struct {
-    const AudioData* data;
+    const float* left;
+    const float* right;
     size_t head;
+    size_t len;
 } AudioPlayer;
 
 AudioPlayer ap_init(const AudioData* data)
 {
-    return (AudioPlayer){.data = data, .head = 0};
+    return (AudioPlayer){.left = data->left,
+                         .right = data->right,
+                         .head = 0,
+                         .len = data->h.size};
 }
 
 #define STREAM_BUFFER_SIZE 256
@@ -31,14 +36,12 @@ int callback(const void* input,
     (void)statusFlags;
 
     AudioPlayer* player = (AudioPlayer*)userData;
-    const float* left = player->data->left;
-    const float* right = player->data->right;
 
     float* buffer = (float*)output;
     for (unsigned long _ = 0; _ < frameCount; ++_) {
-        if (player->head < player->data->h.size) {
-            *buffer++ = left[player->head];
-            *buffer++ = right[player->head];
+        if (player->head < player->len) {
+            *buffer++ = player->left[player->head];
+            *buffer++ = player->right[player->head];
             player->head++;
         } else {
             *buffer++ = 0.0;
@@ -65,15 +68,8 @@ int main(void)
     AudioData audio = readWavData(&reader, header);
     AudioPlayer player = ap_init(&audio);
 
-    if (Pa_Initialize() != paNoError) {
-        logFn("Failed to init portaudio\n");
-        exit(1);
-    }
-
-    if (Pa_Terminate() != paNoError) {
-        logFn("Failed to terminate portaudio\n");
-        exit(1);
-    }
+    Pa_Initialize();
+    Pa_Terminate();
 
     PaStream* stream;
     Pa_OpenDefaultStream(&stream, 0, 2, paFloat32, header.sampleRate,
@@ -81,6 +77,9 @@ int main(void)
     Pa_StartStream(stream);
     Pa_Sleep(header.runtimeMs + 300);
 
-    logFn("ok\n");
+    Pa_StopStream(stream);
+    Pa_CloseStream(stream);
+
     fr_close(&reader);
+    logFn("ok\n");
 }
