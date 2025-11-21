@@ -19,6 +19,7 @@ void writeFile(const std::string& path, const std::vector<uint8_t>& data)
     }
 }
 
+[[maybe_unused]]
 void logReader(const FileReader& r)
 {
     std::cerr << std::format("FileReader {{\n");
@@ -114,17 +115,13 @@ TEST(Read, TakeU16Basic)
 TEST(Read, TakeU16)
 {
     const std::vector<uint8_t> data = {0, 1};
-    const std::vector<uint16_t> expectedValues = {16};
+    const std::vector<uint16_t> expectedValues = {0x100};
     const std::string name = "takeU16";
 
     const std::string path = prefix + name + suffix;
     writeFile(path, data);
 
     FileReader r = fr_open(path.c_str());
-
-    uint8_t foo;
-    (void)fr_peekByte(&r, &foo);
-    logReader(r);
 
     uint16_t actual;
     for (uint16_t expected : expectedValues) {
