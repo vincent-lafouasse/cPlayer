@@ -12,7 +12,7 @@ const std::string prefix = "../build/test/";
 void writeFile(const std::string& path, const std::vector<uint8_t>& data)
 {
     std::ofstream os(path + ".dat");
-    for (uint8_t byte : data) {
+    for (const uint8_t byte : data) {
         os << byte;
     }
 }
@@ -28,8 +28,7 @@ TEST(Read, ReadBytes)
     FileReader r = fr_open(path.c_str());
 
     uint8_t byte;
-
-    for (uint8_t expected : data) {
+    for (const uint8_t expected : data) {
         ASSERT_EQ(fr_takeByte(&r, &byte), Read_Ok);
         ASSERT_EQ(byte, expected);
     }
@@ -48,9 +47,8 @@ TEST(Read, PeekByteDoesntAdvance)
 
     FileReader r = fr_open(path.c_str());
 
+    constexpr int nPeeks = 67;
     uint8_t byte;
-    int nPeeks = 67;
-
     for (int _ = 0; _ < nPeeks; ++_) {
         ASSERT_EQ(fr_peekByte(&r, &byte), Read_Ok);
         ASSERT_EQ(byte, 0);
@@ -83,7 +81,7 @@ TEST(Read, TakeU16Basic)
     FileReader r = fr_open(path.c_str());
 
     uint16_t actual;
-    uint16_t expected = 42;
+    constexpr uint16_t expected = 42;
     ASSERT_EQ(fr_takeU16LE(&r, &actual), Read_Ok);
     ASSERT_EQ(actual, expected);
     ASSERT_EQ(r.head, r.len);
