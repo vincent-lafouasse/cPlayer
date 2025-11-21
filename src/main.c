@@ -55,14 +55,14 @@ int callback(const void* input,
 int main(int ac, char** av)
 {
     if (ac != 2) {
-        logFn("Usage: %s track.wav\n", av[0]);
+        logFn(Error, "Usage: %s track.wav\n", av[0]);
         exit(1);
     }
     const char* path = av[1];
-    logFn("-----Reading file\t%s-----\n", path);
+    logFn(Debug, "-----Reading file\t%s-----\n", path);
     FileReader reader = fr_open(path);
     if (!fr_isOpened(&reader)) {
-        logFn("Failed to open file %s\n", path);
+        logFn(Error, "Failed to open file %s\n", path);
         exit(1);
     }
 
@@ -77,7 +77,7 @@ int main(int ac, char** av)
 
     PaDeviceIndex device = Pa_GetDefaultOutputDevice();
     if (device == paNoDevice) {
-        logFn("No output device.\n");
+        logFn(Error, "No output device.\n");
         exit(1);
     }
 
@@ -102,5 +102,5 @@ int main(int ac, char** av)
     Pa_CloseStream(stream);
     Pa_Terminate();
 
-    logFn("ok\n");
+    logFn(Debug, "ok\n");
 }
