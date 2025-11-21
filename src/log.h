@@ -11,7 +11,7 @@ static void logFn(const char* fmt, ...)
     va_list args;
 
     va_start(args, fmt);
-    fprintf(stderr, fmt, args);
+    vfprintf(stderr, fmt, args);
     va_end(args);
 #else
     (void)fmt;
