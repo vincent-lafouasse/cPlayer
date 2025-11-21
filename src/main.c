@@ -1,9 +1,10 @@
 #include <assert.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "FileReader.h"
+
+#include "log.h"
 
 #define WAVE_FORMAT_PCM 0x0001
 #define WAVE_FORMAT_IEEE_FLOAT 0x0003
@@ -51,7 +52,7 @@ int main(void)
     const char* path = "./wav/f1_32bit.wav";
     FileReader reader = fr_open(path);
     if (!fr_isOpened(&reader)) {
-        fprintf(stderr, "Failed to open file %s\n", path);
+        logFn("Failed to open file %s\n", path);
         exit(1);
     }
 
@@ -59,6 +60,10 @@ int main(void)
     assert(readFourCC(&reader, chunkID) == Read_Ok);
     assert(strncmp((const char*)chunkID, "RIFF", 4) == 0);
 
-    fprintf(stderr, "ok\n");
+    uint32_t chunkSize;
+    assert(fr_takeU32LE(&reader, &chunkSize) == Read_Ok);
+    logFn("chunk size: %u bytes\n", chunkSize);
+
+    logFn("ok\n");
     fr_close(&reader);
 }
