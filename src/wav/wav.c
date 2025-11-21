@@ -3,16 +3,14 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "log.h"
-
 // unsafe to use with actual i32 but i24 will never reach i32 min/max so it's
 // fine
-static int32_t maxAbs(int32_t* data, uint32_t sz)
+static int32_t maxAbs(const int32_t* data, uint32_t sz)
 {
     int32_t out = -1;
 
     for (uint32_t i = 0; i < sz; ++i) {
-        int32_t abs = data[i] > 0 ? data[i] : -data[i];
+        const int32_t abs = data[i] > 0 ? data[i] : -data[i];
         if (abs > out) {
             out = abs;
         }
@@ -23,7 +21,7 @@ static int32_t maxAbs(int32_t* data, uint32_t sz)
 
 AudioData decodeWav(FileReader* reader)
 {
-    Header header = readWavHeader(reader);
+    const Header header = readWavHeader(reader);
     logHeader(&header);
 
     return readWavData(reader, header);

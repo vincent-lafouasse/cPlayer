@@ -58,26 +58,27 @@ int main(int ac, char** av)
     }
     const char* path = av[1];
     logFn(Debug, "-----Reading file\t%s-----\n", path);
+
     FileReader reader = fr_open(path);
     if (!fr_isOpened(&reader)) {
         logFn(Error, "Failed to open file %s\n", path);
         exit(1);
     }
 
-    AudioData audio = decodeWav(&reader);
+    const AudioData audio = decodeWav(&reader);
     fr_close(&reader);
 
     AudioPlayer track = ap_init(&audio);
 
     Pa_Initialize();
 
-    PaDeviceIndex device = Pa_GetDefaultOutputDevice();
+    const PaDeviceIndex device = Pa_GetDefaultOutputDevice();
     if (device == paNoDevice) {
         logFn(Error, "No output device.\n");
         exit(1);
     }
 
-    PaStreamParameters outParams = (PaStreamParameters){
+    const PaStreamParameters outParams = (PaStreamParameters){
         .device = device,
         .channelCount = 2,
         .sampleFormat = paFloat32,
@@ -91,7 +92,6 @@ int main(int ac, char** av)
 
     Pa_StartStream(stream);
 
-    /* ----------- BLOCK UNTIL DONE ----------- */
     while (Pa_IsStreamActive(stream) == 1)
         Pa_Sleep(20);
 
