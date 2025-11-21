@@ -62,6 +62,10 @@ int main(void)
     assert(fr_takeU32LE(&reader, &chunkSize) == Read_Ok);
     logFn("chunk size: %u bytes\n", chunkSize);
 
+    uint8_t wavChunkID[4];
+    assert(readFourCC(&reader, wavChunkID) == Read_Ok);
+    assert(strncmp((const char*)wavChunkID, "WAVE", 4) == 0);
+
     logFn("ok\n");
     fr_close(&reader);
 }
