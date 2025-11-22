@@ -3,7 +3,6 @@
 #include "bitcast.h"
 #include "wav_internals.h"
 
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -51,105 +50,167 @@ static Error getToFormatChunk(FileReader* reader)
     return NoError;
 }
 
-WavHeaderResult readWavHeader(FileReader* reader)
-{
-    Error err = getToFormatChunk(reader);
-    if (err != NoError) {
-        return (WavHeaderResult){.err = err};
-    }
+typedef struct {
+    uint16_t formatTag;
+    uint16_t nChannels;
+    uint32_t sampleRate;
+    uint16_t bitDepth;
+    uint16_t blockSize;
+} WavFormatChunk;
 
+typedef struct {
+    WavFormatChunk format;
+    Error err;
+} WavFormatChunkResult;
+
+WavFormatChunkResult readFormatChunk(FileReader* reader)
+{
     SliceResult maybeSlice = fr_takeSlice(reader, 4);
-    assert(maybeSlice.err == Read_Ok);
-    assert(strncmp((const char*)maybeSlice.slice, "fmt ", 4) == 0);
+    if (maybeSlice.err != Read_Ok) {
+        return (WavFormatChunkResult){.err = translateError(maybeSlice.err)};
+    }
+    if (strncmp((const char*)maybeSlice.slice, "fmt ", 4) != 0) {
+        return (WavFormatChunkResult){.err = E_Wav_UnknownFourCC};
+    }
     logFn(LogLevel_Debug, "fmt chunk ID:\t\t%s\n", maybeSlice.slice);
 
     maybeSlice = fr_takeSlice(reader, 4);
-    assert(maybeSlice.err == Read_Ok);
+    if (maybeSlice.err != Read_Ok) {
+        return (WavFormatChunkResult){.err = translateError(maybeSlice.err)};
+    }
     const uint32_t fmtChunkSize = bitcastU32_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "format chunk size:\t%u bytes\n", fmtChunkSize);
 
     maybeSlice = fr_takeSlice(reader, 2);
-    assert(maybeSlice.err == Read_Ok);
+    if (maybeSlice.err != Read_Ok) {
+        return (WavFormatChunkResult){.err = translateError(maybeSlice.err)};
+    }
     const uint16_t waveFormat = bitcastU16_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "wave format:\t\t0x%04:x\n", waveFormat);
-    if (waveFormat != WAVE_FORMAT_PCM) {
-        logFn(LogLevel_Error, "\nError:\n\tUnsupported wave format\n");
-        logFn(LogLevel_Error, "Only PCM is supported for now\n");
-        exit(1);
-    }
 
     maybeSlice = fr_takeSlice(reader, 2);
-    assert(maybeSlice.err == Read_Ok);
+    if (maybeSlice.err != Read_Ok) {
+        return (WavFormatChunkResult){.err = translateError(maybeSlice.err)};
+    }
     const uint32_t nChannels = bitcastU16_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "n. channels:\t\t%x\n", nChannels);
 
     maybeSlice = fr_takeSlice(reader, 4);
-    assert(maybeSlice.err == Read_Ok);
+    if (maybeSlice.err != Read_Ok) {
+        return (WavFormatChunkResult){.err = translateError(maybeSlice.err)};
+    }
     const uint32_t sampleRate = bitcastU32_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "sample rate:\t\t%u\n", sampleRate);
 
     maybeSlice = fr_takeSlice(reader, 4);
-    assert(maybeSlice.err == Read_Ok);
+    if (maybeSlice.err != Read_Ok) {
+        return (WavFormatChunkResult){.err = translateError(maybeSlice.err)};
+    }
     const uint32_t bytesPerSec = bitcastU32_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "data rate:\t\t%u bytes per sec\n", bytesPerSec);
 
     maybeSlice = fr_takeSlice(reader, 2);
-    assert(maybeSlice.err == Read_Ok);
+    if (maybeSlice.err != Read_Ok) {
+        return (WavFormatChunkResult){.err = translateError(maybeSlice.err)};
+    }
     const uint16_t blockSize = bitcastU16_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "block size:\t\t%u bytes\n", blockSize);
 
     maybeSlice = fr_takeSlice(reader, 2);
-    assert(maybeSlice.err == Read_Ok);
+    if (maybeSlice.err != Read_Ok) {
+        return (WavFormatChunkResult){.err = translateError(maybeSlice.err)};
+    }
     const uint16_t bitDepth = bitcastU16_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "bit depth:\t\t%u bits\n", bitDepth);
 
     uint16_t formatChunkExtensionSize = fmtChunkSize - 16;
     logFn(LogLevel_Debug, "fmt extension:\t\t%u bytes\n",
           formatChunkExtensionSize);
-    assert(fr_skip(reader, formatChunkExtensionSize) == Read_Ok);
+    ReadError err = fr_skip(reader, formatChunkExtensionSize);
+    if (err != Read_Ok) {
+        return (WavFormatChunkResult){.err = translateError(err)};
+    }
 
-    maybeSlice = fr_takeSlice(reader, 4);
-    assert(maybeSlice.err == Read_Ok);
+    WavFormatChunk format = (WavFormatChunk){
+        .formatTag = waveFormat,
+        .nChannels = nChannels,
+        .sampleRate = sampleRate,
+        .bitDepth = bitDepth,
+        .blockSize = blockSize,
+    };
+    return (WavFormatChunkResult){.format = format, .err = NoError};
+}
+
+typedef struct {
+    SampleFormat format;
+    Error err;
+} SampleFormatResult;
+
+SampleFormatResult determineSampleFormat(WavFormatChunk format)
+{
+    if (format.formatTag != WAVE_FORMAT_PCM) {
+        return (SampleFormatResult){.err = E_Wav_UnsupportedSampleFormat};
+    }
+
+    const size_t sz = format.bitDepth / 8;
+    if (sz == 1) {
+        return (SampleFormatResult){.format = Unsigned8, .err = NoError};
+    } else if (sz == 2) {
+        return (SampleFormatResult){.format = Signed16, .err = NoError};
+    } else if (sz == 3) {
+        return (SampleFormatResult){.format = Signed24, .err = NoError};
+    } else if (sz == 4) {
+        return (SampleFormatResult){.format = Signed32, .err = NoError};
+    } else {
+        return (SampleFormatResult){.err = E_Wav_UnsupportedSampleFormat};
+    }
+}
+
+WavHeaderResult readWavHeader(FileReader* reader)
+{
+    // master chunk
+    Error err = getToFormatChunk(reader);
+    if (err != NoError) {
+        return (WavHeaderResult){.err = err};
+    }
+
+    // format chunk
+    WavFormatChunkResult maybeFormat = readFormatChunk(reader);
+    if (maybeFormat.err != NoError) {
+        return (WavHeaderResult){.err = maybeFormat.err};
+    }
+    WavFormatChunk format = maybeFormat.format;
+
+    // data chunk
+    SliceResult maybeSlice = fr_takeSlice(reader, 4);
+    if (maybeSlice.err != Read_Ok) {
+        return (WavHeaderResult){.err = translateError(maybeSlice.err)};
+    }
+    if (strncmp((const char*)maybeSlice.slice, "data", 4) != 0) {
+        return (WavHeaderResult){.err = E_Wav_UnknownFourCC};
+    }
     logFn(LogLevel_Debug, "next chunk ID:\t\t%s\n", maybeSlice.slice);
 
     maybeSlice = fr_takeSlice(reader, 4);
-    assert(maybeSlice.err == Read_Ok);
+    if (maybeSlice.err != Read_Ok) {
+        return (WavHeaderResult){.err = translateError(maybeSlice.err)};
+    }
     uint32_t dataSize = bitcastU32_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "data size:\t\t%u\n", dataSize);
 
-    uint32_t nBlocks = 8 * dataSize / bitDepth / nChannels;
+    uint32_t nBlocks = 8 * dataSize / format.bitDepth / format.nChannels;
     logFn(LogLevel_Debug, "n blocks:\t\t%u\n", nBlocks);
-    float runtime = (float)nBlocks / (float)sampleRate;
-    logFn(LogLevel_Debug, "runtime:\t\t%f secs\n", runtime);
-
-    if (bitDepth != 8 && bitDepth != 16 && bitDepth != 24 && bitDepth != 32) {
-        logFn(LogLevel_Error, "Unsupported bitdepth: %i\n", bitDepth);
-        exit(1);
-    }
-
-    SampleFormat sampleFormat = 255;
-    if (waveFormat == WAVE_FORMAT_IEEE_FLOAT) {
-        sampleFormat = Float32;
-    } else if (waveFormat == WAVE_FORMAT_PCM && bitDepth == 8) {
-        sampleFormat = Unsigned8;
-    } else if (waveFormat == WAVE_FORMAT_PCM && bitDepth == 16) {
-        sampleFormat = Signed16;
-    } else if (waveFormat == WAVE_FORMAT_PCM && bitDepth == 24) {
-        sampleFormat = Signed24;
-    } else if (waveFormat == WAVE_FORMAT_PCM && bitDepth == 32) {
-        sampleFormat = Signed32;
-    }
-
-    if (sampleFormat == 255) {
-        logFn(LogLevel_Error, "Failed to assign a sample format\n");
-        exit(1);
-    }
-
     logFn(LogLevel_Debug, "\n");
+
+    SampleFormatResult maybeSampleFormat = determineSampleFormat(format);
+    if (maybeSampleFormat.err != NoError) {
+        return (WavHeaderResult){.err = maybeSampleFormat.err};
+    }
+
     const Header h = (Header){
-        .nChannels = nChannels,
-        .sampleRate = sampleRate,
-        .sampleFormat = sampleFormat,
+        .nChannels = format.nChannels,
+        .sampleRate = format.sampleRate,
+        .sampleFormat = maybeSampleFormat.format,
         .size = nBlocks,
     };
 

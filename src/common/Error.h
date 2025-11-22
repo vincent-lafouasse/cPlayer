@@ -9,4 +9,5 @@ typedef enum {
 
     E_Codec_UnsupportedCodec,
     E_Wav_UnknownFourCC,
+    E_Wav_UnsupportedSampleFormat,
 } Error;
