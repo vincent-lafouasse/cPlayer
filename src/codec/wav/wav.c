@@ -3,7 +3,6 @@
 #include "int24.h"
 #include "wav_internals.h"
 
-#include <assert.h>
 #include <stdlib.h>
 
 AudioDataResult decodeWav(FileReader* reader)
