@@ -1,18 +1,25 @@
+#include "Error.h"
+#include "audio.h"
 #include "int24.h"
 #include "wav_internals.h"
 
 #include <assert.h>
 #include <stdlib.h>
 
-AudioData decodeWav(FileReader* reader)
+AudioDataResult decodeWav(FileReader* reader)
 {
-    const Header header = readWavHeader(reader);
+    const WavHeaderResult maybeHeader = readWavHeader(reader);
+    if (maybeHeader.err != NoError) {
+        return (AudioDataResult){.err = maybeHeader.err};
+    }
+
+    const Header header = maybeHeader.header;
     logHeader(&header);
 
     return readWavData(reader, header);
 }
 
-AudioData readWavData(FileReader* reader, Header h)
+AudioDataResult readWavData(FileReader* reader, Header h)
 {
     float* left = malloc(h.size * sizeof(float));
     float* right;
@@ -35,8 +42,9 @@ AudioData readWavData(FileReader* reader, Header h)
     if (h.nChannels == 1) {
         right = left;
     }
-    return (AudioData){.left = left,
-                       .right = right,
-                       .size = h.size,
-                       .sampleRate = h.sampleRate};
+    const AudioData track = (AudioData){.left = left,
+                                        .right = right,
+                                        .size = h.size,
+                                        .sampleRate = h.sampleRate};
+    return (AudioDataResult){.track = track, .err = NoError};
 }

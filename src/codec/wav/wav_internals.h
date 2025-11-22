@@ -26,7 +26,12 @@ typedef struct {
     SampleFormat sampleFormat;
 } Header;
 
-Header readWavHeader(FileReader* reader);
+typedef struct {
+    Header header;
+    Error err;
+} WavHeaderResult;
+
+WavHeaderResult readWavHeader(FileReader* reader);
 void logHeader(const Header* wh);
 
 typedef struct {
@@ -36,7 +41,7 @@ typedef struct {
 
 FloatResult readSample(FileReader* reader, SampleFormat fmt);
 
-AudioData readWavData(FileReader* reader, Header h);
+AudioDataResult readWavData(FileReader* reader, Header h);
 
 #define DUMP_PREFIX "./build/dump_"
 #define DUMP_SUFFIX ".csv"

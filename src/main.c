@@ -2,6 +2,7 @@
 
 #include "FileReader.h"
 
+#include "audio.h"
 #include "codec/decode.h"
 #include "common/log.h"
 #include "play/play.h"
@@ -40,7 +41,7 @@ int main(int ac, char** av)
         exit(1);
     }
 
-    DecodingResult maybeTrack = decodeAudio(&reader);
+    AudioDataResult maybeTrack = decodeAudio(&reader);
     fr_close(&reader);
     if (maybeTrack.err != NoError) {
         logFn(LogLevel_Error, "Decoding went wrong\n");

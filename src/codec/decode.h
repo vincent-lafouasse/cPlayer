@@ -9,9 +9,4 @@ typedef enum {
     Codec_Wav,
 } Codec;
 
-typedef struct {
-    AudioData track;
-    Error err;
-} DecodingResult;
-
-DecodingResult decodeAudio(FileReader* reader);
+AudioDataResult decodeAudio(FileReader* reader);

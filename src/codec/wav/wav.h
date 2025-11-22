@@ -3,4 +3,4 @@
 #include "FileReader.h"
 #include "audio.h"
 
-AudioData decodeWav(FileReader* reader);
+AudioDataResult decodeWav(FileReader* reader);

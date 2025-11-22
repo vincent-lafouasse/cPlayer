@@ -8,7 +8,7 @@
 
 #include "log.h"
 
-Header readWavHeader(FileReader* reader)
+WavHeaderResult readWavHeader(FileReader* reader)
 {
     SliceResult maybeSlice = fr_takeSlice(reader, 4);
     assert(maybeSlice.err == Read_Ok);
@@ -113,12 +113,14 @@ Header readWavHeader(FileReader* reader)
     }
 
     logFn(LogLevel_Debug, "\n");
-    return (Header){
+    const Header h = (Header){
         .nChannels = nChannels,
         .sampleRate = sampleRate,
         .sampleFormat = sampleFormat,
         .size = nBlocks,
     };
+
+    return (WavHeaderResult){.header = h, .err = NoError};
 }
 
 void logHeader(const Header* wh)
