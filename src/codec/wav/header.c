@@ -1,5 +1,5 @@
-#include "DeserializeInts.h"
 #include "FileReader.h"
+#include "bitcast.h"
 #include "wav_internals.h"
 
 #include <assert.h>
@@ -17,7 +17,7 @@ Header readWavHeader(FileReader* reader)
     logFn(Debug, "master chunk ID:\t%s\n", buffer);
 
     assert(fr_takeSlice(reader, buffer, 4) == Read_Ok);
-    const uint32_t masterChunkSize = deserializeU32_LE(buffer);
+    const uint32_t masterChunkSize = bitcastU32_LE(buffer);
     logFn(Debug, "chunk size:\t\t%u bytes\n", masterChunkSize);
 
     assert(fr_takeSlice(reader, buffer, 4) == Read_Ok);
@@ -29,11 +29,11 @@ Header readWavHeader(FileReader* reader)
     logFn(Debug, "fmt chunk ID:\t\t%s\n", buffer);
 
     assert(fr_takeSlice(reader, buffer, 4) == Read_Ok);
-    const uint32_t fmtChunkSize = deserializeU32_LE(buffer);
+    const uint32_t fmtChunkSize = bitcastU32_LE(buffer);
     logFn(Debug, "format chunk size:\t%u bytes\n", fmtChunkSize);
 
     assert(fr_takeSlice(reader, buffer, 2) == Read_Ok);
-    const uint16_t waveFormat = deserializeU16_LE(buffer);
+    const uint16_t waveFormat = bitcastU16_LE(buffer);
     logFn(Debug, "wave format:\t\t0x%04:x\n", waveFormat);
     if (waveFormat != WAVE_FORMAT_PCM) {
         logFn(Error, "\nError:\n\tUnsupported wave format\n");
@@ -42,23 +42,23 @@ Header readWavHeader(FileReader* reader)
     }
 
     assert(fr_takeSlice(reader, buffer, 2) == Read_Ok);
-    const uint32_t nChannels = deserializeU32_LE(buffer);
+    const uint32_t nChannels = bitcastU32_LE(buffer);
     logFn(Debug, "n. channels:\t\t%x\n", nChannels);
 
     assert(fr_takeSlice(reader, buffer, 4) == Read_Ok);
-    const uint32_t sampleRate = deserializeU32_LE(buffer);
+    const uint32_t sampleRate = bitcastU32_LE(buffer);
     logFn(Debug, "sample rate:\t\t%u\n", sampleRate);
 
     assert(fr_takeSlice(reader, buffer, 4) == Read_Ok);
-    const uint32_t bytesPerSec = deserializeU32_LE(buffer);
+    const uint32_t bytesPerSec = bitcastU32_LE(buffer);
     logFn(Debug, "data rate:\t\t%u bytes per sec\n", bytesPerSec);
 
     assert(fr_takeSlice(reader, buffer, 2) == Read_Ok);
-    const uint16_t blockSize = deserializeU16_LE(buffer);
+    const uint16_t blockSize = bitcastU16_LE(buffer);
     logFn(Debug, "block size:\t\t%u bytes\n", blockSize);
 
     assert(fr_takeSlice(reader, buffer, 2) == Read_Ok);
-    const uint16_t bitDepth = deserializeU16_LE(buffer);
+    const uint16_t bitDepth = bitcastU16_LE(buffer);
     logFn(Debug, "bit depth:\t\t%u bits\n", bitDepth);
 
     uint16_t formatChunkExtensionSize = fmtChunkSize - 16;
@@ -72,7 +72,7 @@ Header readWavHeader(FileReader* reader)
     logFn(Debug, "next chunk ID:\t\t%s\n", buffer);
 
     assert(fr_takeSlice(reader, buffer, 4) == Read_Ok);
-    uint32_t dataSize = deserializeU32_LE(buffer);
+    uint32_t dataSize = bitcastU32_LE(buffer);
     logFn(Debug, "data size:\t\t%u\n", dataSize);
     uint32_t nBlocks = 8 * dataSize / bitDepth / nChannels;
     logFn(Debug, "n blocks:\t\t%u\n", nBlocks);

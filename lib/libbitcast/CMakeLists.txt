@@ -1,9 +1,9 @@
-set(libName DeserializeInts)
+set(libName bitcast)
 add_library(${libName})
 
 target_sources(${libName}
 PRIVATE
-	src/DeserializeInts.c
+	src/bitcast.c
 
 PUBLIC
 	FILE_SET myHeaders
@@ -11,6 +11,6 @@ PUBLIC
 	BASE_DIRS
 		include
 	FILES
-		include/DeserializeInts.h
+		include/bitcast.h
 )
 

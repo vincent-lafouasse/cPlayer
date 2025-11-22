@@ -16,7 +16,7 @@ ReadResult readI24(FileReader* reader, float* out)
         return res;
     }
 
-    Int24 e = deserializeI24_LE(bytes);
+    Int24 e = bitcastI24_LE(bytes);
     *out = (float)i24_asI32(e) / (float)INT24_MAX_ABS;
     return Read_Ok;
 }

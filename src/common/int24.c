@@ -11,7 +11,7 @@ int32_t i24_asI32(Int24 i)
     return *(int32_t*)&value;
 }
 
-Int24 deserializeI24_LE(const uint8_t* bytes)
+Int24 bitcastI24_LE(const uint8_t* bytes)
 {
     return (Int24){
         .highByte = bytes[2],

@@ -1,2 +1,2 @@
 add_subdirectory(FileReader)
-add_subdirectory(DeserializeInts)
+add_subdirectory(libbitcast)
