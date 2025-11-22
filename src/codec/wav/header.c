@@ -10,9 +10,7 @@
 
 Header readWavHeader(FileReader* reader)
 {
-    SliceResult maybeSlice;
-
-    maybeSlice = fr_takeSlice(reader, 4);
+    SliceResult maybeSlice = fr_takeSlice(reader, 4);
     assert(maybeSlice.err == Read_Ok);
     assert(strncmp((const char*)maybeSlice.slice, "RIFF", 4) == 0);
     logFn(Debug, "master chunk ID:\t%s\n", maybeSlice.slice);
@@ -74,9 +72,7 @@ Header readWavHeader(FileReader* reader)
 
     uint16_t formatChunkExtensionSize = fmtChunkSize - 16;
     logFn(Debug, "fmt extension:\t\t%u bytes\n", formatChunkExtensionSize);
-    for (uint16_t i = 0; i < formatChunkExtensionSize; ++i) {
-        assert(fr_takeByte(reader).err == Read_Ok);
-    }
+    assert(fr_skip(reader, formatChunkExtensionSize) == Read_Ok);
 
     maybeSlice = fr_takeSlice(reader, 4);
     assert(maybeSlice.err == Read_Ok);
