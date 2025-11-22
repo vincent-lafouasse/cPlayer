@@ -58,15 +58,12 @@ TEST(FileReader, OpenClose)
 // peek doesn't advance, take does
 TEST(FileReader, PeekAndTakeByte)
 {
-    auto file = writeTempFile({10, 20, 30});
+    const auto file = writeTempFile({10, 20, 30});
     FileReader fr = fr_open(file.c_str());
 
-    ByteResult maybeByte;
-    uint8_t expected;
-
     // Peek first byte
-    maybeByte = fr_peekByte(&fr);
-    expected = 10;
+    ByteResult maybeByte = fr_peekByte(&fr);
+    uint8_t expected = 10;
     EXPECT_EQ(maybeByte.err, Read_Ok);
     EXPECT_EQ(maybeByte.byte, expected);
 
@@ -106,13 +103,10 @@ TEST(FileReader, PeekAndTakeSlice)
     auto file = writeTempFile({1, 2, 3, 4});
     FileReader fr = fr_open(file.c_str());
 
-    SliceResult maybeSlice;
-    uint8_t* slice;
-
     // Peek first 3 bytes
-    maybeSlice = fr_peekSlice(&fr, 3);
+    SliceResult maybeSlice = fr_peekSlice(&fr, 3);
+    uint8_t* slice = maybeSlice.slice;
     assert(maybeSlice.err == Read_Ok);
-    slice = maybeSlice.slice;
     EXPECT_EQ(slice[0], 1);
     EXPECT_EQ(slice[1], 2);
     EXPECT_EQ(slice[2], 3);
@@ -151,13 +145,11 @@ TEST(FileReader, SlicePartialReadFailsAndDoesNotAdvance)
     auto file = writeTempFile({6, 7});
     FileReader fr = fr_open(file.c_str());
 
-    ByteResult maybeByte;
-
     // Try reading 3 bytes but file has only 2
     EXPECT_EQ(fr_peekSlice(&fr, 3).err, Read_Err);
 
     // Ensure buffer hasn't advanced: peek a byte -> should be 9
-    maybeByte = fr_peekByte(&fr);
+    ByteResult maybeByte = fr_peekByte(&fr);
     EXPECT_EQ(maybeByte.err, Read_Ok);
     EXPECT_EQ(maybeByte.byte, 6);
 
@@ -192,20 +184,20 @@ TEST(FileReader, SliceCrossesBufferBoundary)
 
     // Move head to sz - 2
     for (size_t i = 0; i < sz - 2; i++) {
-        ByteResult maybeByte = fr_takeByte(&fr);
+        const ByteResult maybeByte = fr_takeByte(&fr);
         EXPECT_EQ(maybeByte.err, Read_Ok);
         EXPECT_EQ(maybeByte.byte, data[i]);
     }
 
     // Now head == sz - 2 inside buffer.
     // Request a slice of 6 bytes => must cross the boundary.
-    SliceResult maybeSlice = fr_takeSlice(&fr, 6);
+    const SliceResult maybeSlice = fr_takeSlice(&fr, 6);
     const uint8_t* expectedValues = data.data() + sz - 2;
     EXPECT_EQ(maybeSlice.err, Read_Ok);
     EXPECT_EQ(memcmp(maybeSlice.slice, expectedValues, 6), 0);
 
     // Now 1 byte should remain (the last element in data)
-    ByteResult last = fr_takeByte(&fr);
+    const ByteResult last = fr_takeByte(&fr);
     EXPECT_EQ(last.err, Read_Ok);
     EXPECT_EQ(last.byte, data.back());
 
@@ -220,7 +212,7 @@ TEST(FileReader, SliceCrossesBufferBoundary)
 
 TEST(FileReader, CrossingPartialSliceFailsAndDoesNotAdvance)
 {
-    const size_t sz = FILE_READER_BUFFER_SIZE;
+    constexpr size_t sz = FILE_READER_BUFFER_SIZE;
 
     // File shorter than slice request
     std::vector<uint8_t> data(sz + 3);  // 3 bytes after boundary
@@ -238,7 +230,7 @@ TEST(FileReader, CrossingPartialSliceFailsAndDoesNotAdvance)
     EXPECT_EQ(fr_peekSlice(&fr, 6).err, Read_Err);
 
     // Reader must NOT advance
-    ByteResult maybeByte = fr_takeByte(&fr);
+    const ByteResult maybeByte = fr_takeByte(&fr);
     EXPECT_EQ(maybeByte.err, Read_Ok);
     EXPECT_EQ(maybeByte.byte, data[data.size() - 3]);
 
