@@ -148,7 +148,7 @@ TEST(Deserialize, I16_LE)
     }
     {
         constexpr Byte b[2] = {0xfe, 0xca};
-        constexpr i16 expected = -13570;  // 0xcafe
+        constexpr i16 expected = static_cast<i16>(0xcafe);
         EXPECT_EQ(deserializeI16_LE(b), expected);
     }
     {
@@ -182,12 +182,80 @@ TEST(Deserialize, I16_BE)
     }
     {
         constexpr Byte b[2] = {0xca, 0xfe};
-        constexpr i16 expected = -13570;  // 0xcafe
+        constexpr i16 expected = static_cast<i16>(0xcafe);
         EXPECT_EQ(deserializeI16_BE(b), expected);
     }
     {
         constexpr Byte b[2] = {0xff, 0xff};
         constexpr i16 expected = -1;
         EXPECT_EQ(deserializeI16_BE(b), expected);
+    }
+}
+
+TEST(Deserialize, I32_LE)
+{
+    {
+        constexpr Byte b[4] = {0x00, 0x00, 0x00, 0x00};
+        constexpr int32_t expected = 0x00000000;
+        EXPECT_EQ(deserializeI32_LE(b), expected);
+    }
+    {
+        constexpr Byte b[4] = {0x01, 0x00, 0x00, 0x00};
+        constexpr int32_t expected = 0x00000001;
+        EXPECT_EQ(deserializeI32_LE(b), expected);
+    }
+    {
+        constexpr Byte b[4] = {0xff, 0xff, 0xff, 0x7f};
+        constexpr int32_t expected = INT32_MAX;
+        EXPECT_EQ(deserializeI32_LE(b), expected);
+    }
+    {
+        constexpr Byte b[4] = {0x00, 0x00, 0x00, 0x80};
+        constexpr int32_t expected = INT32_MIN;
+        EXPECT_EQ(deserializeI32_LE(b), expected);
+    }
+    {
+        constexpr Byte b[4] = {0xfe, 0xca, 0xbe, 0xba};
+        constexpr int32_t expected = static_cast<int32_t>(0xbabecafe);
+        EXPECT_EQ(deserializeI32_LE(b), expected);
+    }
+    {
+        constexpr Byte b[4] = {0xff, 0xff, 0xff, 0xff};
+        constexpr int32_t expected = -1;
+        EXPECT_EQ(deserializeI32_LE(b), expected);
+    }
+}
+
+TEST(Deserialize, I32_BE)
+{
+    {
+        constexpr Byte b[4] = {0x00, 0x00, 0x00, 0x00};
+        constexpr int32_t expected = 0x00000000;
+        EXPECT_EQ(deserializeI32_BE(b), expected);
+    }
+    {
+        constexpr Byte b[4] = {0x00, 0x00, 0x00, 0x01};
+        constexpr int32_t expected = 0x00000001;
+        EXPECT_EQ(deserializeI32_BE(b), expected);
+    }
+    {
+        constexpr Byte b[4] = {0x7f, 0xff, 0xff, 0xff};
+        constexpr int32_t expected = INT32_MAX;
+        EXPECT_EQ(deserializeI32_BE(b), expected);
+    }
+    {
+        constexpr Byte b[4] = {0x80, 0x00, 0x00, 0x00};
+        constexpr int32_t expected = INT32_MIN;
+        EXPECT_EQ(deserializeI32_BE(b), expected);
+    }
+    {
+        constexpr Byte b[4] = {0xba, 0xbe, 0xca, 0xfe};
+        constexpr int32_t expected = static_cast<int32_t>(0xbabecafe);
+        EXPECT_EQ(deserializeI32_BE(b), expected);
+    }
+    {
+        constexpr Byte b[4] = {0xff, 0xff, 0xff, 0xff};
+        constexpr int32_t expected = -1;
+        EXPECT_EQ(deserializeI32_BE(b), expected);
     }
 }

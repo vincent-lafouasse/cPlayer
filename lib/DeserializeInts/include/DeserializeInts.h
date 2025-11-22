@@ -14,3 +14,5 @@ int16_t deserializeI16_BE(const Byte* bytes);
 // you better give me 4 bytes or else
 uint32_t deserializeU32_LE(const Byte* bytes);
 uint32_t deserializeU32_BE(const Byte* bytes);
+int32_t deserializeI32_LE(const Byte* bytes);
+int32_t deserializeI32_BE(const Byte* bytes);

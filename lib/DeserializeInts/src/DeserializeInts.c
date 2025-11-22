@@ -35,11 +35,23 @@ uint32_t deserializeU32_BE(const Byte* bytes)
 int16_t deserializeI16_LE(const Byte* bytes)
 {
 	uint16_t value = deserializeU16_LE(bytes);
-    return *(int16_t*)&value;
+	return *(int16_t*)&value;
 }
 
 int16_t deserializeI16_BE(const Byte* bytes)
 {
 	uint16_t value = deserializeU16_BE(bytes);
-    return *(int16_t*)&value;
+	return *(int16_t*)&value;
+}
+
+int32_t deserializeI32_LE(const Byte* bytes)
+{
+	uint32_t value = deserializeU32_LE(bytes);
+	return *(int32_t*)&value;
+}
+
+int32_t deserializeI32_BE(const Byte* bytes)
+{
+	uint32_t value = deserializeU32_BE(bytes);
+	return *(int32_t*)&value;
 }
