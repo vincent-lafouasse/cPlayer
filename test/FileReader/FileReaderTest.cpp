@@ -182,8 +182,6 @@ TEST(FileReader, SliceCrossesBufferBoundary)
     auto file = writeTempFile(data);
     FileReader fr = fr_open(file.c_str());
 
-    uint8_t out[16];
-
     // Move head to sz - 2
     for (size_t i = 0; i < sz - 2; i++) {
         uint8_t tmp;
@@ -193,6 +191,7 @@ TEST(FileReader, SliceCrossesBufferBoundary)
 
     // Now head == sz - 2 inside buffer.
     // Request a slice of 6 bytes => must cross the boundary.
+    uint8_t out[16];
     EXPECT_EQ(fr_takeSlice(&fr, out, 6), Read_Ok);
     for (size_t i = 0; i < 6; i++) {
         EXPECT_EQ(out[i], data[(sz - 2) + i]);
@@ -209,6 +208,37 @@ TEST(FileReader, SliceCrossesBufferBoundary)
     EXPECT_EQ(fr_takeByte(&fr, &tmp), Read_Done);
     EXPECT_EQ(fr_takeSlice(&fr, out, 45), Read_Done);
     EXPECT_EQ(fr_peekSlice(&fr, out, 67), Read_Done);
+
+    fr_close(&fr);
+}
+
+TEST(FileReader, CrossingPartialSliceFailsAndDoesNotAdvance)
+{
+    const size_t sz = FILE_READER_BUFFER_SIZE;
+
+    // File shorter than slice request
+    std::vector<uint8_t> data(sz + 3);  // 3 bytes after boundary
+    for (size_t i = 0; i < data.size(); i++) {
+        data[i] = i & 0xff;
+    }
+
+    auto file = writeTempFile(data);
+    FileReader fr = fr_open(file.c_str());
+
+    // Advance near end: leave only 3 bytes remaining
+    for (size_t i = 0; i < data.size() - 3; i++) {
+        uint8_t tmp;
+        EXPECT_EQ(fr_takeByte(&fr, &tmp), Read_Ok);
+    }
+
+    // Try reading 6 bytes, but only 3 remain in the whole file
+    uint8_t out[64];
+    EXPECT_EQ(fr_peekSlice(&fr, out, 6), Read_Err);
+
+    // Reader must NOT advance
+    uint8_t byte;
+    EXPECT_EQ(fr_peekByte(&fr, &byte), Read_Ok);
+    EXPECT_EQ(byte, data[data.size() - 3]);
 
     fr_close(&fr);
 }
