@@ -8,6 +8,7 @@ PRIVATE
 	wav/read.c
 	wav/header.c
 	wav/dump.c
+	wav/sampleFormat.c
 
 	common/int24.c
 )

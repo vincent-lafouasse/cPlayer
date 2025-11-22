@@ -8,17 +8,6 @@
 #define WAVE_FORMAT_MULAW 0x0007
 #define WAVE_FORMAT_EXTENSIBLE 0xFFFE
 
-typedef struct {
-    uint8_t nChannels;
-    uint32_t sampleRate;
-    uint16_t bitDepth;
-    uint32_t size;
-    uint32_t runtimeMs;
-} Header;
-
-Header readWavHeader(FileReader* reader);
-void logHeader(const Header* wh);
-
 typedef enum {
     Unsigned8,
     Signed16,
@@ -26,6 +15,19 @@ typedef enum {
     Signed32,
     Float32,
 } SampleFormat;
+
+const char* sampleFormatRepr(SampleFormat fmt);
+
+typedef struct {
+    uint8_t nChannels;
+    uint32_t sampleRate;
+    uint32_t size;
+    SampleFormat sampleFormat;
+    uint32_t runtimeMs;
+} Header;
+
+Header readWavHeader(FileReader* reader);
+void logHeader(const Header* wh);
 
 ReadResult readSample(FileReader* reader, SampleFormat fmt, float* out);
 

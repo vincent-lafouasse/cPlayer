@@ -79,11 +79,25 @@ Header readWavHeader(FileReader* reader)
     float runtime = (float)nBlocks / (float)sampleRate;
     logFn(Debug, "runtime:\t\t%f secs\n", runtime);
 
+    if (bitDepth != 8 && bitDepth != 16 && bitDepth != 24 && bitDepth != 32) {
+        logFn(Error, "Unsupported bitdepth: %i\n", bitDepth);
+        exit(1);
+    }
+
+    SampleFormat sampleFormat = -1;
+
+    sampleFormat = Signed24;
+
+    if (sampleFormat == -1) {
+        logFn(Error, "Failed to assign a sample format\n");
+        exit(1);
+    }
+
     logFn(Debug, "\n");
     return (Header){
         .nChannels = nChannels,
         .sampleRate = sampleRate,
-        .bitDepth = bitDepth,
+        .sampleFormat = sampleFormat,
         .size = nBlocks,
         .runtimeMs = (uint32_t)(1000.0f * runtime),
     };
@@ -94,7 +108,7 @@ void logHeader(const Header* wh)
     logFn(Info, "%s {\n", "WavHeader");
     logFn(Info, "\tnumber of Channels:\t%u\n", wh->nChannels);
     logFn(Info, "\tsample rate:\t\t%u Hz\n", wh->sampleRate);
-    logFn(Info, "\tbit depth:\t\t%u bit\n", wh->bitDepth);
+    logFn(Info, "\tsample format:\t\t%u bit\n", sampleFormatRepr(wh->sampleFormat));
     logFn(Info, "\tnumber of samples:\t%u\n", wh->size);
     logFn(Info, "}\n\n");
 }
