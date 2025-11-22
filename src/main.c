@@ -8,6 +8,23 @@
 
 #define STREAM_BUFFER_SIZE 256
 
+// also cleanup portaudio later
+static void cleanup(FileReader* reader, AudioData* track)
+{
+    if (reader && fr_isOpened(reader)) {
+        fr_close(reader);
+    }
+
+    if (track) {
+        if (track->left == track->right) {
+            free(track->left);
+        } else {
+            free(track->left);
+            free(track->right);
+        }
+    }
+}
+
 int main(int ac, char** av)
 {
     if (ac != 2) {
