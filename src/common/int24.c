@@ -10,3 +10,12 @@ int32_t i24_asI32(Int24 i)
 
     return *(int32_t*)&value;
 }
+
+Int24 deserializeI24_LE(const Byte* bytes)
+{
+    return (Int24){
+        .highByte = bytes[2],
+        .middleByte = bytes[1],
+        .lowByte = bytes[0],
+    };
+}

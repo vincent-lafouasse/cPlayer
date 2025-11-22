@@ -35,8 +35,7 @@ AudioData readWavData(FileReader* reader, Header h)
     for (uint32_t i = 0; i < h.size; ++i) {
         uint8_t bytes[3];
         assert(fr_takeSlice(reader, bytes, 3) == Read_Ok);
-        Int24 e = (Int24){
-            .highByte = bytes[2], .middleByte = bytes[1], .lowByte = bytes[0]};
+        Int24 e = deserializeI24_LE(bytes);
         intData[i] = i24_asI32(e);
 
         uint8_t garbage;
