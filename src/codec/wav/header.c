@@ -118,7 +118,6 @@ Header readWavHeader(FileReader* reader)
         .sampleRate = sampleRate,
         .sampleFormat = sampleFormat,
         .size = nBlocks,
-        .runtimeMs = (uint32_t)(1000.0f * runtime),
     };
 }
 
