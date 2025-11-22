@@ -10,6 +10,8 @@ PRIVATE
 	wav/dump.c
 	wav/sampleFormat.c
 
+	play/callback.c
+
 	common/int24.c
 )
 
