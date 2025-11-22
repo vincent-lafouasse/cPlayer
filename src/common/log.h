@@ -14,25 +14,25 @@
 #define Ansi_Reset "\x1b[0m"
 
 #define LOGGING 1
-#define GLOBAL_LOG_LEVEL_THRESHOLD Debug
+#define GLOBAL_LOG_LEVEL_THRESHOLD LogLevel_Debug
 
 typedef enum {
-    Error = 0,
-    Warning = 1,
-    Info = 2,
-    Debug = 3,
+    LogLevel_Error = 0,
+    LogLevel_Warning = 1,
+    LogLevel_Info = 2,
+    LogLevel_Debug = 3,
 } LogLevel;
 
 static inline const char* logLevelStr(LogLevel level)
 {
     switch (level) {
-        case Error:
+        case LogLevel_Error:
             return Ansi_Red "[Error  ]" Ansi_Reset;
-        case Warning:
+        case LogLevel_Warning:
             return Ansi_Yellow "[Warning]" Ansi_Reset;
-        case Info:
+        case LogLevel_Info:
             return Ansi_Green "[Info   ]" Ansi_Reset;
-        case Debug:
+        case LogLevel_Debug:
             return Ansi_Blue "[Debug  ]" Ansi_Reset;
         default:
             return "[?]";

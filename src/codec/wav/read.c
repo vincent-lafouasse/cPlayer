@@ -25,7 +25,7 @@ FloatResult readSample(FileReader* reader, SampleFormat fmt)
         case Signed24:
             return readI24(reader);
         default:
-            logFn(Error, "Unsupported sample format %i\n", fmt);
+            logFn(LogLevel_Error, "Unsupported sample format %i\n", fmt);
             exit(1);
     }
 }
