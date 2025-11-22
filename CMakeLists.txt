@@ -22,6 +22,6 @@ add_test(NAME FileReaderTest
     COMMAND FileReaderTest
 )
 
-# add_test(NAME i24Test
-#     COMMAND i24Test
-# )
+add_test(NAME i24Test
+    COMMAND i24Test
+)
