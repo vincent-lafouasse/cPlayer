@@ -6,7 +6,6 @@ PRIVATE
 
 	wav/wav.c
 	wav/header.c
-	wav/read.c
 	wav/dump.c
 
 	common/int24.c
@@ -19,5 +18,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE
 	FileReader
+	DeserializeInts
 	portaudio
 )

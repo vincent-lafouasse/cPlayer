@@ -20,9 +20,6 @@ Header readWavHeader(FileReader* reader);
 void logHeader(const Header* wh);
 AudioData readWavData(FileReader* reader, Header h);
 
-ReadResult readFourCC(FileReader* reader, uint8_t* out);
-ReadResult readI24AsI32LE(FileReader* reader, int32_t* out);
-
 #define DUMP_PREFIX "./build/dump_"
 #define DUMP_SUFFIX ".csv"
 

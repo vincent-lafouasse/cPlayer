@@ -10,7 +10,7 @@ include(FetchContent)
 
 include(cmake/fetch_portaudio.cmake)
 add_subdirectory(lib)
-# add_subdirectory(src)
+add_subdirectory(src)
 
 include(cmake/fetch_gtest.cmake)
 add_subdirectory(test)
