@@ -44,7 +44,7 @@ int main(int ac, char** av)
     AudioDataResult maybeTrack = decodeAudio(&reader);
     fr_close(&reader);
     if (maybeTrack.err != NoError) {
-        logFn(LogLevel_Error, "Decoding went wrong\n");
+        logFn(LogLevel_Error, "%s\n", errorRepr(maybeTrack.err));
         exit(1);
     }
 
