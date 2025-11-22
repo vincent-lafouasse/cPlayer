@@ -21,8 +21,8 @@ enable_testing()
 add_test(NAME FileReaderTest
     COMMAND FileReaderTest
 )
-add_test(NAME DeserializeIntsTest
-    COMMAND DeserializeIntsTest
+add_test(NAME bitcastTest
+    COMMAND bitcastTest
 )
 add_test(NAME i24Test
     COMMAND i24Test
