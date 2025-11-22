@@ -31,3 +31,15 @@ uint32_t deserializeU32_BE(const Byte* bytes)
 	const uint32_t low = bytes[3];
 	return (high << 24) | (highish << 16) | (lowish << 8) | low;
 }
+
+int16_t deserializeI16_LE(const Byte* bytes)
+{
+	uint16_t value = deserializeU16_LE(bytes);
+    return *(int16_t*)&value;
+}
+
+int16_t deserializeI16_BE(const Byte* bytes)
+{
+	uint16_t value = deserializeU16_BE(bytes);
+    return *(int16_t*)&value;
+}
