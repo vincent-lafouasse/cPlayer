@@ -1,3 +1,4 @@
+#include "int24.h"
 #include "wav_internals.h"
 
 #include <assert.h>
@@ -32,7 +33,11 @@ AudioData readWavData(FileReader* reader, Header h)
     int32_t* intData = malloc(h.size * sizeof(int32_t));
 
     for (uint32_t i = 0; i < h.size; ++i) {
-        assert(readI24AsI32LE(reader, intData + i) == Read_Ok);
+        uint8_t bytes[3];
+        assert(fr_takeSlice(reader, bytes, 3) == Read_Ok);
+        Int24 e = deserializeI24_LE(bytes);
+        intData[i] = i24_asI32(e);
+
         uint8_t garbage;
         assert(fr_takeByte(reader, &garbage) == Read_Ok);
         assert(fr_takeByte(reader, &garbage) == Read_Ok);

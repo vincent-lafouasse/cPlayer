@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define FILE_READER_BUFFER_SIZE 64
+#define FILE_READER_BUFFER_SIZE 128
 
 typedef enum {
     Read_Ok,
@@ -28,8 +28,5 @@ bool fr_isOpened(const FileReader* fr);
 ReadResult fr_peekByte(FileReader* fr, uint8_t* out);
 ReadResult fr_takeByte(FileReader* fr, uint8_t* out);
 
-ReadResult fr_peekU16LE(FileReader* fr, uint16_t* out);
-ReadResult fr_takeU16LE(FileReader* fr, uint16_t* out);
-
-ReadResult fr_peekU32LE(FileReader* fr, uint32_t* out);
-ReadResult fr_takeU32LE(FileReader* fr, uint32_t* out);
+ReadResult fr_peekSlice(FileReader* fr, uint8_t* out, size_t sz);
+ReadResult fr_takeSlice(FileReader* fr, uint8_t* out, size_t sz);

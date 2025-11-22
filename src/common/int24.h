@@ -12,4 +12,6 @@ typedef struct {
     uint8_t lowByte;
 } Int24;
 
+// you better give me 3 bytes or else
+Int24 deserializeI24_LE(const uint8_t* bytes);
 int32_t i24_asI32(Int24 i);

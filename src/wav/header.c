@@ -1,3 +1,5 @@
+#include "DeserializeInts.h"
+#include "FileReader.h"
 #include "wav_internals.h"
 
 #include <assert.h>
@@ -8,31 +10,30 @@
 
 Header readWavHeader(FileReader* reader)
 {
-    uint8_t masterChunkID[5] = {0};
-    assert(readFourCC(reader, masterChunkID) == Read_Ok);
-    assert(strncmp((const char*)masterChunkID, "RIFF", 4) == 0);
-    logFn(Debug, "master chunk ID:\t%s\n", masterChunkID);
+    uint8_t buffer[5] = {0};
 
-    uint32_t masterChunkSize;
-    assert(fr_takeU32LE(reader, &masterChunkSize) == Read_Ok);
+    assert(fr_takeSlice(reader, buffer, 4) == Read_Ok);
+    assert(strncmp((const char*)buffer, "RIFF", 4) == 0);
+    logFn(Debug, "master chunk ID:\t%s\n", buffer);
+
+    assert(fr_takeSlice(reader, buffer, 4) == Read_Ok);
+    const uint32_t masterChunkSize = deserializeU32_LE(buffer);
     logFn(Debug, "chunk size:\t\t%u bytes\n", masterChunkSize);
 
-    uint8_t wavChunkID[5] = {0};
-    assert(readFourCC(reader, wavChunkID) == Read_Ok);
-    assert(strncmp((const char*)wavChunkID, "WAVE", 4) == 0);
-    logFn(Debug, "wav chunk ID:\t\t%s\n", wavChunkID);
+    assert(fr_takeSlice(reader, buffer, 4) == Read_Ok);
+    assert(strncmp((const char*)buffer, "WAVE", 4) == 0);
+    logFn(Debug, "wav chunk ID:\t\t%s\n", buffer);
 
-    uint8_t fmtChunkID[5] = {0};
-    assert(readFourCC(reader, fmtChunkID) == Read_Ok);
-    assert(strncmp((const char*)fmtChunkID, "fmt ", 4) == 0);
-    logFn(Debug, "fmt chunk ID:\t\t%s\n", fmtChunkID);
+    assert(fr_takeSlice(reader, buffer, 4) == Read_Ok);
+    assert(strncmp((const char*)buffer, "fmt ", 4) == 0);
+    logFn(Debug, "fmt chunk ID:\t\t%s\n", buffer);
 
-    uint32_t fmtChunkSize;
-    assert(fr_takeU32LE(reader, &fmtChunkSize) == Read_Ok);
+    assert(fr_takeSlice(reader, buffer, 4) == Read_Ok);
+    const uint32_t fmtChunkSize = deserializeU32_LE(buffer);
     logFn(Debug, "format chunk size:\t%u bytes\n", fmtChunkSize);
 
-    uint16_t waveFormat;
-    assert(fr_takeU16LE(reader, &waveFormat) == Read_Ok);
+    assert(fr_takeSlice(reader, buffer, 2) == Read_Ok);
+    const uint16_t waveFormat = deserializeU16_LE(buffer);
     logFn(Debug, "wave format:\t\t0x%04:x\n", waveFormat);
     if (waveFormat != WAVE_FORMAT_PCM) {
         logFn(Error, "\nError:\n\tUnsupported wave format\n");
@@ -40,24 +41,24 @@ Header readWavHeader(FileReader* reader)
         exit(1);
     }
 
-    uint16_t nChannels;
-    assert(fr_takeU16LE(reader, &nChannels) == Read_Ok);
+    assert(fr_takeSlice(reader, buffer, 2) == Read_Ok);
+    const uint32_t nChannels = deserializeU32_LE(buffer);
     logFn(Debug, "n. channels:\t\t%x\n", nChannels);
 
-    uint32_t sampleRate;
-    assert(fr_takeU32LE(reader, &sampleRate) == Read_Ok);
+    assert(fr_takeSlice(reader, buffer, 4) == Read_Ok);
+    const uint32_t sampleRate = deserializeU32_LE(buffer);
     logFn(Debug, "sample rate:\t\t%u\n", sampleRate);
 
-    uint32_t bytesPerSec;
-    assert(fr_takeU32LE(reader, &bytesPerSec) == Read_Ok);
+    assert(fr_takeSlice(reader, buffer, 4) == Read_Ok);
+    const uint32_t bytesPerSec = deserializeU32_LE(buffer);
     logFn(Debug, "data rate:\t\t%u bytes per sec\n", bytesPerSec);
 
-    uint16_t blockSize;
-    assert(fr_takeU16LE(reader, &blockSize) == Read_Ok);
+    assert(fr_takeSlice(reader, buffer, 2) == Read_Ok);
+    const uint16_t blockSize = deserializeU16_LE(buffer);
     logFn(Debug, "block size:\t\t%u bytes\n", blockSize);
 
-    uint16_t bitDepth;
-    assert(fr_takeU16LE(reader, &bitDepth) == Read_Ok);
+    assert(fr_takeSlice(reader, buffer, 2) == Read_Ok);
+    const uint16_t bitDepth = deserializeU16_LE(buffer);
     logFn(Debug, "bit depth:\t\t%u bits\n", bitDepth);
 
     uint16_t formatChunkExtensionSize = fmtChunkSize - 16;
@@ -67,12 +68,11 @@ Header readWavHeader(FileReader* reader)
         assert(fr_takeByte(reader, &garbage) == Read_Ok);
     }
 
-    uint8_t chunkID[5] = {0};
-    assert(readFourCC(reader, chunkID) == Read_Ok);
-    logFn(Debug, "next chunk ID:\t\t%s\n", chunkID);
+    assert(fr_takeSlice(reader, buffer, 4) == Read_Ok);
+    logFn(Debug, "next chunk ID:\t\t%s\n", buffer);
 
-    uint32_t dataSize;
-    assert(fr_takeU32LE(reader, &dataSize) == Read_Ok);
+    assert(fr_takeSlice(reader, buffer, 4) == Read_Ok);
+    uint32_t dataSize = deserializeU32_LE(buffer);
     logFn(Debug, "data size:\t\t%u\n", dataSize);
     uint32_t nBlocks = 8 * dataSize / bitDepth / nChannels;
     logFn(Debug, "n blocks:\t\t%u\n", nBlocks);

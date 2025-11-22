@@ -1,5 +1,6 @@
 #include "FileReader.h"
 
+#include <assert.h>
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
@@ -50,60 +51,33 @@ static ReadResult fr_fillRemaining(FileReader* r)
     return Read_Ok;
 }
 
-ReadResult fr_peekU16LE(FileReader* fr, uint16_t* out)
+ReadResult fr_peekSlice(FileReader* fr, uint8_t* out, size_t sz)
 {
-    if (fr->len - fr->head < sizeof(*out)) {
+    assert(sz < buffer_size);
+
+    if (fr->len - fr->head < sz) {
         fr_reseatHead(fr);
         const ReadResult res = fr_fillRemaining(fr);
-        if (res == Read_Err) {
-            return Read_Err;
+        if (res != Read_Ok) {
+            return res;
         }
     }
-    if (fr->len < sizeof(*out)) {
+    if (fr->len < sz) {
         return Read_Err;
     }
 
-    const uint16_t lowByte = fr->buffer[fr->head];
-    const uint16_t highByte = fr->buffer[fr->head + 1];
-    *out = lowByte + (highByte << 8);
+    // a correct read is assured here
+    for (size_t i = 0; i < sz; ++i) {
+        out[i] = fr->buffer[fr->head + i];
+    }
     return Read_Ok;
 }
 
-ReadResult fr_takeU16LE(FileReader* fr, uint16_t* out)
+ReadResult fr_takeSlice(FileReader* fr, uint8_t* out, size_t sz)
 {
-    const ReadResult res = fr_peekU16LE(fr, out);
+    const ReadResult res = fr_peekSlice(fr, out, sz);
     if (res == Read_Ok) {
-        fr->head += sizeof(*out);
-    }
-    return res;
-}
-
-ReadResult fr_peekU32LE(FileReader* fr, uint32_t* out)
-{
-    if (fr->len - fr->head < sizeof(*out)) {
-        fr_reseatHead(fr);
-        const ReadResult res = fr_fillRemaining(fr);
-        if (res == Read_Err) {
-            return Read_Err;
-        }
-    }
-    if (fr->len < sizeof(*out)) {
-        return Read_Err;
-    }
-
-    const uint32_t b0 = fr->buffer[fr->head];
-    const uint32_t b1 = fr->buffer[fr->head + 1];
-    const uint32_t b2 = fr->buffer[fr->head + 2];
-    const uint32_t b3 = fr->buffer[fr->head + 3];
-    *out = b0 + (b1 << 8) + (b2 << 16) + (b3 << 24);
-    return Read_Ok;
-}
-
-ReadResult fr_takeU32LE(FileReader* fr, uint32_t* out)
-{
-    const ReadResult res = fr_peekU32LE(fr, out);
-    if (res == Read_Ok) {
-        fr->head += sizeof(*out);
+        fr->head += sz;
     }
     return res;
 }
