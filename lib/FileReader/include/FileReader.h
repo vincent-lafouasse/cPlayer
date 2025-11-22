@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define FILE_READER_BUFFER_SIZE 64
+#define FILE_READER_BUFFER_SIZE 128
 
 typedef enum {
     Read_Ok,
