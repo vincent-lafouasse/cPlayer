@@ -84,7 +84,7 @@ TEST(FileReader, PeekAndTakeByte)
 
     // Next byte is 20
     maybeByte = fr_takeByte(&fr);
-    expected = 10;
+    expected = 20;
     EXPECT_EQ(maybeByte.err, Read_Ok);
     EXPECT_EQ(maybeByte.byte, expected);
 
