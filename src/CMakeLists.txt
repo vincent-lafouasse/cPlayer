@@ -5,6 +5,7 @@ PRIVATE
 	main.c
 
 	wav/wav.c
+	wav/read.c
 	wav/header.c
 	wav/dump.c
 

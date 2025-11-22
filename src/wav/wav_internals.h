@@ -18,6 +18,17 @@ typedef struct {
 
 Header readWavHeader(FileReader* reader);
 void logHeader(const Header* wh);
+
+typedef enum {
+    Unsigned8,
+    Signed16,
+    Signed24,
+    Signed32,
+    Float32,
+} SampleFormat;
+
+ReadResult readSample(FileReader* reader, SampleFormat fmt, float* out);
+
 AudioData readWavData(FileReader* reader, Header h);
 
 #define DUMP_PREFIX "./build/dump_"
