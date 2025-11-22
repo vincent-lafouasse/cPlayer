@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <cstring>
 #include <format>
 
 #include "gtest/gtest.h"
@@ -60,35 +61,42 @@ TEST(FileReader, PeekAndTakeByte)
     auto file = writeTempFile({10, 20, 30});
     FileReader fr = fr_open(file.c_str());
 
-    uint8_t b;
+    ByteResult maybeByte;
+    uint8_t expected;
 
     // Peek first byte
-    EXPECT_EQ(fr_peekByte(&fr, &b), Read_Ok);
-    EXPECT_EQ(b, 10);
+    maybeByte = fr_peekByte(&fr);
+    expected = 10;
+    EXPECT_EQ(maybeByte.err, Read_Ok);
+    EXPECT_EQ(maybeByte.byte, expected);
 
     // Peek again: should still be 10
-    b = 0;
-    EXPECT_EQ(fr_peekByte(&fr, &b), Read_Ok);
-    EXPECT_EQ(b, 10);
+    maybeByte = fr_peekByte(&fr);
+    expected = 10;
+    EXPECT_EQ(maybeByte.err, Read_Ok);
+    EXPECT_EQ(maybeByte.byte, expected);
 
     // Take now
-    b = 0;
-    EXPECT_EQ(fr_takeByte(&fr, &b), Read_Ok);
-    EXPECT_EQ(b, 10);
+    maybeByte = fr_takeByte(&fr);
+    expected = 10;
+    EXPECT_EQ(maybeByte.err, Read_Ok);
+    EXPECT_EQ(maybeByte.byte, expected);
 
     // Next byte is 20
-    b = 0;
-    EXPECT_EQ(fr_takeByte(&fr, &b), Read_Ok);
-    EXPECT_EQ(b, 20);
+    maybeByte = fr_takeByte(&fr);
+    expected = 10;
+    EXPECT_EQ(maybeByte.err, Read_Ok);
+    EXPECT_EQ(maybeByte.byte, expected);
 
     // Next is 30
-    b = 0;
-    EXPECT_EQ(fr_takeByte(&fr, &b), Read_Ok);
-    EXPECT_EQ(b, 30);
+    maybeByte = fr_takeByte(&fr);
+    expected = 30;
+    EXPECT_EQ(maybeByte.err, Read_Ok);
+    EXPECT_EQ(maybeByte.byte, expected);
 
     // Now EOF
-    EXPECT_EQ(fr_peekByte(&fr, &b), Read_Done);
-    EXPECT_EQ(fr_takeByte(&fr, &b), Read_Done);
+    EXPECT_EQ(fr_peekByte(&fr).err, Read_EOF);
+    EXPECT_EQ(fr_takeByte(&fr).err, Read_EOF);
 
     fr_close(&fr);
 }
@@ -98,40 +106,41 @@ TEST(FileReader, PeekAndTakeSlice)
     auto file = writeTempFile({1, 2, 3, 4});
     FileReader fr = fr_open(file.c_str());
 
-    uint8_t out[4];
+    SliceResult maybeSlice;
+    uint8_t* slice;
 
     // Peek first 3 bytes
-    memset(out, 255, 4);
-    EXPECT_EQ(fr_peekSlice(&fr, out, 3), Read_Ok);
-    EXPECT_EQ(out[0], 1);
-    EXPECT_EQ(out[1], 2);
-    EXPECT_EQ(out[2], 3);
-    EXPECT_EQ(out[3], 255);
+    maybeSlice = fr_peekSlice(&fr, 3);
+    assert(maybeSlice.err == Read_Ok);
+    slice = maybeSlice.slice;
+    EXPECT_EQ(slice[0], 1);
+    EXPECT_EQ(slice[1], 2);
+    EXPECT_EQ(slice[2], 3);
 
     // Peek again — still same
-    memset(out, 67, 4);
-    EXPECT_EQ(fr_peekSlice(&fr, out, 3), Read_Ok);
-    EXPECT_EQ(out[0], 1);
-    EXPECT_EQ(out[1], 2);
-    EXPECT_EQ(out[2], 3);
-    EXPECT_EQ(out[3], 67);
+    maybeSlice = fr_peekSlice(&fr, 3);
+    assert(maybeSlice.err == Read_Ok);
+    slice = maybeSlice.slice;
+    EXPECT_EQ(slice[0], 1);
+    EXPECT_EQ(slice[1], 2);
+    EXPECT_EQ(slice[2], 3);
 
     // Take 3 bytes
-    memset(out, 42, 4);
-    EXPECT_EQ(fr_takeSlice(&fr, out, 3), Read_Ok);
-    EXPECT_EQ(out[0], 1);
-    EXPECT_EQ(out[1], 2);
-    EXPECT_EQ(out[2], 3);
-    EXPECT_EQ(out[3], 42);
+    maybeSlice = fr_takeSlice(&fr, 3);
+    assert(maybeSlice.err == Read_Ok);
+    slice = maybeSlice.slice;
+    EXPECT_EQ(slice[0], 1);
+    EXPECT_EQ(slice[1], 2);
+    EXPECT_EQ(slice[2], 3);
 
     // 1 byte left
-    uint8_t b = 0;
-    EXPECT_EQ(fr_takeByte(&fr, &b), Read_Ok);
-    EXPECT_EQ(b, 4);
+    ByteResult maybeByte = fr_takeByte(&fr);
+    EXPECT_EQ(maybeByte.err, Read_Ok);
+    EXPECT_EQ(maybeByte.byte, 4);
 
     // EOF
-    EXPECT_EQ(fr_peekSlice(&fr, out, 1), Read_Done);
-    EXPECT_EQ(fr_takeSlice(&fr, out, 1), Read_Done);
+    EXPECT_EQ(fr_peekSlice(&fr, 1).err, Read_EOF);
+    EXPECT_EQ(fr_takeSlice(&fr, 1).err, Read_EOF);
 
     fr_close(&fr);
 }
@@ -139,33 +148,32 @@ TEST(FileReader, PeekAndTakeSlice)
 // partial slice does not advance
 TEST(FileReader, SlicePartialReadFailsAndDoesNotAdvance)
 {
-    auto file = writeTempFile({9, 8});
+    auto file = writeTempFile({6, 7});
     FileReader fr = fr_open(file.c_str());
 
-    uint8_t out[4];
+    ByteResult maybeByte;
 
     // Try reading 3 bytes but file has only 2
-    memset(out, 0, 4);
-    EXPECT_EQ(fr_peekSlice(&fr, out, 3), Read_Err);
+    EXPECT_EQ(fr_peekSlice(&fr, 3).err, Read_Err);
 
     // Ensure buffer hasn't advanced: peek a byte -> should be 9
-    uint8_t b = 0;
-    EXPECT_EQ(fr_peekByte(&fr, &b), Read_Ok);
-    EXPECT_EQ(b, 9);
+    maybeByte = fr_peekByte(&fr);
+    EXPECT_EQ(maybeByte.err, Read_Ok);
+    EXPECT_EQ(maybeByte.byte, 6);
 
     // take a byte, ensure it's still 9
-    b = 0;
-    EXPECT_EQ(fr_takeByte(&fr, &b), Read_Ok);
-    EXPECT_EQ(b, 9);
+    maybeByte = fr_takeByte(&fr);
+    EXPECT_EQ(maybeByte.err, Read_Ok);
+    EXPECT_EQ(maybeByte.byte, 6);
 
     // now only 1 byte remains
-    b = 0;
-    EXPECT_EQ(fr_takeByte(&fr, &b), Read_Ok);
-    EXPECT_EQ(b, 8);
+    maybeByte = fr_takeByte(&fr);
+    EXPECT_EQ(maybeByte.err, Read_Ok);
+    EXPECT_EQ(maybeByte.byte, 7);
 
     // EOF
-    EXPECT_EQ(fr_peekSlice(&fr, out, 1), Read_Done);
-    EXPECT_EQ(fr_peekSlice(&fr, out, 67), Read_Done);
+    EXPECT_EQ(fr_peekSlice(&fr, 1).err, Read_EOF);
+    EXPECT_EQ(fr_peekSlice(&fr, 67).err, Read_EOF);
 
     fr_close(&fr);
 }
@@ -182,32 +190,32 @@ TEST(FileReader, SliceCrossesBufferBoundary)
     auto file = writeTempFile(data);
     FileReader fr = fr_open(file.c_str());
 
+    SliceResult maybeSlice;
+
     // Move head to sz - 2
     for (size_t i = 0; i < sz - 2; i++) {
-        uint8_t tmp;
-        EXPECT_EQ(fr_takeByte(&fr, &tmp), Read_Ok);
-        EXPECT_EQ(tmp, data[i]);
+        ByteResult maybeByte = fr_takeByte(&fr);
+        EXPECT_EQ(maybeByte.err, Read_Ok);
+        EXPECT_EQ(maybeByte.byte, data[i]);
     }
 
     // Now head == sz - 2 inside buffer.
     // Request a slice of 6 bytes => must cross the boundary.
-    uint8_t out[16];
-    EXPECT_EQ(fr_takeSlice(&fr, out, 6), Read_Ok);
-    for (size_t i = 0; i < 6; i++) {
-        EXPECT_EQ(out[i], data[(sz - 2) + i]);
-    }
+    maybeSlice = fr_takeSlice(&fr, 6);
+    const uint8_t* expectedValues = data.data() + sz - 2;
+    EXPECT_EQ(maybeSlice.err, Read_Ok);
+    EXPECT_EQ(memcmp(maybeSlice.slice, expectedValues, 6), 0);
 
     // Now 1 byte should remain (the last element in data)
-    uint8_t last = 0;
-    EXPECT_EQ(fr_takeByte(&fr, &last), Read_Ok);
-    EXPECT_EQ(last, data.back());
+    ByteResult last = fr_takeByte(&fr);
+    EXPECT_EQ(last.err, Read_Ok);
+    EXPECT_EQ(last.byte, data.back());
 
-    // No more data
-    uint8_t tmp;
-    EXPECT_EQ(fr_peekByte(&fr, &tmp), Read_Done);
-    EXPECT_EQ(fr_takeByte(&fr, &tmp), Read_Done);
-    EXPECT_EQ(fr_takeSlice(&fr, out, 45), Read_Done);
-    EXPECT_EQ(fr_peekSlice(&fr, out, 67), Read_Done);
+    // EOF
+    EXPECT_EQ(fr_peekSlice(&fr, 1).err, Read_EOF);
+    EXPECT_EQ(fr_peekSlice(&fr, 67).err, Read_EOF);
+    EXPECT_EQ(fr_peekByte(&fr).err, Read_EOF);
+    EXPECT_EQ(fr_takeByte(&fr).err, Read_EOF);
 
     fr_close(&fr);
 }
@@ -227,18 +235,17 @@ TEST(FileReader, CrossingPartialSliceFailsAndDoesNotAdvance)
 
     // Advance near end: leave only 3 bytes remaining
     for (size_t i = 0; i < data.size() - 3; i++) {
-        uint8_t tmp;
-        EXPECT_EQ(fr_takeByte(&fr, &tmp), Read_Ok);
+        // TODO: implement and use fr_skip(size_t)
+        EXPECT_EQ(fr_takeByte(&fr).err, Read_Ok);
     }
 
     // Try reading 6 bytes, but only 3 remain in the whole file
-    uint8_t out[64];
-    EXPECT_EQ(fr_peekSlice(&fr, out, 6), Read_Err);
+    EXPECT_EQ(fr_peekSlice(&fr, 6).err, Read_Err);
 
     // Reader must NOT advance
-    uint8_t byte;
-    EXPECT_EQ(fr_peekByte(&fr, &byte), Read_Ok);
-    EXPECT_EQ(byte, data[data.size() - 3]);
+    ByteResult maybeByte = fr_takeByte(&fr);
+    EXPECT_EQ(maybeByte.err, Read_Ok);
+    EXPECT_EQ(maybeByte.byte, data[data.size() - 3]);
 
     fr_close(&fr);
 }

@@ -36,7 +36,7 @@ static void fr_reseatHead(FileReader* r)
     r->len = newLen;
 }
 
-static ReadResult fr_fillRemaining(FileReader* r)
+static ReadError fr_fillRemaining(FileReader* r)
 {
     const ssize_t bytesRead =
         read(r->fd, r->buffer + r->len, buffer_size - r->len);
@@ -44,84 +44,77 @@ static ReadResult fr_fillRemaining(FileReader* r)
     if (bytesRead < 0) {
         return Read_Err;
     } else if (bytesRead == 0) {
-        return Read_Done;
+        return Read_EOF;
     }
 
     r->len += bytesRead;
     return Read_Ok;
 }
 
-ReadResult fr_peekSlice(FileReader* fr, uint8_t* out, size_t sz)
+SliceResult fr_peekSlice(FileReader* fr, size_t sz)
 {
     assert(sz < buffer_size);
 
     if (fr->len - fr->head < sz) {
         fr_reseatHead(fr);
-        const ReadResult res = fr_fillRemaining(fr);
-        if (res != Read_Ok) {
-            return res;
+        const ReadError err = fr_fillRemaining(fr);
+        if (err != Read_Ok) {
+            return (SliceResult){.err = err};
         }
     }
     if (fr->len < sz) {
-        return Read_Err;
+        return (SliceResult){.err = Read_Err};
     }
 
     // a correct read is assured here
-    for (size_t i = 0; i < sz; ++i) {
-        out[i] = fr->buffer[fr->head + i];
-    }
-    return Read_Ok;
+    return (SliceResult){.slice = fr->buffer + fr->head, .err = Read_Ok};
 }
 
-ReadResult fr_takeSlice(FileReader* fr, uint8_t* out, size_t sz)
+SliceResult fr_takeSlice(FileReader* fr, size_t sz)
 {
-    const ReadResult res = fr_peekSlice(fr, out, sz);
-    if (res == Read_Ok) {
+    const SliceResult maybeSlice = fr_peekSlice(fr, sz);
+    if (maybeSlice.err == Read_Ok) {
         fr->head += sz;
     }
-    return res;
+    return maybeSlice;
 }
 
-ReadResult fr_takeByte(FileReader* fr, uint8_t* out)
+ByteResult fr_takeByte(FileReader* fr)
 {
-    uint8_t byte;
-    const ReadResult res = fr_peekByte(fr, &byte);
-
-    if (res == Read_Ok) {
-        *out = byte;
+    const ByteResult maybeByte = fr_peekByte(fr);
+    if (maybeByte.err == Read_Ok) {
         fr->head += 1;
     }
-    return res;
+    return maybeByte;
 }
 
-ReadResult fr_peekByte(FileReader* fr, uint8_t* out)
+ByteResult fr_peekByte(FileReader* fr)
 {
     if (fr == NULL) {
-        return Read_Err;
+        return (ByteResult){.err = Read_Err};
     }
     if (fr->len == 0 || fr->head == fr->len) {
         const ssize_t bytesRead = read(fr->fd, fr->buffer, buffer_size);
         if (bytesRead < 0) {
-            return Read_Err;
+            return (ByteResult){.err = Read_Err};
         } else if (bytesRead == 0) {
-            return Read_Done;
+            return (ByteResult){.err = Read_EOF};
         }
         fr->len = bytesRead;
         fr->head = 0;
     }
-    *out = fr->buffer[fr->head];
-    return Read_Ok;
+    return (ByteResult){.byte = fr->buffer[fr->head], .err = Read_Ok};
 }
 
-const char* rr_repr(ReadResult rr)
+const char* rr_repr(ReadError rr)
 {
     switch (rr) {
         case Read_Ok:
             return "Ok";
         case Read_Err:
             return "Err";
-        case Read_Done:
-            return "Done";
+        case Read_EOF:
+            return "EOF";
     }
     return NULL;
 }

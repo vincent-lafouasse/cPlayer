@@ -29,7 +29,12 @@ typedef struct {
 Header readWavHeader(FileReader* reader);
 void logHeader(const Header* wh);
 
-ReadResult readSample(FileReader* reader, SampleFormat fmt, float* out);
+typedef struct {
+    float f;
+    ReadError err;
+} FloatResult;
+
+FloatResult readSample(FileReader* reader, SampleFormat fmt);
 
 AudioData readWavData(FileReader* reader, Header h);
 

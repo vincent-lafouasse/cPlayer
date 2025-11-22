@@ -23,9 +23,11 @@ AudioData readWavData(FileReader* reader, Header h)
     }
 
     for (uint32_t i = 0; i < h.size; ++i) {
-        (void)readSample(reader, h.sampleFormat, left + i);
+        FloatResult maybeSample = readSample(reader, h.sampleFormat);
+        left[i] = maybeSample.f;
         if (h.nChannels > 1) {
-            (void)readSample(reader, h.sampleFormat, right + i);
+            maybeSample = readSample(reader, h.sampleFormat);
+            right[i] = maybeSample.f;
         }
     }
     dumpFloatCsv(left, h.size, DUMP_PREFIX "float" DUMP_SUFFIX);

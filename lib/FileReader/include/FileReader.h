@@ -9,10 +9,21 @@
 typedef enum {
     Read_Ok,
     Read_Err,
-    Read_Done,
-} ReadResult;
+    Read_EOF,
+} ReadError;
 
-const char* rr_repr(ReadResult rr);
+const char* readErrorRepr(ReadError rr);
+
+typedef struct {
+    uint8_t byte;
+    ReadError err;
+} ByteResult;
+
+typedef struct {
+    uint8_t* slice;
+    size_t len;
+    ReadError err;
+} SliceResult;
 
 typedef struct {
     int fd;
@@ -25,8 +36,8 @@ FileReader fr_open(const char* path);
 void fr_close(FileReader* fr);
 bool fr_isOpened(const FileReader* fr);
 
-ReadResult fr_peekByte(FileReader* fr, uint8_t* out);
-ReadResult fr_takeByte(FileReader* fr, uint8_t* out);
+ByteResult fr_peekByte(FileReader* fr);
+ByteResult fr_takeByte(FileReader* fr);
 
-ReadResult fr_peekSlice(FileReader* fr, uint8_t* out, size_t sz);
-ReadResult fr_takeSlice(FileReader* fr, uint8_t* out, size_t sz);
+SliceResult fr_peekSlice(FileReader* fr, size_t sz);
+SliceResult fr_takeSlice(FileReader* fr, size_t sz);
