@@ -5,14 +5,8 @@
 #include "FileReader.h"
 
 #include "common/log.h"
+#include "play/play.h"
 #include "wav/wav.h"
-
-typedef struct {
-    const float* left;
-    const float* right;
-    size_t head;
-    size_t len;
-} AudioPlayer;
 
 AudioPlayer ap_init(const AudioData* data)
 {
