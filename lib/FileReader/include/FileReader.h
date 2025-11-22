@@ -41,3 +41,5 @@ ByteResult fr_takeByte(FileReader* fr);
 
 SliceResult fr_peekSlice(FileReader* fr, size_t sz);
 SliceResult fr_takeSlice(FileReader* fr, size_t sz);
+
+ReadError fr_skip(FileReader* fr, size_t sz);

@@ -190,8 +190,6 @@ TEST(FileReader, SliceCrossesBufferBoundary)
     auto file = writeTempFile(data);
     FileReader fr = fr_open(file.c_str());
 
-    SliceResult maybeSlice;
-
     // Move head to sz - 2
     for (size_t i = 0; i < sz - 2; i++) {
         ByteResult maybeByte = fr_takeByte(&fr);
@@ -201,7 +199,7 @@ TEST(FileReader, SliceCrossesBufferBoundary)
 
     // Now head == sz - 2 inside buffer.
     // Request a slice of 6 bytes => must cross the boundary.
-    maybeSlice = fr_takeSlice(&fr, 6);
+    SliceResult maybeSlice = fr_takeSlice(&fr, 6);
     const uint8_t* expectedValues = data.data() + sz - 2;
     EXPECT_EQ(maybeSlice.err, Read_Ok);
     EXPECT_EQ(memcmp(maybeSlice.slice, expectedValues, 6), 0);
@@ -234,10 +232,7 @@ TEST(FileReader, CrossingPartialSliceFailsAndDoesNotAdvance)
     FileReader fr = fr_open(file.c_str());
 
     // Advance near end: leave only 3 bytes remaining
-    for (size_t i = 0; i < data.size() - 3; i++) {
-        // TODO: implement and use fr_skip(size_t)
-        EXPECT_EQ(fr_takeByte(&fr).err, Read_Ok);
-    }
+    EXPECT_EQ(fr_skip(&fr, data.size() - 3), Read_Ok);
 
     // Try reading 6 bytes, but only 3 remain in the whole file
     EXPECT_EQ(fr_peekSlice(&fr, 6).err, Read_Err);

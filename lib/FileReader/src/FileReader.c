@@ -106,6 +106,17 @@ ByteResult fr_peekByte(FileReader* fr)
     return (ByteResult){.byte = fr->buffer[fr->head], .err = Read_Ok};
 }
 
+ReadError fr_skip(FileReader* fr, size_t sz)
+{
+    for (size_t i = 0; i < sz; i++) {
+        const ByteResult maybeByte = fr_takeByte(fr);
+        if (maybeByte.err != Read_Ok) {
+            return maybeByte.err;
+        }
+    }
+    return Read_Ok;
+}
+
 const char* rr_repr(ReadError rr)
 {
     switch (rr) {
