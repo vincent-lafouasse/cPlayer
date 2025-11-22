@@ -79,5 +79,6 @@ int main(int ac, char** av)
     Pa_CloseStream(stream);
     Pa_Terminate();
 
+    cleanup(&reader, (AudioData*)&track);
     logFn(LogLevel_Debug, "ok\n");
 }
