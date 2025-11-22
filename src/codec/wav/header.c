@@ -1,3 +1,4 @@
+#include "Error.h"
 #include "FileReader.h"
 #include "bitcast.h"
 #include "wav_internals.h"
@@ -8,24 +9,56 @@
 
 #include "log.h"
 
-WavHeaderResult readWavHeader(FileReader* reader)
+static Error translateError(ReadError re)
+{
+    switch (re) {
+        case Read_Err:
+            return E_Read_Error;
+        case Read_EOF:
+            return E_Read_EOF;
+        default:
+            return NoError;
+    }
+}
+
+static Error getToFormatChunk(FileReader* reader)
 {
     SliceResult maybeSlice = fr_takeSlice(reader, 4);
-    assert(maybeSlice.err == Read_Ok);
-    assert(strncmp((const char*)maybeSlice.slice, "RIFF", 4) == 0);
+    if (maybeSlice.err != Read_Ok) {
+        return translateError(maybeSlice.err);
+    }
+    if (strncmp((const char*)maybeSlice.slice, "RIFF", 4) != 0) {
+        return E_Wav_UnknownFourCC;
+    }
     logFn(LogLevel_Debug, "master chunk ID:\t%s\n", maybeSlice.slice);
 
     maybeSlice = fr_takeSlice(reader, 4);
-    assert(maybeSlice.err == Read_Ok);
+    if (maybeSlice.err != Read_Ok) {
+        return translateError(maybeSlice.err);
+    }
     const uint32_t masterChunkSize = bitcastU32_LE(maybeSlice.slice);
-    logFn(LogLevel_Debug, "chunk size:\t\t%u bytes\n", masterChunkSize);
+    logFn(LogLevel_Debug, "master chunk size:\t%u bytes\n", masterChunkSize);
 
     maybeSlice = fr_takeSlice(reader, 4);
-    assert(maybeSlice.err == Read_Ok);
-    assert(strncmp((const char*)maybeSlice.slice, "WAVE", 4) == 0);
+    if (maybeSlice.err != Read_Ok) {
+        return translateError(maybeSlice.err);
+    }
+    if (strncmp((const char*)maybeSlice.slice, "WAVE", 4) != 0) {
+        return E_Wav_UnknownFourCC;
+    }
     logFn(LogLevel_Debug, "wav chunk ID:\t\t%s\n", maybeSlice.slice);
 
-    maybeSlice = fr_takeSlice(reader, 4);
+    return NoError;
+}
+
+WavHeaderResult readWavHeader(FileReader* reader)
+{
+    Error err = getToFormatChunk(reader);
+    if (err != NoError) {
+        return (WavHeaderResult){.err = err};
+    }
+
+    SliceResult maybeSlice = fr_takeSlice(reader, 4);
     assert(maybeSlice.err == Read_Ok);
     assert(strncmp((const char*)maybeSlice.slice, "fmt ", 4) == 0);
     logFn(LogLevel_Debug, "fmt chunk ID:\t\t%s\n", maybeSlice.slice);
