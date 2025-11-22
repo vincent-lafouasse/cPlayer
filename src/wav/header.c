@@ -84,11 +84,20 @@ Header readWavHeader(FileReader* reader)
         exit(1);
     }
 
-    SampleFormat sampleFormat = -1;
+    SampleFormat sampleFormat = 255;
+    if (waveFormat == WAVE_FORMAT_IEEE_FLOAT) {
+        sampleFormat = Float32;
+    } else if (waveFormat == WAVE_FORMAT_PCM && bitDepth == 8) {
+        sampleFormat = Unsigned8;
+    } else if (waveFormat == WAVE_FORMAT_PCM && bitDepth == 16) {
+        sampleFormat = Signed16;
+    } else if (waveFormat == WAVE_FORMAT_PCM && bitDepth == 24) {
+        sampleFormat = Signed24;
+    } else if (waveFormat == WAVE_FORMAT_PCM && bitDepth == 32) {
+        sampleFormat = Signed32;
+    }
 
-    sampleFormat = Signed24;
-
-    if (sampleFormat == -1) {
+    if (sampleFormat == 255) {
         logFn(Error, "Failed to assign a sample format\n");
         exit(1);
     }
@@ -108,8 +117,7 @@ void logHeader(const Header* wh)
     logFn(Info, "%s {\n", "WavHeader");
     logFn(Info, "\tnumber of Channels:\t%u\n", wh->nChannels);
     logFn(Info, "\tsample rate:\t\t%u Hz\n", wh->sampleRate);
-    logFn(Info, "\tsample format:\t\t%u bit\n",
-          sampleFormatRepr(wh->sampleFormat));
+    logFn(Info, "\tsample format:\t\t%s\n", sampleFormatRepr(wh->sampleFormat));
     logFn(Info, "\tnumber of samples:\t%u\n", wh->size);
     logFn(Info, "}\n\n");
 }
