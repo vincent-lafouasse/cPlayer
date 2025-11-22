@@ -8,6 +8,8 @@ typedef enum {
     E_Read_EOF,
 
     E_Codec_UnsupportedCodec,
+    E_Codec_UnsupportedChannelLayout,
+
     E_Wav_UnknownFourCC,
     E_Wav_UnsupportedSampleFormat,
 } Error;
