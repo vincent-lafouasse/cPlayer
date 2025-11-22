@@ -108,7 +108,8 @@ void logHeader(const Header* wh)
     logFn(Info, "%s {\n", "WavHeader");
     logFn(Info, "\tnumber of Channels:\t%u\n", wh->nChannels);
     logFn(Info, "\tsample rate:\t\t%u Hz\n", wh->sampleRate);
-    logFn(Info, "\tsample format:\t\t%u bit\n", sampleFormatRepr(wh->sampleFormat));
+    logFn(Info, "\tsample format:\t\t%u bit\n",
+          sampleFormatRepr(wh->sampleFormat));
     logFn(Info, "\tnumber of samples:\t%u\n", wh->size);
     logFn(Info, "}\n\n");
 }
