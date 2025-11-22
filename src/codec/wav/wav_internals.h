@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Error.h"
 #include "wav.h"
 
 #define WAVE_FORMAT_PCM 0x0001
@@ -31,7 +32,7 @@ void logHeader(const Header* wh);
 
 typedef struct {
     float f;
-    ReadError err;
+    Error err;
 } FloatResult;
 
 FloatResult readSample(FileReader* reader, SampleFormat fmt);

@@ -10,13 +10,15 @@
 FloatResult readI24(FileReader* reader)
 {
     const SliceResult maybeSlice = fr_takeSlice(reader, 3);
-    if (maybeSlice.err != Read_Ok) {
-        return (FloatResult){.err = maybeSlice.err};
+    if (maybeSlice.err == Read_Err) {
+        return (FloatResult){.err = E_Read_Error};
+    } else if (maybeSlice.err == Read_EOF) {
+        return (FloatResult){.err = E_Read_EOF};
     }
 
     const Int24 i24 = bitcastI24_LE(maybeSlice.slice);
     const float f = (float)i24_asI32(i24) / (float)INT24_MAX_ABS;
-    return (FloatResult){.f = f, .err = Read_Ok};
+    return (FloatResult){.f = f, .err = NoError};
 }
 
 FloatResult readSample(FileReader* reader, SampleFormat fmt)
