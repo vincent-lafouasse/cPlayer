@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stddef.h>
+
 // non owning view
 typedef struct {
     const float* left;
