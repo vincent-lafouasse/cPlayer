@@ -79,8 +79,8 @@ TEST(Deserialize, U32_LE)
         EXPECT_EQ(deserializeU32_LE(b), expected);
     }
     {
-        constexpr Byte b[4] = {0xef, 0xbe, 0xad, 0xde};
-        constexpr u32 expected = 0xdeadbeef;
+        constexpr Byte b[4] = {0xfe, 0xca, 0xbe, 0xba};
+        constexpr u32 expected = 0xbabecafe;
         EXPECT_EQ(deserializeU32_LE(b), expected);
     }
     {
@@ -108,8 +108,8 @@ TEST(Deserialize, U32_BE)
         EXPECT_EQ(deserializeU32_BE(b), expected);
     }
     {
-        constexpr Byte b[4] = {0xde, 0xad, 0xbe, 0xef};
-        constexpr u32 expected = 0xdeadbeef;
+        constexpr Byte b[4] = {0xba, 0xbe, 0xca, 0xfe};
+        constexpr u32 expected = 0xbabecafe;
         EXPECT_EQ(deserializeU32_BE(b), expected);
     }
     {
