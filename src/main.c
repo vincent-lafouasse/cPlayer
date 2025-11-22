@@ -2,9 +2,9 @@
 
 #include "FileReader.h"
 
+#include "codec/decode.h"
 #include "common/log.h"
 #include "play/play.h"
-#include "wav/wav.h"
 
 #define STREAM_BUFFER_SIZE 256
 
@@ -23,11 +23,16 @@ int main(int ac, char** av)
         exit(1);
     }
 
-    const AudioData audio = decodeWav(&reader);
+    DecodingResult maybeTrack = decodeAudio(&reader);
     fr_close(&reader);
+    if (maybeTrack.err != DecodingError_None) {
+        logFn(Error, "Decoding went wrong\n");
+        exit(1);
+    }
 
-    AudioPlayer track = (AudioPlayer){
-        .left = audio.left, .right = audio.right, .head = 0, .len = audio.size};
+    const AudioData track = maybeTrack.track;
+    AudioPlayer player = (AudioPlayer){
+        .left = track.left, .right = track.right, .head = 0, .len = track.size};
 
     Pa_Initialize();
 
@@ -46,8 +51,8 @@ int main(int ac, char** av)
     };
 
     PaStream* stream;
-    Pa_OpenStream(&stream, NULL, &outParams, audio.sampleRate, 256, paNoFlag,
-                  stereoOutputCallback, &track);
+    Pa_OpenStream(&stream, NULL, &outParams, track.sampleRate, 256, paNoFlag,
+                  stereoOutputCallback, &player);
 
     Pa_StartStream(stream);
 

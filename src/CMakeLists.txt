@@ -4,11 +4,12 @@ target_sources(${PROJECT_NAME}
 PRIVATE
 	main.c
 
-	wav/wav.c
-	wav/read.c
-	wav/header.c
-	wav/dump.c
-	wav/sampleFormat.c
+	codec/decode.c
+	codec/wav/wav.c
+	codec/wav/read.c
+	codec/wav/header.c
+	codec/wav/dump.c
+	codec/wav/sampleFormat.c
 
 	play/callback.c
 
