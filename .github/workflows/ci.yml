@@ -19,8 +19,14 @@ jobs:
     
     - name: make build system
       run: cmake -B build
+
+    - name: build portaudio
+      run: cmake --build build --target portaudio
       
-    - name: build
+    - name: build binary
+      run: cmake --build build --target cPlayer
+
+    - name: build all (tests)
       run: cmake --build build
 
     - name: run tests
