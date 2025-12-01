@@ -34,26 +34,35 @@ AudioDataResult readWavData(FileReader* reader, Header h)
 
 static AudioDataResult readWavDataMono(FileReader* reader, Header h)
 {
+    Error err = NoError;
+
     float* left = malloc(h.size * sizeof(float));
     if (left == NULL) {
-        return AudioDataResult_Err(E_OOM);
+        err = E_OOM;
+        goto out;
     }
 
     for (uint32_t i = 0; i < h.size; ++i) {
         FloatResult maybeSample = readSample(reader, h.sampleFormat);
         if (maybeSample.err != NoError) {
-            free(left);
-            return AudioDataResult_Err(maybeSample.err);
+            err = maybeSample.err;
+            goto out;
         }
         left[i] = maybeSample.f;
     }
     dumpFloatCsv(left, h.size, DUMP_PREFIX "float" DUMP_SUFFIX);
 
-    const AudioData track = (AudioData){.left = left,
-                                        .right = left,
-                                        .size = h.size,
-                                        .sampleRate = h.sampleRate};
-    return AudioDataResult_Ok(track);
+out:
+    if (err == NoError) {
+        const AudioData track = (AudioData){.left = left,
+                                            .right = left,
+                                            .size = h.size,
+                                            .sampleRate = h.sampleRate};
+        return AudioDataResult_Ok(track);
+    } else {
+        free(left);
+        return AudioDataResult_Err(err);
+    }
 }
 
 static Error readStereoFrame(FileReader* reader,
