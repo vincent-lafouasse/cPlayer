@@ -58,38 +58,41 @@ static AudioDataResult readWavDataMono(FileReader* reader, Header h)
 
 static AudioDataResult readWavDataStereo(FileReader* reader, Header h)
 {
+    Error err = NoError;
+
     float* left = malloc(h.size * sizeof(float));
-    if (left == NULL) {
-        return AudioDataResult_Err(E_OOM);
-    }
     float* right = malloc(h.size * sizeof(float));
-    if (right == NULL) {
-        free(left);
-        return AudioDataResult_Err(E_OOM);
+    if (left == NULL || right == NULL) {
+        err = E_OOM;
+        goto out;
     }
 
     for (uint32_t i = 0; i < h.size; ++i) {
         FloatResult maybeSample = readSample(reader, h.sampleFormat);
         if (maybeSample.err != NoError) {
-            free(left);
-            free(right);
-            return AudioDataResult_Err(maybeSample.err);
+            err = maybeSample.err;
+            goto out;
         }
         left[i] = maybeSample.f;
 
         maybeSample = readSample(reader, h.sampleFormat);
         if (maybeSample.err != NoError) {
-            free(left);
-            free(right);
-            return AudioDataResult_Err(maybeSample.err);
+            err = maybeSample.err;
+            goto out;
         }
         right[i] = maybeSample.f;
     }
-    dumpFloatCsv(left, h.size, DUMP_PREFIX "float" DUMP_SUFFIX);
 
-    const AudioData track = (AudioData){.left = left,
-                                        .right = right,
-                                        .size = h.size,
-                                        .sampleRate = h.sampleRate};
-    return AudioDataResult_Ok(track);
+out:
+    if (err != NoError) {
+        free(left);
+        free(right);
+        return AudioDataResult_Err(err);
+    } else {
+        const AudioData track = (AudioData){.left = left,
+                                            .right = right,
+                                            .size = h.size,
+                                            .sampleRate = h.sampleRate};
+        return AudioDataResult_Ok(track);
+    }
 }
