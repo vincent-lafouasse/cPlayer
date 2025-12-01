@@ -13,7 +13,8 @@ PRIVATE
 
 	play/callback.c
 
-	Options.c
+	options/Options.c
+	options/Flag.c
 
 	common/int24.c
 )

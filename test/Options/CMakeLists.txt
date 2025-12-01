@@ -8,7 +8,8 @@ PRIVATE
 	./main.cpp
 	./OptionsTest.cpp
 
-	${testedSourceDir}/Options.c
+	${testedSourceDir}/options/Options.c
+	${testedSourceDir}/options/Flag.c
 )
 
 target_include_directories(${TEST_RUNNER_NAME} PUBLIC

@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 extern "C" {
-#include "Options.h"
+#include "options/Options.h"
 }
 
 TEST(ParseOptions, HeadlessFlagLong)

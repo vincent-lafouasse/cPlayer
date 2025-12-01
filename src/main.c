@@ -8,7 +8,7 @@
 #include "common/log.h"
 #include "play/play.h"
 
-#include "Options.h"
+#include "options/Options.h"
 
 #define STREAM_BUFFER_SIZE 256
 
