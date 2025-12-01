@@ -30,7 +30,7 @@ int main(int ac, char** av)
 {
     if (ac != 2) {
         logFn(LogLevel_Error, "Usage: %s track.wav\n", av[0]);
-        exit(1);
+        return 1;
     }
     const char* path = av[1];
     logFn(LogLevel_Debug, "-----Reading file\t%s-----\n", path);
@@ -38,14 +38,14 @@ int main(int ac, char** av)
     FileReader reader = fr_open(path);
     if (!fr_isOpened(&reader)) {
         logFn(LogLevel_Error, "Failed to open file %s\n", path);
-        exit(1);
+        return 1;
     }
 
     AudioDataResult maybeTrack = decodeAudio(&reader);
     fr_close(&reader);
     if (maybeTrack.err != NoError) {
         logFn(LogLevel_Error, "%s\n", errorRepr(maybeTrack.err));
-        exit(1);
+        return 1;
     }
 
     const AudioData track = maybeTrack.track;
@@ -57,7 +57,7 @@ int main(int ac, char** av)
     const PaDeviceIndex device = Pa_GetDefaultOutputDevice();
     if (device == paNoDevice) {
         logFn(LogLevel_Error, "No output device.\n");
-        exit(1);
+        return 1;
     }
 
     const PaStreamParameters outParams = (PaStreamParameters){
