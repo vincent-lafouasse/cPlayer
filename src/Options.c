@@ -32,15 +32,41 @@ typedef enum {
 } FlagContainer;
 
 typedef struct {
-    const char* name;
+    const char* id;
     FlagContainer type;
-    void* destination;
-} FlagSpecs;
+    const char* longFlag;
+    const char* shortFlag;
+    const char* argName;
+    const char* description;
+} Flag;
 
-const FlagSpecs* matchFlag(const FlagSpecs* flags, size_t nFlags, const char* s)
+static const Flag flags[] = {
+    {.id = "headless",
+     .type = Flag_Bool,
+     .longFlag = "--headless",
+     .shortFlag = NULL,
+     .argName = NULL,
+     .description = "Decode but do not play"},
+
+    {.id = "input",
+     .type = Flag_String,
+     .longFlag = "--input",
+     .shortFlag = "-i",
+     .argName = "audioFile",
+     .description = "Audio file to decode"},
+};
+static const size_t nFlags = sizeof(flags) / sizeof(*flags);
+
+const Flag* matchFlag(const Flag* flags, size_t nFlags, const char* s)
 {
     for (size_t i = 0; i < nFlags; i++) {
-        if (strEq(flags[i].name, s)) {
+        const char* longFlag = flags[i].longFlag;
+        const char* shortFlag = flags[i].shortFlag;
+
+        if (strEq(longFlag, s)) {
+            return flags + i;
+        }
+        if (shortFlag && strEq(shortFlag, s)) {
             return flags + i;
         }
     }
@@ -48,35 +74,42 @@ const FlagSpecs* matchFlag(const FlagSpecs* flags, size_t nFlags, const char* s)
     return NULL;
 }
 
+void* bindFlagDestination(const Flag* flag, Options* dest)
+{
+    if (strEq(flag->id, "headless")) {
+        return &dest->headless;
+    } else if (strEq(flag->id, "input")) {
+        return &dest->input;
+    } else {
+        return NULL;
+    }
+}
+
+Error setFlagDestination(const Flag* flag, void* dest, const char* value);
+
 OptionsResult parseOptions(const char** args, size_t sz)
 {
     Options out = defaultOptions();
-
-    const FlagSpecs flags[] = {
-        {.name = "--headless", .type = Flag_Bool, .destination = &out.headless},
-        {.name = "-h", .type = Flag_Bool, .destination = &out.headless},
-        {.name = "--input", .type = Flag_String, .destination = &out.input},
-        {.name = "-i", .type = Flag_String, .destination = &out.input},
-    };
-    const size_t nFlags = sizeof(flags) / sizeof(*flags);
 
     size_t i = 0;
     while (i < sz) {
         if (args[i][0] == '-') {
             // flag arguments
-            const FlagSpecs* flag = matchFlag(flags, nFlags, args[i]);
+            const Flag* flag = matchFlag(flags, nFlags, args[i]);
             if (flag == NULL) {
                 return Err(E_Unknown_Flag);
             }
 
+            void* dest = bindFlagDestination(flag, &out);
             if (flag->type == Flag_Bool) {
-                *(bool*)flag->destination = true;
+                *(bool*)dest = true;
                 i++;
             } else if (flag->type == Flag_String) {
                 if (i == sz - 1) {
                     return Err(E_Bad_Usage);
                 }
-                *(const char**)flag->destination = args[i + 1];
+
+                *(const char**)dest = args[i + 1];
                 i += 2;
             } else {
                 logFn(LogLevel_Error, "Unimplemented flag\n");
