@@ -39,6 +39,16 @@ typedef struct {
     Error err;
 } FloatResult;
 
+static inline FloatResult FloatResult_Ok(float f)
+{
+    return (FloatResult){.f = f, .err = NoError};
+}
+
+static inline FloatResult FloatResult_Err(Error err)
+{
+    return (FloatResult){.err = err};
+}
+
 FloatResult readSample(FileReader* reader, SampleFormat fmt);
 
 AudioDataResult readWavData(FileReader* reader, Header h);

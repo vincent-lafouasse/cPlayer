@@ -15,3 +15,13 @@ typedef struct {
     AudioData track;
     Error err;
 } AudioDataResult;
+
+static inline AudioDataResult AudioDataResult_Ok(AudioData track)
+{
+    return (AudioDataResult){.track = track, .err = NoError};
+}
+
+static inline AudioDataResult AudioDataResult_Err(Error err)
+{
+    return (AudioDataResult){.err = err};
+}

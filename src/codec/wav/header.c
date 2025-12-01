@@ -63,62 +63,72 @@ typedef struct {
     Error err;
 } WavFormatChunkResult;
 
+static inline WavFormatChunkResult WavFormatChunk_Ok(WavFormatChunk format)
+{
+    return (WavFormatChunkResult){.format = format, .err = NoError};
+}
+
+static inline WavFormatChunkResult WavFormatChunk_Err(Error err)
+{
+    return (WavFormatChunkResult){.err = err};
+}
+
 WavFormatChunkResult readFormatChunk(FileReader* reader)
 {
     SliceResult maybeSlice = fr_takeSlice(reader, 4);
     if (maybeSlice.err != Read_Ok) {
-        return (WavFormatChunkResult){.err = translateError(maybeSlice.err)};
+        return WavFormatChunk_Err(translateError(maybeSlice.err));
     }
     if (strncmp((const char*)maybeSlice.slice, "fmt ", 4) != 0) {
-        return (WavFormatChunkResult){.err = E_Wav_UnknownFourCC};
+        return WavFormatChunk_Err(E_Wav_UnknownFourCC);
     }
     logFn(LogLevel_Debug, "fmt chunk ID:\t\t%s\n", maybeSlice.slice);
 
     maybeSlice = fr_takeSlice(reader, 4);
     if (maybeSlice.err != Read_Ok) {
-        return (WavFormatChunkResult){.err = translateError(maybeSlice.err)};
+        return WavFormatChunk_Err(translateError(maybeSlice.err));
     }
     const uint32_t fmtChunkSize = bitcastU32_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "format chunk size:\t%u bytes\n", fmtChunkSize);
 
     maybeSlice = fr_takeSlice(reader, 2);
     if (maybeSlice.err != Read_Ok) {
-        return (WavFormatChunkResult){.err = translateError(maybeSlice.err)};
+        return WavFormatChunk_Err(translateError(maybeSlice.err));
     }
     const uint16_t waveFormat = bitcastU16_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "wave format:\t\t0x%04:x\n", waveFormat);
 
     maybeSlice = fr_takeSlice(reader, 2);
     if (maybeSlice.err != Read_Ok) {
-        return (WavFormatChunkResult){.err = translateError(maybeSlice.err)};
+        return WavFormatChunk_Err(translateError(maybeSlice.err));
     }
     const uint32_t nChannels = bitcastU16_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "n. channels:\t\t%x\n", nChannels);
 
     maybeSlice = fr_takeSlice(reader, 4);
     if (maybeSlice.err != Read_Ok) {
-        return (WavFormatChunkResult){.err = translateError(maybeSlice.err)};
+        return WavFormatChunk_Err(translateError(maybeSlice.err));
     }
     const uint32_t sampleRate = bitcastU32_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "sample rate:\t\t%u\n", sampleRate);
 
     maybeSlice = fr_takeSlice(reader, 4);
     if (maybeSlice.err != Read_Ok) {
-        return (WavFormatChunkResult){.err = translateError(maybeSlice.err)};
+        return WavFormatChunk_Err(translateError(maybeSlice.err));
     }
     const uint32_t bytesPerSec = bitcastU32_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "data rate:\t\t%u bytes per sec\n", bytesPerSec);
 
     maybeSlice = fr_takeSlice(reader, 2);
     if (maybeSlice.err != Read_Ok) {
-        return (WavFormatChunkResult){.err = translateError(maybeSlice.err)};
+        return WavFormatChunk_Err(translateError(maybeSlice.err));
     }
     const uint16_t blockSize = bitcastU16_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "block size:\t\t%u bytes\n", blockSize);
 
     maybeSlice = fr_takeSlice(reader, 2);
     if (maybeSlice.err != Read_Ok) {
-        return (WavFormatChunkResult){.err = translateError(maybeSlice.err)};
+        return WavFormatChunk_Err(translateError(maybeSlice.err));
     }
     const uint16_t bitDepth = bitcastU16_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "bit depth:\t\t%u bits\n", bitDepth);
@@ -128,7 +138,7 @@ WavFormatChunkResult readFormatChunk(FileReader* reader)
           formatChunkExtensionSize);
     ReadError err = fr_skip(reader, formatChunkExtensionSize);
     if (err != Read_Ok) {
-        return (WavFormatChunkResult){.err = translateError(err)};
+        return WavFormatChunk_Err(translateError(err));
     }
 
     WavFormatChunk format = (WavFormatChunk){
@@ -138,7 +148,7 @@ WavFormatChunkResult readFormatChunk(FileReader* reader)
         .bitDepth = bitDepth,
         .blockSize = blockSize,
     };
-    return (WavFormatChunkResult){.format = format, .err = NoError};
+    return WavFormatChunk_Ok(format);
 }
 
 typedef struct {

@@ -9,14 +9,14 @@ FloatResult readI24(FileReader* reader)
 {
     const SliceResult maybeSlice = fr_takeSlice(reader, 3);
     if (maybeSlice.err == Read_Err) {
-        return (FloatResult){.err = E_Read_Error};
+        return FloatResult_Err(E_Read_Error);
     } else if (maybeSlice.err == Read_EOF) {
-        return (FloatResult){.err = E_Read_EOF};
+        return FloatResult_Err(E_Read_EOF);
     }
 
     const Int24 i24 = bitcastI24_LE(maybeSlice.slice);
     const float f = (float)i24_asI32(i24) / (float)INT24_MAX_ABS;
-    return (FloatResult){.f = f, .err = NoError};
+    return FloatResult_Ok(f);
 }
 
 FloatResult readSample(FileReader* reader, SampleFormat fmt)
@@ -25,6 +25,6 @@ FloatResult readSample(FileReader* reader, SampleFormat fmt)
         case Signed24:
             return readI24(reader);
         default:
-            return (FloatResult){.err = E_Wav_UnsupportedSampleFormat};
+            return FloatResult_Err(E_Wav_UnsupportedSampleFormat);
     }
 }

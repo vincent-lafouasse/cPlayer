@@ -10,5 +10,5 @@ AudioDataResult decodeAudio(FileReader* reader)
         return maybeTrack;
     }
 
-    return (AudioDataResult){.track = maybeTrack.track, .err = NoError};
+    return AudioDataResult_Ok(maybeTrack.track);
 }

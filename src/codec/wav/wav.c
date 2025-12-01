@@ -9,7 +9,7 @@ AudioDataResult decodeWav(FileReader* reader)
 {
     const WavHeaderResult maybeHeader = readWavHeader(reader);
     if (maybeHeader.err != NoError) {
-        return (AudioDataResult){.err = maybeHeader.err};
+        return AudioDataResult_Err(maybeHeader.err);
     }
 
     const Header header = maybeHeader.header;
@@ -28,7 +28,7 @@ AudioDataResult readWavData(FileReader* reader, Header h)
     } else if (h.nChannels == 2) {
         return readWavDataStereo(reader, h);
     } else {
-        return (AudioDataResult){.err = E_Codec_UnsupportedChannelLayout};
+        return AudioDataResult_Err(E_Codec_UnsupportedChannelLayout);
     }
 }
 
@@ -40,7 +40,7 @@ static AudioDataResult readWavDataMono(FileReader* reader, Header h)
         FloatResult maybeSample = readSample(reader, h.sampleFormat);
         if (maybeSample.err != NoError) {
             free(left);
-            return (AudioDataResult){.err = maybeSample.err};
+            return AudioDataResult_Err(maybeSample.err);
         }
         left[i] = maybeSample.f;
     }
@@ -50,19 +50,19 @@ static AudioDataResult readWavDataMono(FileReader* reader, Header h)
                                         .right = left,
                                         .size = h.size,
                                         .sampleRate = h.sampleRate};
-    return (AudioDataResult){.track = track, .err = NoError};
+    return AudioDataResult_Ok(track);
 }
 
 static AudioDataResult readWavDataStereo(FileReader* reader, Header h)
 {
     float* left = malloc(h.size * sizeof(float));
     if (left == NULL) {
-        return (AudioDataResult){.err = E_OOM};
+        return AudioDataResult_Err(E_OOM);
     }
     float* right = malloc(h.size * sizeof(float));
     if (right == NULL) {
         free(left);
-        return (AudioDataResult){.err = E_OOM};
+        return AudioDataResult_Err(E_OOM);
     }
 
     for (uint32_t i = 0; i < h.size; ++i) {
@@ -70,7 +70,7 @@ static AudioDataResult readWavDataStereo(FileReader* reader, Header h)
         if (maybeSample.err != NoError) {
             free(left);
             free(right);
-            return (AudioDataResult){.err = maybeSample.err};
+            return AudioDataResult_Err(maybeSample.err);
         }
         left[i] = maybeSample.f;
 
@@ -78,7 +78,7 @@ static AudioDataResult readWavDataStereo(FileReader* reader, Header h)
         if (maybeSample.err != NoError) {
             free(left);
             free(right);
-            return (AudioDataResult){.err = maybeSample.err};
+            return AudioDataResult_Err(maybeSample.err);
         }
         right[i] = maybeSample.f;
     }
@@ -88,5 +88,5 @@ static AudioDataResult readWavDataStereo(FileReader* reader, Header h)
                                         .right = right,
                                         .size = h.size,
                                         .sampleRate = h.sampleRate};
-    return (AudioDataResult){.track = track, .err = NoError};
+    return AudioDataResult_Ok(track);
 }
