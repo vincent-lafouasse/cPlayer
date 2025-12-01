@@ -4,6 +4,8 @@ typedef enum {
     NoError = 0,
     E_OOM,
 
+    E_Bad_Usage,
+
     E_Read_Error,
     E_Read_EOF,
 
@@ -21,6 +23,9 @@ static inline const char* errorRepr(Error e)
             return "No error";
         case E_OOM:
             return "Out of memory";
+
+        case E_Bad_Usage:
+            return "Bad usage";
 
         case E_Read_Error:
             return "Read failed";

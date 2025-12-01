@@ -7,6 +7,8 @@
 #include "common/log.h"
 #include "play/play.h"
 
+#include "Options.h"
+
 #define STREAM_BUFFER_SIZE 256
 
 // also cleanup portaudio later
