@@ -69,71 +69,45 @@ static inline WavFormatChunkResult WavFormatChunk_Err(Error err)
 
 WavFormatChunkResult readFormatChunk(FileReader* reader)
 {
-    SliceResult maybeSlice = fr_takeSlice(reader, 4);
-    if (maybeSlice.err != Read_Ok) {
-        return WavFormatChunk_Err(translateError(maybeSlice.err));
+    SliceResult maybeHeader = fr_takeSlice(reader, 8);
+    if (maybeHeader.err != Read_Ok) {
+        return WavFormatChunk_Err(translateError(maybeHeader.err));
     }
-    if (strncmp((const char*)maybeSlice.slice, "fmt ", 4) != 0) {
+    const uint8_t* header = maybeHeader.slice;
+
+    // head should be at the format chunk
+    if (strncmp((const char*)header, "fmt ", 4) != 0) {
         return WavFormatChunk_Err(E_Wav_UnknownFourCC);
     }
-    logFn(LogLevel_Debug, "fmt chunk ID:\t\t%s\n", maybeSlice.slice);
 
-    maybeSlice = fr_takeSlice(reader, 4);
-    if (maybeSlice.err != Read_Ok) {
-        return WavFormatChunk_Err(translateError(maybeSlice.err));
-    }
-    const uint32_t fmtChunkSize = bitcastU32_LE(maybeSlice.slice);
+    // size of the rest of the format chunk
+    const uint32_t fmtChunkSize = bitcastU32_LE(header + 4);
     logFn(LogLevel_Debug, "format chunk size:\t%u bytes\n", fmtChunkSize);
 
-    maybeSlice = fr_takeSlice(reader, 2);
-    if (maybeSlice.err != Read_Ok) {
-        return WavFormatChunk_Err(translateError(maybeSlice.err));
+    SliceResult maybeFormatChunk = fr_takeSlice(reader, fmtChunkSize);
+    if (maybeFormatChunk.err != NoError) {
+        return WavFormatChunk_Err(translateError(maybeFormatChunk.err));
     }
-    const uint16_t waveFormat = bitcastU16_LE(maybeSlice.slice);
+    const uint8_t* slice = maybeFormatChunk.slice;
+
+    const uint16_t waveFormat = bitcastU16_LE(slice);
+    const uint16_t nChannels = bitcastU16_LE(slice + 2);
+    const uint32_t sampleRate = bitcastU32_LE(slice + 4);
+    const uint32_t bytesPerSec = bitcastU32_LE(slice + 8);
+    const uint16_t blockSize = bitcastU16_LE(slice + 12);
+    const uint16_t bitDepth = bitcastU16_LE(slice + 14);
+
     logFn(LogLevel_Debug, "wave format:\t\t0x%04:x\n", waveFormat);
-
-    maybeSlice = fr_takeSlice(reader, 2);
-    if (maybeSlice.err != Read_Ok) {
-        return WavFormatChunk_Err(translateError(maybeSlice.err));
-    }
-    const uint32_t nChannels = bitcastU16_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "n. channels:\t\t%x\n", nChannels);
-
-    maybeSlice = fr_takeSlice(reader, 4);
-    if (maybeSlice.err != Read_Ok) {
-        return WavFormatChunk_Err(translateError(maybeSlice.err));
-    }
-    const uint32_t sampleRate = bitcastU32_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "sample rate:\t\t%u\n", sampleRate);
-
-    maybeSlice = fr_takeSlice(reader, 4);
-    if (maybeSlice.err != Read_Ok) {
-        return WavFormatChunk_Err(translateError(maybeSlice.err));
-    }
-    const uint32_t bytesPerSec = bitcastU32_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "data rate:\t\t%u bytes per sec\n", bytesPerSec);
-
-    maybeSlice = fr_takeSlice(reader, 2);
-    if (maybeSlice.err != Read_Ok) {
-        return WavFormatChunk_Err(translateError(maybeSlice.err));
-    }
-    const uint16_t blockSize = bitcastU16_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "block size:\t\t%u bytes\n", blockSize);
-
-    maybeSlice = fr_takeSlice(reader, 2);
-    if (maybeSlice.err != Read_Ok) {
-        return WavFormatChunk_Err(translateError(maybeSlice.err));
-    }
-    const uint16_t bitDepth = bitcastU16_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "bit depth:\t\t%u bits\n", bitDepth);
 
+    // not doing anything with the extension
     uint16_t formatChunkExtensionSize = fmtChunkSize - 16;
     logFn(LogLevel_Debug, "fmt extension:\t\t%u bytes\n",
           formatChunkExtensionSize);
-    ReadError err = fr_skip(reader, formatChunkExtensionSize);
-    if (err != Read_Ok) {
-        return WavFormatChunk_Err(translateError(err));
-    }
 
     WavFormatChunk format = (WavFormatChunk){
         .formatTag = waveFormat,
