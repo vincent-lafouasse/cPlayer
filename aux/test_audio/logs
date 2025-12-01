@@ -1,0 +1,524 @@
++ [[ 2 -lt 2 ]]
++ INPUT=./wav/bass.wav
++ OUTDIR=wav/
++ mkdir -p wav/
++ for rate in 8000 16000 22050 44100 48000 96000
+++ base
++++ basename ./wav/bass.wav
+++ fname=bass.wav
+++ echo bass
++ ffmpeg -y -i ./wav/bass.wav -ar 8000 wav//bass_8000Hz.wav
+ffmpeg version 8.0 Copyright (c) 2000-2025 the FFmpeg developers
+  built with Apple clang version 16.0.0 (clang-1600.0.26.6)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/8.0_2 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon
+  libavutil      60.  8.100 / 60.  8.100
+  libavcodec     62. 11.100 / 62. 11.100
+  libavformat    62.  3.100 / 62.  3.100
+  libavdevice    62.  1.100 / 62.  1.100
+  libavfilter    11.  4.100 / 11.  4.100
+  libswscale      9.  1.100 /  9.  1.100
+  libswresample   6.  1.100 /  6.  1.100
+[aist#0:0/pcm_s24le @ 0x13c606720] Guessed Channel Layout: stereo
+Input #0, wav, from './wav/bass.wav':
+  Duration: 00:00:03.99, bitrate: 2116 kb/s
+  Stream #0:0: Audio: pcm_s24le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s32 (24 bit), 2116 kb/s
+Stream mapping:
+  Stream #0:0 -> #0:0 (pcm_s24le (native) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+Output #0, wav, to 'wav//bass_8000Hz.wav':
+  Metadata:
+    ISFT            : Lavf62.3.100
+  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 8000 Hz, stereo, s16, 256 kb/s
+    Metadata:
+      encoder         : Lavc62.11.100 pcm_s16le
+[out#0/wav @ 0x600003dac240] video:0KiB audio:125KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.061106%
+size=     125KiB time=00:00:03.98 bitrate= 256.2kbits/s speed= 866x elapsed=0:00:00.00    
++ for rate in 8000 16000 22050 44100 48000 96000
+++ base
++++ basename ./wav/bass.wav
+++ fname=bass.wav
+++ echo bass
++ ffmpeg -y -i ./wav/bass.wav -ar 16000 wav//bass_16000Hz.wav
+ffmpeg version 8.0 Copyright (c) 2000-2025 the FFmpeg developers
+  built with Apple clang version 16.0.0 (clang-1600.0.26.6)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/8.0_2 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon
+  libavutil      60.  8.100 / 60.  8.100
+  libavcodec     62. 11.100 / 62. 11.100
+  libavformat    62.  3.100 / 62.  3.100
+  libavdevice    62.  1.100 / 62.  1.100
+  libavfilter    11.  4.100 / 11.  4.100
+  libswscale      9.  1.100 /  9.  1.100
+  libswresample   6.  1.100 /  6.  1.100
+[aist#0:0/pcm_s24le @ 0x13df05b50] Guessed Channel Layout: stereo
+Input #0, wav, from './wav/bass.wav':
+  Duration: 00:00:03.99, bitrate: 2116 kb/s
+  Stream #0:0: Audio: pcm_s24le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s32 (24 bit), 2116 kb/s
+Stream mapping:
+  Stream #0:0 -> #0:0 (pcm_s24le (native) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+Output #0, wav, to 'wav//bass_16000Hz.wav':
+  Metadata:
+    ISFT            : Lavf62.3.100
+  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 16000 Hz, stereo, s16, 512 kb/s
+    Metadata:
+      encoder         : Lavc62.11.100 pcm_s16le
+[out#0/wav @ 0x600001748000] video:0KiB audio:249KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.030553%
+size=     249KiB time=00:00:03.98 bitrate= 512.2kbits/s speed= 929x elapsed=0:00:00.00    
++ for rate in 8000 16000 22050 44100 48000 96000
+++ base
++++ basename ./wav/bass.wav
+++ fname=bass.wav
+++ echo bass
++ ffmpeg -y -i ./wav/bass.wav -ar 22050 wav//bass_22050Hz.wav
+ffmpeg version 8.0 Copyright (c) 2000-2025 the FFmpeg developers
+  built with Apple clang version 16.0.0 (clang-1600.0.26.6)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/8.0_2 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon
+  libavutil      60.  8.100 / 60.  8.100
+  libavcodec     62. 11.100 / 62. 11.100
+  libavformat    62.  3.100 / 62.  3.100
+  libavdevice    62.  1.100 / 62.  1.100
+  libavfilter    11.  4.100 / 11.  4.100
+  libswscale      9.  1.100 /  9.  1.100
+  libswresample   6.  1.100 /  6.  1.100
+[aist#0:0/pcm_s24le @ 0x122f05b50] Guessed Channel Layout: stereo
+Input #0, wav, from './wav/bass.wav':
+  Duration: 00:00:03.99, bitrate: 2116 kb/s
+  Stream #0:0: Audio: pcm_s24le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s32 (24 bit), 2116 kb/s
+Stream mapping:
+  Stream #0:0 -> #0:0 (pcm_s24le (native) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+Output #0, wav, to 'wav//bass_22050Hz.wav':
+  Metadata:
+    ISFT            : Lavf62.3.100
+  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 22050 Hz, stereo, s16, 705 kb/s
+    Metadata:
+      encoder         : Lavc62.11.100 pcm_s16le
+[out#0/wav @ 0x6000028f4000] video:0KiB audio:344KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.022170%
+size=     344KiB time=00:00:03.98 bitrate= 705.8kbits/s speed=1.06e+03x elapsed=0:00:00.00    
++ for rate in 8000 16000 22050 44100 48000 96000
+++ base
++++ basename ./wav/bass.wav
+++ fname=bass.wav
+++ echo bass
++ ffmpeg -y -i ./wav/bass.wav -ar 44100 wav//bass_44100Hz.wav
+ffmpeg version 8.0 Copyright (c) 2000-2025 the FFmpeg developers
+  built with Apple clang version 16.0.0 (clang-1600.0.26.6)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/8.0_2 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon
+  libavutil      60.  8.100 / 60.  8.100
+  libavcodec     62. 11.100 / 62. 11.100
+  libavformat    62.  3.100 / 62.  3.100
+  libavdevice    62.  1.100 / 62.  1.100
+  libavfilter    11.  4.100 / 11.  4.100
+  libswscale      9.  1.100 /  9.  1.100
+  libswresample   6.  1.100 /  6.  1.100
+[aist#0:0/pcm_s24le @ 0x143e06720] Guessed Channel Layout: stereo
+Input #0, wav, from './wav/bass.wav':
+  Duration: 00:00:03.99, bitrate: 2116 kb/s
+  Stream #0:0: Audio: pcm_s24le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s32 (24 bit), 2116 kb/s
+Stream mapping:
+  Stream #0:0 -> #0:0 (pcm_s24le (native) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+Output #0, wav, to 'wav//bass_44100Hz.wav':
+  Metadata:
+    ISFT            : Lavf62.3.100
+  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s16, 1411 kb/s
+    Metadata:
+      encoder         : Lavc62.11.100 pcm_s16le
+[out#0/wav @ 0x6000001a4240] video:0KiB audio:687KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.011085%
+size=     687KiB time=00:00:03.98 bitrate=1411.4kbits/s speed=2.65e+03x elapsed=0:00:00.00    
++ for rate in 8000 16000 22050 44100 48000 96000
+++ base
++++ basename ./wav/bass.wav
+++ fname=bass.wav
+++ echo bass
++ ffmpeg -y -i ./wav/bass.wav -ar 48000 wav//bass_48000Hz.wav
+ffmpeg version 8.0 Copyright (c) 2000-2025 the FFmpeg developers
+  built with Apple clang version 16.0.0 (clang-1600.0.26.6)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/8.0_2 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon
+  libavutil      60.  8.100 / 60.  8.100
+  libavcodec     62. 11.100 / 62. 11.100
+  libavformat    62.  3.100 / 62.  3.100
+  libavdevice    62.  1.100 / 62.  1.100
+  libavfilter    11.  4.100 / 11.  4.100
+  libswscale      9.  1.100 /  9.  1.100
+  libswresample   6.  1.100 /  6.  1.100
+[aist#0:0/pcm_s24le @ 0x136e06720] Guessed Channel Layout: stereo
+Input #0, wav, from './wav/bass.wav':
+  Duration: 00:00:03.99, bitrate: 2116 kb/s
+  Stream #0:0: Audio: pcm_s24le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s32 (24 bit), 2116 kb/s
+Stream mapping:
+  Stream #0:0 -> #0:0 (pcm_s24le (native) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+Output #0, wav, to 'wav//bass_48000Hz.wav':
+  Metadata:
+    ISFT            : Lavf62.3.100
+  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 48000 Hz, stereo, s16, 1536 kb/s
+    Metadata:
+      encoder         : Lavc62.11.100 pcm_s16le
+[out#0/wav @ 0x6000027fc240] video:0KiB audio:748KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.010184%
+size=     748KiB time=00:00:03.98 bitrate=1536.2kbits/s speed= 892x elapsed=0:00:00.00    
++ for rate in 8000 16000 22050 44100 48000 96000
+++ base
++++ basename ./wav/bass.wav
+++ fname=bass.wav
+++ echo bass
++ ffmpeg -y -i ./wav/bass.wav -ar 96000 wav//bass_96000Hz.wav
+ffmpeg version 8.0 Copyright (c) 2000-2025 the FFmpeg developers
+  built with Apple clang version 16.0.0 (clang-1600.0.26.6)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/8.0_2 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon
+  libavutil      60.  8.100 / 60.  8.100
+  libavcodec     62. 11.100 / 62. 11.100
+  libavformat    62.  3.100 / 62.  3.100
+  libavdevice    62.  1.100 / 62.  1.100
+  libavfilter    11.  4.100 / 11.  4.100
+  libswscale      9.  1.100 /  9.  1.100
+  libswresample   6.  1.100 /  6.  1.100
+[aist#0:0/pcm_s24le @ 0x137f05b50] Guessed Channel Layout: stereo
+Input #0, wav, from './wav/bass.wav':
+  Duration: 00:00:03.99, bitrate: 2116 kb/s
+  Stream #0:0: Audio: pcm_s24le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s32 (24 bit), 2116 kb/s
+Stream mapping:
+  Stream #0:0 -> #0:0 (pcm_s24le (native) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+Output #0, wav, to 'wav//bass_96000Hz.wav':
+  Metadata:
+    ISFT            : Lavf62.3.100
+  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 96000 Hz, stereo, s16, 3072 kb/s
+    Metadata:
+      encoder         : Lavc62.11.100 pcm_s16le
+[out#0/wav @ 0x600003ae8000] video:0KiB audio:1496KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.006659%
+size=    1496KiB time=00:00:03.98 bitrate=3072.2kbits/s speed= 561x elapsed=0:00:00.00    
++ for depth in 8 16 24 32
+++ base
++++ basename ./wav/bass.wav
+++ fname=bass.wav
+++ echo bass
++ ffmpeg -y -i ./wav/bass.wav -sample_fmt s8 wav//bass_8bit.wav
+ffmpeg version 8.0 Copyright (c) 2000-2025 the FFmpeg developers
+  built with Apple clang version 16.0.0 (clang-1600.0.26.6)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/8.0_2 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon
+  libavutil      60.  8.100 / 60.  8.100
+  libavcodec     62. 11.100 / 62. 11.100
+  libavformat    62.  3.100 / 62.  3.100
+  libavdevice    62.  1.100 / 62.  1.100
+  libavfilter    11.  4.100 / 11.  4.100
+  libswscale      9.  1.100 /  9.  1.100
+  libswresample   6.  1.100 /  6.  1.100
+[aist#0:0/pcm_s24le @ 0x136606720] Guessed Channel Layout: stereo
+Input #0, wav, from './wav/bass.wav':
+  Duration: 00:00:03.99, bitrate: 2116 kb/s
+  Stream #0:0: Audio: pcm_s24le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s32 (24 bit), 2116 kb/s
+[aost#0:0/pcm_s16le @ 0x136606d40] Invalid sample format 's8'
+Error opening output file wav//bass_8bit.wav.
+Error opening output files: Invalid argument
++ for depth in 8 16 24 32
+++ base
++++ basename ./wav/bass.wav
+++ fname=bass.wav
+++ echo bass
++ ffmpeg -y -i ./wav/bass.wav -sample_fmt s16 wav//bass_16bit.wav
+ffmpeg version 8.0 Copyright (c) 2000-2025 the FFmpeg developers
+  built with Apple clang version 16.0.0 (clang-1600.0.26.6)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/8.0_2 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon
+  libavutil      60.  8.100 / 60.  8.100
+  libavcodec     62. 11.100 / 62. 11.100
+  libavformat    62.  3.100 / 62.  3.100
+  libavdevice    62.  1.100 / 62.  1.100
+  libavfilter    11.  4.100 / 11.  4.100
+  libswscale      9.  1.100 /  9.  1.100
+  libswresample   6.  1.100 /  6.  1.100
+[aist#0:0/pcm_s24le @ 0x14ff05b50] Guessed Channel Layout: stereo
+Input #0, wav, from './wav/bass.wav':
+  Duration: 00:00:03.99, bitrate: 2116 kb/s
+  Stream #0:0: Audio: pcm_s24le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s32 (24 bit), 2116 kb/s
+Stream mapping:
+  Stream #0:0 -> #0:0 (pcm_s24le (native) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+Output #0, wav, to 'wav//bass_16bit.wav':
+  Metadata:
+    ISFT            : Lavf62.3.100
+  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s16, 1411 kb/s
+    Metadata:
+      encoder         : Lavc62.11.100 pcm_s16le
+[out#0/wav @ 0x6000028d8000] video:0KiB audio:687KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.011085%
+size=     687KiB time=00:00:03.98 bitrate=1411.4kbits/s speed=2.42e+03x elapsed=0:00:00.00    
++ for depth in 8 16 24 32
+++ base
++++ basename ./wav/bass.wav
+++ fname=bass.wav
+++ echo bass
++ ffmpeg -y -i ./wav/bass.wav -sample_fmt s24 wav//bass_24bit.wav
+ffmpeg version 8.0 Copyright (c) 2000-2025 the FFmpeg developers
+  built with Apple clang version 16.0.0 (clang-1600.0.26.6)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/8.0_2 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon
+  libavutil      60.  8.100 / 60.  8.100
+  libavcodec     62. 11.100 / 62. 11.100
+  libavformat    62.  3.100 / 62.  3.100
+  libavdevice    62.  1.100 / 62.  1.100
+  libavfilter    11.  4.100 / 11.  4.100
+  libswscale      9.  1.100 /  9.  1.100
+  libswresample   6.  1.100 /  6.  1.100
+[aist#0:0/pcm_s24le @ 0x155705b50] Guessed Channel Layout: stereo
+Input #0, wav, from './wav/bass.wav':
+  Duration: 00:00:03.99, bitrate: 2116 kb/s
+  Stream #0:0: Audio: pcm_s24le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s32 (24 bit), 2116 kb/s
+[aost#0:0/pcm_s16le @ 0x155706170] Invalid sample format 's24'
+Error opening output file wav//bass_24bit.wav.
+Error opening output files: Invalid argument
++ for depth in 8 16 24 32
+++ base
++++ basename ./wav/bass.wav
+++ fname=bass.wav
+++ echo bass
++ ffmpeg -y -i ./wav/bass.wav -sample_fmt s32 wav//bass_32bit.wav
+ffmpeg version 8.0 Copyright (c) 2000-2025 the FFmpeg developers
+  built with Apple clang version 16.0.0 (clang-1600.0.26.6)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/8.0_2 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon
+  libavutil      60.  8.100 / 60.  8.100
+  libavcodec     62. 11.100 / 62. 11.100
+  libavformat    62.  3.100 / 62.  3.100
+  libavdevice    62.  1.100 / 62.  1.100
+  libavfilter    11.  4.100 / 11.  4.100
+  libswscale      9.  1.100 /  9.  1.100
+  libswresample   6.  1.100 /  6.  1.100
+[aist#0:0/pcm_s24le @ 0x11ef05b50] Guessed Channel Layout: stereo
+Input #0, wav, from './wav/bass.wav':
+  Duration: 00:00:03.99, bitrate: 2116 kb/s
+  Stream #0:0: Audio: pcm_s24le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s32 (24 bit), 2116 kb/s
+Stream mapping:
+  Stream #0:0 -> #0:0 (pcm_s24le (native) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+[pcm_s16le @ 0x11ef06430] Specified sample format s32 is not supported by the pcm_s16le encoder
+[pcm_s16le @ 0x11ef06430] Supported sample formats:
+[pcm_s16le @ 0x11ef06430]   s16
+[aost#0:0/pcm_s16le @ 0x11ef06170] [enc:pcm_s16le @ 0x600002af8230] Error while opening encoder - maybe incorrect parameters such as bit_rate, rate, width or height.
+[af#0:0 @ 0x11f920200] Error sending frames to consumers: Invalid argument
+[af#0:0 @ 0x11f920200] Task finished with error code: -22 (Invalid argument)
+[af#0:0 @ 0x11f920200] Terminating thread with return code -22 (Invalid argument)
+[aost#0:0/pcm_s16le @ 0x11ef06170] [enc:pcm_s16le @ 0x600002af8230] Could not open encoder before EOF
+[aost#0:0/pcm_s16le @ 0x11ef06170] Task finished with error code: -22 (Invalid argument)
+[aost#0:0/pcm_s16le @ 0x11ef06170] Terminating thread with return code -22 (Invalid argument)
+[out#0/wav @ 0x6000034f8000] Nothing was written into output file, because at least one of its streams received no packets.
+size=       0KiB time=N/A bitrate=N/A speed=N/A elapsed=0:00:00.00    
+Conversion failed!
+++ base
++++ basename ./wav/bass.wav
+++ fname=bass.wav
+++ echo bass
++ ffmpeg -y -i ./wav/bass.wav -sample_fmt flt wav//bass_float32.wav
+ffmpeg version 8.0 Copyright (c) 2000-2025 the FFmpeg developers
+  built with Apple clang version 16.0.0 (clang-1600.0.26.6)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/8.0_2 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon
+  libavutil      60.  8.100 / 60.  8.100
+  libavcodec     62. 11.100 / 62. 11.100
+  libavformat    62.  3.100 / 62.  3.100
+  libavdevice    62.  1.100 / 62.  1.100
+  libavfilter    11.  4.100 / 11.  4.100
+  libswscale      9.  1.100 /  9.  1.100
+  libswresample   6.  1.100 /  6.  1.100
+[aist#0:0/pcm_s24le @ 0x129f05b50] Guessed Channel Layout: stereo
+Input #0, wav, from './wav/bass.wav':
+  Duration: 00:00:03.99, bitrate: 2116 kb/s
+  Stream #0:0: Audio: pcm_s24le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s32 (24 bit), 2116 kb/s
+Stream mapping:
+  Stream #0:0 -> #0:0 (pcm_s24le (native) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+[pcm_s16le @ 0x129f06430] Specified sample format flt is not supported by the pcm_s16le encoder
+[pcm_s16le @ 0x129f06430] Supported sample formats:
+[pcm_s16le @ 0x129f06430]   s16
+[aost#0:0/pcm_s16le @ 0x129f06170] [enc:pcm_s16le @ 0x600000bf0230] Error while opening encoder - maybe incorrect parameters such as bit_rate, rate, width or height.
+[af#0:0 @ 0x12a920200] Error sending frames to consumers: Invalid argument
+[af#0:0 @ 0x12a920200] Task finished with error code: -22 (Invalid argument)
+[af#0:0 @ 0x12a920200] Terminating thread with return code -22 (Invalid argument)
+[aost#0:0/pcm_s16le @ 0x129f06170] [enc:pcm_s16le @ 0x600000bf0230] Could not open encoder before EOF
+[aost#0:0/pcm_s16le @ 0x129f06170] Task finished with error code: -22 (Invalid argument)
+[aost#0:0/pcm_s16le @ 0x129f06170] Terminating thread with return code -22 (Invalid argument)
+[out#0/wav @ 0x6000015f0000] Nothing was written into output file, because at least one of its streams received no packets.
+size=       0KiB time=N/A bitrate=N/A speed=N/A elapsed=0:00:00.00    
+Conversion failed!
+++ base
++++ basename ./wav/bass.wav
+++ fname=bass.wav
+++ echo bass
++ ffmpeg -y -i ./wav/bass.wav -sample_fmt dbl wav//bass_float64.wav
+ffmpeg version 8.0 Copyright (c) 2000-2025 the FFmpeg developers
+  built with Apple clang version 16.0.0 (clang-1600.0.26.6)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/8.0_2 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon
+  libavutil      60.  8.100 / 60.  8.100
+  libavcodec     62. 11.100 / 62. 11.100
+  libavformat    62.  3.100 / 62.  3.100
+  libavdevice    62.  1.100 / 62.  1.100
+  libavfilter    11.  4.100 / 11.  4.100
+  libswscale      9.  1.100 /  9.  1.100
+  libswresample   6.  1.100 /  6.  1.100
+[aist#0:0/pcm_s24le @ 0x11df05b50] Guessed Channel Layout: stereo
+Input #0, wav, from './wav/bass.wav':
+  Duration: 00:00:03.99, bitrate: 2116 kb/s
+  Stream #0:0: Audio: pcm_s24le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s32 (24 bit), 2116 kb/s
+Stream mapping:
+  Stream #0:0 -> #0:0 (pcm_s24le (native) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+[pcm_s16le @ 0x11df06430] Specified sample format dbl is not supported by the pcm_s16le encoder
+[pcm_s16le @ 0x11df06430] Supported sample formats:
+[pcm_s16le @ 0x11df06430]   s16
+[aost#0:0/pcm_s16le @ 0x11df06170] [enc:pcm_s16le @ 0x600002c60230] Error while opening encoder - maybe incorrect parameters such as bit_rate, rate, width or height.
+[af#0:0 @ 0x11e920200] Error sending frames to consumers: Invalid argument
+[af#0:0 @ 0x11e920200] Task finished with error code: -22 (Invalid argument)
+[af#0:0 @ 0x11e920200] Terminating thread with return code -22 (Invalid argument)
+[aost#0:0/pcm_s16le @ 0x11df06170] [enc:pcm_s16le @ 0x600002c60230] Could not open encoder before EOF
+[aost#0:0/pcm_s16le @ 0x11df06170] Task finished with error code: -22 (Invalid argument)
+[aost#0:0/pcm_s16le @ 0x11df06170] Terminating thread with return code -22 (Invalid argument)
+[out#0/wav @ 0x600003260000] Nothing was written into output file, because at least one of its streams received no packets.
+size=       0KiB time=N/A bitrate=N/A speed=N/A elapsed=0:00:00.00    
+Conversion failed!
+++ base
++++ basename ./wav/bass.wav
+++ fname=bass.wav
+++ echo bass
++ ffmpeg -y -i ./wav/bass.wav -ac 1 wav//bass_mono.wav
+ffmpeg version 8.0 Copyright (c) 2000-2025 the FFmpeg developers
+  built with Apple clang version 16.0.0 (clang-1600.0.26.6)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/8.0_2 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon
+  libavutil      60.  8.100 / 60.  8.100
+  libavcodec     62. 11.100 / 62. 11.100
+  libavformat    62.  3.100 / 62.  3.100
+  libavdevice    62.  1.100 / 62.  1.100
+  libavfilter    11.  4.100 / 11.  4.100
+  libswscale      9.  1.100 /  9.  1.100
+  libswresample   6.  1.100 /  6.  1.100
+[aist#0:0/pcm_s24le @ 0x142705b50] Guessed Channel Layout: stereo
+Input #0, wav, from './wav/bass.wav':
+  Duration: 00:00:03.99, bitrate: 2116 kb/s
+  Stream #0:0: Audio: pcm_s24le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s32 (24 bit), 2116 kb/s
+Stream mapping:
+  Stream #0:0 -> #0:0 (pcm_s24le (native) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+Output #0, wav, to 'wav//bass_mono.wav':
+  Metadata:
+    ISFT            : Lavf62.3.100
+  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 44100 Hz, mono, s16, 705 kb/s
+    Metadata:
+      encoder         : Lavc62.11.100 pcm_s16le
+[out#0/wav @ 0x600000c84000] video:0KiB audio:344KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.022170%
+size=     344KiB time=00:00:03.98 bitrate= 705.8kbits/s speed=2.37e+03x elapsed=0:00:00.00    
+++ base
++++ basename ./wav/bass.wav
+++ fname=bass.wav
+++ echo bass
++ ffmpeg -y -i ./wav/bass.wav -ac 2 wav//bass_stereo.wav
+ffmpeg version 8.0 Copyright (c) 2000-2025 the FFmpeg developers
+  built with Apple clang version 16.0.0 (clang-1600.0.26.6)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/8.0_2 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon
+  libavutil      60.  8.100 / 60.  8.100
+  libavcodec     62. 11.100 / 62. 11.100
+  libavformat    62.  3.100 / 62.  3.100
+  libavdevice    62.  1.100 / 62.  1.100
+  libavfilter    11.  4.100 / 11.  4.100
+  libswscale      9.  1.100 /  9.  1.100
+  libswresample   6.  1.100 /  6.  1.100
+[aist#0:0/pcm_s24le @ 0x144f05b50] Guessed Channel Layout: stereo
+Input #0, wav, from './wav/bass.wav':
+  Duration: 00:00:03.99, bitrate: 2116 kb/s
+  Stream #0:0: Audio: pcm_s24le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s32 (24 bit), 2116 kb/s
+Stream mapping:
+  Stream #0:0 -> #0:0 (pcm_s24le (native) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+Output #0, wav, to 'wav//bass_stereo.wav':
+  Metadata:
+    ISFT            : Lavf62.3.100
+  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s16, 1411 kb/s
+    Metadata:
+      encoder         : Lavc62.11.100 pcm_s16le
+[out#0/wav @ 0x600000304000] video:0KiB audio:687KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.011085%
+size=     687KiB time=00:00:03.98 bitrate=1411.4kbits/s speed=2.71e+03x elapsed=0:00:00.00    
+++ base
++++ basename ./wav/bass.wav
+++ fname=bass.wav
+++ echo bass
++ ffmpeg -y -i ./wav/bass.wav -t 0.1 wav//bass_100ms.wav
+ffmpeg version 8.0 Copyright (c) 2000-2025 the FFmpeg developers
+  built with Apple clang version 16.0.0 (clang-1600.0.26.6)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/8.0_2 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon
+  libavutil      60.  8.100 / 60.  8.100
+  libavcodec     62. 11.100 / 62. 11.100
+  libavformat    62.  3.100 / 62.  3.100
+  libavdevice    62.  1.100 / 62.  1.100
+  libavfilter    11.  4.100 / 11.  4.100
+  libswscale      9.  1.100 /  9.  1.100
+  libswresample   6.  1.100 /  6.  1.100
+[aist#0:0/pcm_s24le @ 0x14cf05b50] Guessed Channel Layout: stereo
+Input #0, wav, from './wav/bass.wav':
+  Duration: 00:00:03.99, bitrate: 2116 kb/s
+  Stream #0:0: Audio: pcm_s24le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s32 (24 bit), 2116 kb/s
+Stream mapping:
+  Stream #0:0 -> #0:0 (pcm_s24le (native) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+Output #0, wav, to 'wav//bass_100ms.wav':
+  Metadata:
+    ISFT            : Lavf62.3.100
+  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s16, 1411 kb/s
+    Metadata:
+      encoder         : Lavc62.11.100 pcm_s16le
+[out#0/wav @ 0x600000a08000] video:0KiB audio:17KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.442177%
+size=      17KiB time=00:00:00.10 bitrate=1417.4kbits/s speed=40.1x elapsed=0:00:00.00    
+++ base
++++ basename ./wav/bass.wav
+++ fname=bass.wav
+++ echo bass
++ ffmpeg -y -i ./wav/bass.wav -t 1.0 wav//bass_1s.wav
+ffmpeg version 8.0 Copyright (c) 2000-2025 the FFmpeg developers
+  built with Apple clang version 16.0.0 (clang-1600.0.26.6)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/8.0_2 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon
+  libavutil      60.  8.100 / 60.  8.100
+  libavcodec     62. 11.100 / 62. 11.100
+  libavformat    62.  3.100 / 62.  3.100
+  libavdevice    62.  1.100 / 62.  1.100
+  libavfilter    11.  4.100 / 11.  4.100
+  libswscale      9.  1.100 /  9.  1.100
+  libswresample   6.  1.100 /  6.  1.100
+[aist#0:0/pcm_s24le @ 0x12c705b50] Guessed Channel Layout: stereo
+Input #0, wav, from './wav/bass.wav':
+  Duration: 00:00:03.99, bitrate: 2116 kb/s
+  Stream #0:0: Audio: pcm_s24le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s32 (24 bit), 2116 kb/s
+Stream mapping:
+  Stream #0:0 -> #0:0 (pcm_s24le (native) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+Output #0, wav, to 'wav//bass_1s.wav':
+  Metadata:
+    ISFT            : Lavf62.3.100
+  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s16, 1411 kb/s
+    Metadata:
+      encoder         : Lavc62.11.100 pcm_s16le
+[out#0/wav @ 0x600002048000] video:0KiB audio:172KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.044218%
+size=     172KiB time=00:00:01.00 bitrate=1411.8kbits/s speed= 887x elapsed=0:00:00.00    
+++ base
++++ basename ./wav/bass.wav
+++ fname=bass.wav
+++ echo bass
++ ffmpeg -y -i ./wav/bass.wav -af apad=pad_dur=5 wav//bass_padded.wav
+ffmpeg version 8.0 Copyright (c) 2000-2025 the FFmpeg developers
+  built with Apple clang version 16.0.0 (clang-1600.0.26.6)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/8.0_2 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon
+  libavutil      60.  8.100 / 60.  8.100
+  libavcodec     62. 11.100 / 62. 11.100
+  libavformat    62.  3.100 / 62.  3.100
+  libavdevice    62.  1.100 / 62.  1.100
+  libavfilter    11.  4.100 / 11.  4.100
+  libswscale      9.  1.100 /  9.  1.100
+  libswresample   6.  1.100 /  6.  1.100
+[aist#0:0/pcm_s24le @ 0x141606720] Guessed Channel Layout: stereo
+Input #0, wav, from './wav/bass.wav':
+  Duration: 00:00:03.99, bitrate: 2116 kb/s
+  Stream #0:0: Audio: pcm_s24le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s32 (24 bit), 2116 kb/s
+Stream mapping:
+  Stream #0:0 -> #0:0 (pcm_s24le (native) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+Output #0, wav, to 'wav//bass_padded.wav':
+  Metadata:
+    ISFT            : Lavf62.3.100
+  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 44100 Hz, stereo, s16, 1411 kb/s
+    Metadata:
+      encoder         : Lavc62.11.100 pcm_s16le
+[out#0/wav @ 0x600003e60240] video:0KiB audio:1548KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.004919%
+size=    1549KiB time=00:00:08.98 bitrate=1411.3kbits/s speed=4.31e+03x elapsed=0:00:00.00    
++ echo 'Done. Files written to: wav/'
