@@ -1,9 +1,7 @@
+#include "Error.h"
 #include "wav_internals.h"
 
-#include <stdlib.h>
-
 #include "int24.h"
-#include "log.h"
 
 #define INT24_MAX_ABS (1 << 23)
 
@@ -27,7 +25,6 @@ FloatResult readSample(FileReader* reader, SampleFormat fmt)
         case Signed24:
             return readI24(reader);
         default:
-            logFn(LogLevel_Error, "Unsupported sample format %i\n", fmt);
-            exit(1);
+            return (FloatResult){.err = E_Wav_UnsupportedSampleFormat};
     }
 }
