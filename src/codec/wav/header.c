@@ -124,23 +124,33 @@ typedef struct {
     Error err;
 } SampleFormatResult;
 
+static inline SampleFormatResult sf_Ok(SampleFormat fmt)
+{
+    return (SampleFormatResult){.format = fmt, .err = NoError};
+}
+
+static inline SampleFormatResult sf_Err(Error err)
+{
+    return (SampleFormatResult){.err = err};
+}
+
 SampleFormatResult determineSampleFormat(WavFormatChunk format)
 {
     if (format.formatTag != WAVE_FORMAT_PCM) {
-        return (SampleFormatResult){.err = E_Wav_UnsupportedSampleFormat};
+        return sf_Err(E_Wav_UnsupportedSampleFormat);
     }
 
     const size_t sz = format.bitDepth / 8;
     if (sz == 1) {
-        return (SampleFormatResult){.format = Unsigned8, .err = NoError};
+        return sf_Ok(Unsigned8);
     } else if (sz == 2) {
-        return (SampleFormatResult){.format = Signed16, .err = NoError};
+        return sf_Ok(Signed16);
     } else if (sz == 3) {
-        return (SampleFormatResult){.format = Signed24, .err = NoError};
+        return sf_Ok(Signed32);
     } else if (sz == 4) {
-        return (SampleFormatResult){.format = Signed32, .err = NoError};
+        return sf_Ok(Signed32);
     } else {
-        return (SampleFormatResult){.err = E_Wav_UnsupportedSampleFormat};
+        return sf_Err(E_Wav_UnsupportedSampleFormat);
     }
 }
 
