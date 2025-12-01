@@ -35,6 +35,9 @@ AudioDataResult readWavData(FileReader* reader, Header h)
 static AudioDataResult readWavDataMono(FileReader* reader, Header h)
 {
     float* left = malloc(h.size * sizeof(float));
+    if (left == NULL) {
+        return AudioDataResult_Err(E_OOM);
+    }
 
     for (uint32_t i = 0; i < h.size; ++i) {
         FloatResult maybeSample = readSample(reader, h.sampleFormat);
