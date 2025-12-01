@@ -17,3 +17,4 @@ typedef struct {
 
 OptionsResult parseOptions(const char** args, size_t sz);
 void logOptions(const Options* opts);
+void printHelp(const char* programName);

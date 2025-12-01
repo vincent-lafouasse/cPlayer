@@ -1,5 +1,6 @@
 #include <stdlib.h>
 
+#include "Error.h"
 #include "FileReader.h"
 
 #include "audio.h"
@@ -32,6 +33,10 @@ int main(int ac, char** av)
 {
     const OptionsResult maybeOptions =
         parseOptions((const char**)av + 1, ac - 1);
+    if (maybeOptions.err == E_HelpRequested) {
+        printHelp(av[0]);
+        return 0;
+    }
     if (maybeOptions.err != NoError) {
         logFn(LogLevel_Error, "Failed to parse flags: %s\n",
               errorRepr(maybeOptions.err));

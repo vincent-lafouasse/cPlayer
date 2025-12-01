@@ -5,6 +5,8 @@
 #include "Error.h"
 #include "log.h"
 
+#define LOG_BUFFER_SIZE 1024
+
 Options defaultOptions(void)
 {
     return (Options){.input = NULL, .headless = false};
@@ -52,12 +54,12 @@ static const Flag flags[] = {
      .type = Flag_String,
      .longFlag = "--input",
      .shortFlag = "-i",
-     .argName = "audioFile",
+     .argName = "file",
      .description = "Audio file to decode"},
 };
 static const size_t nFlags = sizeof(flags) / sizeof(*flags);
 
-const Flag* matchFlag(const Flag* flags, size_t nFlags, const char* s)
+const Flag* matchFlag(const char* s)
 {
     for (size_t i = 0; i < nFlags; i++) {
         const char* longFlag = flags[i].longFlag;
@@ -89,13 +91,17 @@ Error setFlagDestination(const Flag* flag, void* dest, const char* value);
 
 OptionsResult parseOptions(const char** args, size_t sz)
 {
+    if (sz != 0 && (strEq(args[0], "-h") || strEq(args[0], "--help"))) {
+        return Err(E_HelpRequested);
+    }
+
     Options out = defaultOptions();
 
     size_t i = 0;
     while (i < sz) {
         if (args[i][0] == '-') {
             // flag arguments
-            const Flag* flag = matchFlag(flags, nFlags, args[i]);
+            const Flag* flag = matchFlag(args[i]);
             if (flag == NULL) {
                 return Err(E_Unknown_Flag);
             }
@@ -138,4 +144,57 @@ void logOptions(const Options* opts)
     logFn(LogLevel_Info, "\tfile:\t%s\n", opts->input);
     logFn(LogLevel_Info, "\theadless:\t%s\n", boolRepr(opts->headless));
     logFn(LogLevel_Info, "}\n");
+}
+
+void printHelp(const char* programName)
+{
+    logFn(LogLevel_Info, "Usage: %s [OPTIONS] <input>\n", programName);
+    logFn(LogLevel_Info, "\n");
+    logFn(LogLevel_Info, "Options:\n");
+
+    // Compute padding width for alignment
+    size_t maxWidth = 0;
+    for (size_t i = 0; i < nFlags; i++) {
+        const Flag* f = flags + i;
+        char tmp[LOG_BUFFER_SIZE];
+
+        if (f->shortFlag) {
+            // "-s, --long ARG"
+            snprintf(tmp, sizeof(tmp), "%s, %s%s%s", f->shortFlag, f->longFlag,
+                     (f->type == Flag_Bool ? "" : " "),
+                     (f->type == Flag_Bool ? "" : f->argName));
+        } else {
+            // "--long ARG"
+            snprintf(tmp, sizeof(tmp), "%s%s%s", f->longFlag,
+                     (f->type == Flag_Bool ? "" : " "),
+                     (f->type == Flag_Bool ? "" : f->argName));
+        }
+
+        size_t len = strlen(tmp);
+        if (len > maxWidth)
+            maxWidth = len;
+    }
+
+    // Print help lines
+    for (size_t i = 0; i < nFlags; i++) {
+        const Flag* f = flags + i;
+        char buf[LOG_BUFFER_SIZE];
+
+        // Build the flag representation
+        if (f->shortFlag) {
+            snprintf(buf, sizeof(buf), "%s, %s%s%s", f->shortFlag, f->longFlag,
+                     (f->type == Flag_Bool ? "" : " "),
+                     (f->type == Flag_Bool ? "" : f->argName));
+        } else {
+            snprintf(buf, sizeof(buf), "%s%s%s", f->longFlag,
+                     (f->type == Flag_Bool ? "" : " "),
+                     (f->type == Flag_Bool ? "" : f->argName));
+        }
+
+        // Align descriptions
+        size_t pad = maxWidth - strlen(buf);
+
+        logFn(LogLevel_Info, "  %s%*s  %s\n", buf, (int)pad, "",
+              f->description);
+    }
 }
