@@ -5,8 +5,6 @@
 #include "Error.h"
 #include "log.h"
 
-#define LOG_BUFFER_SIZE 1024
-
 Options defaultOptions(void)
 {
     return (Options){.input = NULL, .headless = false};
@@ -146,6 +144,18 @@ void logOptions(const Options* opts)
     logFn(LogLevel_Info, "}\n");
 }
 
+static size_t flagDisplayWidth(const Flag* f)
+{
+        if (f->shortFlag) {
+            // "-s, --long ARG"
+            // len(short) + 2 (comma space) + len(long) + 1 (space) + len(arg)
+            return strlen(f->shortFlag) + 2 + strlen(f->longFlag) + 1 + strlen(f->argName);
+        } else {
+            // "--long ARG"
+            return strlen(f->longFlag) + 1 + strlen(f->argName);
+        }
+}
+
 void printHelp(const char* programName)
 {
     logFn(LogLevel_Info, "Usage: %s [OPTIONS] <input>\n", programName);
@@ -156,45 +166,21 @@ void printHelp(const char* programName)
     size_t maxWidth = 0;
     for (size_t i = 0; i < nFlags; i++) {
         const Flag* f = flags + i;
-        char tmp[LOG_BUFFER_SIZE];
-
-        if (f->shortFlag) {
-            // "-s, --long ARG"
-            snprintf(tmp, sizeof(tmp), "%s, %s%s%s", f->shortFlag, f->longFlag,
-                     (f->type == Flag_Bool ? "" : " "),
-                     (f->type == Flag_Bool ? "" : f->argName));
-        } else {
-            // "--long ARG"
-            snprintf(tmp, sizeof(tmp), "%s%s%s", f->longFlag,
-                     (f->type == Flag_Bool ? "" : " "),
-                     (f->type == Flag_Bool ? "" : f->argName));
+        size_t width = flagDisplayWidth(f);
+        if (width > maxWidth) {
+            maxWidth = width;
         }
-
-        size_t len = strlen(tmp);
-        if (len > maxWidth)
-            maxWidth = len;
     }
 
     // Print help lines
     for (size_t i = 0; i < nFlags; i++) {
         const Flag* f = flags + i;
-        char buf[LOG_BUFFER_SIZE];
+        const size_t pad = maxWidth - flagDisplayWidth(f);
 
-        // Build the flag representation
-        if (f->shortFlag) {
-            snprintf(buf, sizeof(buf), "%s, %s%s%s", f->shortFlag, f->longFlag,
-                     (f->type == Flag_Bool ? "" : " "),
-                     (f->type == Flag_Bool ? "" : f->argName));
+        if (f->shortFlag == NULL) {
+            logFn(LogLevel_Info, "\t%s %s%*s %s\n", f->longFlag, f->argName, (int)pad, " ", f->description);
         } else {
-            snprintf(buf, sizeof(buf), "%s%s%s", f->longFlag,
-                     (f->type == Flag_Bool ? "" : " "),
-                     (f->type == Flag_Bool ? "" : f->argName));
+            logFn(LogLevel_Info, "\t%s, %s %s%*s %s\n", f->shortFlag, f->longFlag, f->argName, (int)pad, " ", f->description);
         }
-
-        // Align descriptions
-        size_t pad = maxWidth - strlen(buf);
-
-        logFn(LogLevel_Info, "  %s%*s  %s\n", buf, (int)pad, "",
-              f->description);
     }
 }
