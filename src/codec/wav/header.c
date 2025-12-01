@@ -22,30 +22,24 @@ static Error translateError(ReadError re)
 
 static Error getToFormatChunk(FileReader* reader)
 {
-    SliceResult maybeSlice = fr_takeSlice(reader, 4);
+    SliceResult maybeSlice = fr_takeSlice(reader, 12);
     if (maybeSlice.err != Read_Ok) {
         return translateError(maybeSlice.err);
     }
-    if (strncmp((const char*)maybeSlice.slice, "RIFF", 4) != 0) {
+
+    // "RIFF" magic word, wav is a RIFF container
+    const uint8_t* masterChunk = maybeSlice.slice;
+    if (strncmp((const char*)masterChunk, "RIFF", 4) != 0) {
         return E_Wav_UnknownFourCC;
     }
-    logFn(LogLevel_Debug, "master chunk ID:\t%s\n", maybeSlice.slice);
 
-    maybeSlice = fr_takeSlice(reader, 4);
-    if (maybeSlice.err != Read_Ok) {
-        return translateError(maybeSlice.err);
-    }
-    const uint32_t masterChunkSize = bitcastU32_LE(maybeSlice.slice);
+    const uint32_t masterChunkSize = bitcastU32_LE(masterChunk + 4);
     logFn(LogLevel_Debug, "master chunk size:\t%u bytes\n", masterChunkSize);
 
-    maybeSlice = fr_takeSlice(reader, 4);
-    if (maybeSlice.err != Read_Ok) {
-        return translateError(maybeSlice.err);
-    }
-    if (strncmp((const char*)maybeSlice.slice, "WAVE", 4) != 0) {
+    // the WAVE chunk contains our metadata and data
+    if (strncmp((const char*)masterChunk + 8, "WAVE", 4) != 0) {
         return E_Wav_UnknownFourCC;
     }
-    logFn(LogLevel_Debug, "wav chunk ID:\t\t%s\n", maybeSlice.slice);
 
     return NoError;
 }
