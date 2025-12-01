@@ -16,3 +16,4 @@ typedef struct {
 } OptionsResult;
 
 OptionsResult parseOptions(const char** args, size_t sz);
+void logOptions(const Options* opts);

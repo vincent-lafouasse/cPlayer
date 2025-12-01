@@ -54,7 +54,7 @@ OptionsResult parseOptions(const char** args, size_t sz)
         if (args[i][0] == '-') {
             bool matched = false;
 
-            for (size_t f = 0; f < nFlags; ++i) {
+            for (size_t f = 0; f < nFlags; ++f) {
                 const FlagSpecs* flag = flags + f;
 
                 if (strEq(args[i], flag->name)) {
@@ -87,4 +87,17 @@ OptionsResult parseOptions(const char** args, size_t sz)
     } else {
         return Ok(out);
     }
+}
+
+const char* boolRepr(bool b)
+{
+    return b ? "True" : "False";
+}
+
+void logOptions(const Options* opts)
+{
+    logFn(LogLevel_Info, "Options {\n");
+    logFn(LogLevel_Info, "\tfile:\t%s\n", opts->input);
+    logFn(LogLevel_Info, "\theadless:\t%s\n", boolRepr(opts->headless));
+    logFn(LogLevel_Info, "}\n");
 }

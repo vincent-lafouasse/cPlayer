@@ -34,6 +34,18 @@ int main(int ac, char** av)
         logFn(LogLevel_Error, "Usage: %s track.wav\n", av[0]);
         return 1;
     }
+
+    const OptionsResult maybeOptions =
+        parseOptions((const char**)av + 1, ac - 1);
+    if (maybeOptions.err != NoError) {
+        logFn(LogLevel_Error, "Failed to parse flags: %s\n",
+              errorRepr(maybeOptions.err));
+        logFn(LogLevel_Error, "Usage: %s track.wav\n", av[0]);
+        return 1;
+    }
+    const Options* options = &maybeOptions.options;
+    logOptions(options);
+
     const char* path = av[1];
     logFn(LogLevel_Debug, "-----Reading file\t%s-----\n", path);
 
