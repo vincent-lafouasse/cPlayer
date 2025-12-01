@@ -13,6 +13,7 @@ typedef struct {
 typedef struct {
     Options options;
     Error err;
+    const char* fault;
 } OptionsResult;
 
 OptionsResult parseOptions(const char** args, size_t sz);

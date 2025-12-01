@@ -40,6 +40,9 @@ int main(int ac, char** av)
     if (maybeOptions.err != NoError) {
         logFn(LogLevel_Error, "Failed to parse flags: %s\n",
               errorRepr(maybeOptions.err));
+        if (maybeOptions.fault) {
+            logFn(LogLevel_Error, "Error at: %s\n", maybeOptions.fault);
+        }
         logFn(LogLevel_Error, "Usage: %s track.wav\n", av[0]);
         return 1;
     }

@@ -15,9 +15,9 @@ static OptionsResult Ok(Options opt)
     return (OptionsResult){.options = opt, .err = NoError};
 }
 
-static OptionsResult Err(Error err)
+static OptionsResult Err(Error err, const char* fault)
 {
-    return (OptionsResult){.err = err};
+    return (OptionsResult){.err = err, .fault = fault};
 }
 
 static bool strEq(const char* a, const char* b)
@@ -90,18 +90,17 @@ Error setFlagDestination(const Flag* flag, void* dest, const char* value);
 OptionsResult parseOptions(const char** args, size_t sz)
 {
     if (sz != 0 && (strEq(args[0], "-h") || strEq(args[0], "--help"))) {
-        return Err(E_HelpRequested);
+        return Err(E_HelpRequested, NULL);
     }
 
     Options out = defaultOptions();
 
-    size_t i = 0;
-    while (i < sz) {
+    for (size_t i = 0; i < sz;) {
         if (args[i][0] == '-') {
             // flag arguments
             const Flag* flag = matchFlag(args[i]);
             if (flag == NULL) {
-                return Err(E_Unknown_Flag);
+                return Err(E_Unknown_Flag, args[i]);
             }
 
             void* dest = bindFlagDestination(flag, &out);
@@ -110,13 +109,14 @@ OptionsResult parseOptions(const char** args, size_t sz)
                 i++;
             } else if (flag->type == Flag_String) {
                 if (i == sz - 1) {
-                    return Err(E_Bad_Usage);
+                    return Err(E_Bad_Usage, args[i]);
                 }
 
                 *(const char**)dest = args[i + 1];
                 i += 2;
             } else {
                 logFn(LogLevel_Error, "Unimplemented flag\n");
+                return Err(E_Unimplemented, args[i]);
             }
         } else {
             // positional arguments
@@ -125,7 +125,7 @@ OptionsResult parseOptions(const char** args, size_t sz)
     }
 
     if (out.input == NULL) {
-        return Err(E_Bad_Usage);
+        return Err(E_Bad_Usage, NULL);
     } else {
         return Ok(out);
     }

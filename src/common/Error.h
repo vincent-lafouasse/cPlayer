@@ -16,6 +16,8 @@ typedef enum {
 
     E_Wav_UnknownFourCC,
     E_Wav_UnsupportedSampleFormat,
+
+    E_Unimplemented,
 } Error;
 
 static inline const char* errorRepr(Error e)

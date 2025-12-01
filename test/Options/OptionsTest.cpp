@@ -77,6 +77,7 @@ TEST(ParseOptions, UnknownFlag)
     OptionsResult res = parseOptions(args, sz);
 
     EXPECT_EQ(res.err, E_Unknown_Flag);
+    EXPECT_STREQ(res.fault, "--foo");
 }
 
 TEST(ParseOptions, MissingInputForFlag)
@@ -86,6 +87,7 @@ TEST(ParseOptions, MissingInputForFlag)
     OptionsResult res = parseOptions(args, sz);
 
     EXPECT_EQ(res.err, E_Bad_Usage);
+    EXPECT_STREQ(res.fault, "--input");
 }
 
 TEST(ParseOptions, ManyPositionals)
