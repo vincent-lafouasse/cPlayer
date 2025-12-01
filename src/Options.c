@@ -146,15 +146,21 @@ void logOptions(const Options* opts)
 
 static size_t flagDisplayWidth(const Flag* f)
 {
+    size_t width;
     if (f->shortFlag) {
         // "-s, --long ARG"
-        // len(short) + 2 (comma space) + len(long) + 1 (space) + len(arg)
-        return strlen(f->shortFlag) + 2 + strlen(f->longFlag) + 1 +
-               strlen(f->argName);
+        // len(short) + 2 (comma space) + len(long) [+ 1 (space) + len(arg)]
+        width = strlen(f->shortFlag) + 2 + strlen(f->longFlag);
     } else {
         // "--long ARG"
-        return strlen(f->longFlag) + 1 + strlen(f->argName);
+        return strlen(f->longFlag);
     }
+
+    if (f->argName) {
+        width += 1 + strlen(f->argName);
+    }
+
+    return width;
 }
 
 void printHelp(const char* programName)
@@ -178,12 +184,16 @@ void printHelp(const char* programName)
         const Flag* f = flags + i;
         const size_t pad = maxWidth - flagDisplayWidth(f);
 
+        const char* maybeSpace = f->argName ? " " : "";
+        const char* maybeArg = f->argName ? f->argName : "";
+
         if (f->shortFlag == NULL) {
-            logFn(LogLevel_Info, "\t%s %s%*s %s\n", f->longFlag, f->argName,
-                  (int)pad, " ", f->description);
+            logFn(LogLevel_Info, "    %s%s%s%*s %s\n", f->longFlag, maybeSpace,
+                  maybeArg, (int)pad, " ", f->description);
         } else {
-            logFn(LogLevel_Info, "\t%s, %s %s%*s %s\n", f->shortFlag,
-                  f->longFlag, f->argName, (int)pad, " ", f->description);
+            logFn(LogLevel_Info, "    %s, %s%s%s%*s %s\n", f->shortFlag,
+                  f->longFlag, maybeSpace, maybeArg, (int)pad, " ",
+                  f->description);
         }
     }
 }
