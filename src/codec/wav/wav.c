@@ -56,6 +56,26 @@ static AudioDataResult readWavDataMono(FileReader* reader, Header h)
     return AudioDataResult_Ok(track);
 }
 
+static Error readStereoFrame(FileReader* reader,
+                             SampleFormat format,
+                             float* left,
+                             float* right)
+{
+    FloatResult maybeLeft = readSample(reader, format);
+    if (maybeLeft.err != NoError) {
+        return maybeLeft.err;
+    }
+
+    FloatResult maybeRight = readSample(reader, format);
+    if (maybeRight.err != NoError) {
+        return maybeRight.err;
+    }
+
+    *left = maybeLeft.f;
+    *right = maybeRight.f;
+    return NoError;
+}
+
 static AudioDataResult readWavDataStereo(FileReader* reader, Header h)
 {
     Error err = NoError;
@@ -68,19 +88,12 @@ static AudioDataResult readWavDataStereo(FileReader* reader, Header h)
     }
 
     for (uint32_t i = 0; i < h.size; ++i) {
-        FloatResult maybeSample = readSample(reader, h.sampleFormat);
-        if (maybeSample.err != NoError) {
-            err = maybeSample.err;
+        Error readError =
+            readStereoFrame(reader, h.sampleFormat, left + i, right + i);
+        if (readError != NoError) {
+            err = readError;
             goto out;
         }
-        left[i] = maybeSample.f;
-
-        maybeSample = readSample(reader, h.sampleFormat);
-        if (maybeSample.err != NoError) {
-            err = maybeSample.err;
-            goto out;
-        }
-        right[i] = maybeSample.f;
     }
 
 out:
