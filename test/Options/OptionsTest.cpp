@@ -88,13 +88,14 @@ TEST(ParseOptions, MissingInputForFlag)
     EXPECT_EQ(res.err, E_Bad_Usage);
 }
 
-TEST(ParseOptions, TooManyPositionals)
+TEST(ParseOptions, ManyPositionals)
 {
     const char* args[] = {"file1.wav", "file2.wav"};
     const size_t sz = sizeof(args) / sizeof(*args);
     OptionsResult res = parseOptions(args, sz);
 
-    EXPECT_EQ(res.err, E_Bad_Usage);
+    EXPECT_EQ(res.err, NoError);
+    EXPECT_STREQ(res.options.input, "file2.wav");
 }
 
 TEST(ParseOptions, NoInputProvided)

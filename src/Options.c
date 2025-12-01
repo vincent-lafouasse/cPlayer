@@ -37,6 +37,17 @@ typedef struct {
     void* destination;
 } FlagSpecs;
 
+const FlagSpecs* matchFlag(const FlagSpecs* flags, size_t nFlags, const char* s)
+{
+    for (size_t i = 0; i < nFlags; i++) {
+        if (strEq(flags[i].name, s)) {
+            return flags + i;
+        }
+    }
+
+    return NULL;
+}
+
 OptionsResult parseOptions(const char** args, size_t sz)
 {
     Options out = defaultOptions();
@@ -52,33 +63,27 @@ OptionsResult parseOptions(const char** args, size_t sz)
     size_t i = 0;
     while (i < sz) {
         if (args[i][0] == '-') {
-            bool matched = false;
-
-            for (size_t f = 0; f < nFlags; ++f) {
-                const FlagSpecs* flag = flags + f;
-
-                if (strEq(args[i], flag->name)) {
-                    if (flag->type == Flag_Bool) {
-                        *(bool*)flag->destination = true;
-                        i += 1;
-                    } else if (flag->type == Flag_String) {
-                        if (i == sz - 1) {
-                            return Err(E_Bad_Usage);
-                        }
-                        *(const char**)flag->destination = args[i + 1];
-                        i += 2;
-                    } else if (flag->type == Flag_Integer) {
-                        logFn(LogLevel_Error, "integer flags are uimplemented");
-                        exit(1);
-                    }
-                    matched = true;
-                    break;
-                }
-            }
-
-            if (!matched) {
+            // flag arguments
+            const FlagSpecs* flag = matchFlag(flags, nFlags, args[i]);
+            if (flag == NULL) {
                 return Err(E_Unknown_Flag);
             }
+
+            if (flag->type == Flag_Bool) {
+                *(bool*)flag->destination = true;
+                i++;
+            } else if (flag->type == Flag_String) {
+                if (i == sz - 1) {
+                    return Err(E_Bad_Usage);
+                }
+                *(const char**)flag->destination = args[i + 1];
+                i += 2;
+            } else {
+                logFn(LogLevel_Error, "Unimplemented flag\n");
+            }
+        } else {
+            // positional arguments
+            out.input = args[i++];
         }
     }
 
