@@ -5,6 +5,7 @@ typedef enum {
     E_OOM,
 
     E_Bad_Usage,
+    E_Unknown_Flag,
 
     E_Read_Error,
     E_Read_EOF,

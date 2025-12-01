@@ -8,7 +8,6 @@
 typedef struct {
     const char* input;
     bool headless;
-    bool verbose;
 } Options;
 
 typedef struct {
@@ -16,4 +15,4 @@ typedef struct {
     Error err;
 } OptionsResult;
 
-OptionsResult parseOptions(const char* args, size_t sz);
+OptionsResult parseOptions(const char** args, size_t sz);
