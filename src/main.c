@@ -30,11 +30,6 @@ static void cleanup(FileReader* reader, AudioData* track)
 
 int main(int ac, char** av)
 {
-    if (ac != 2) {
-        logFn(LogLevel_Error, "Usage: %s track.wav\n", av[0]);
-        return 1;
-    }
-
     const OptionsResult maybeOptions =
         parseOptions((const char**)av + 1, ac - 1);
     if (maybeOptions.err != NoError) {
@@ -46,7 +41,7 @@ int main(int ac, char** av)
     const Options* options = &maybeOptions.options;
     logOptions(options);
 
-    const char* path = av[1];
+    const char* path = options->input;
     logFn(LogLevel_Debug, "-----Reading file\t%s-----\n", path);
 
     FileReader reader = fr_open(path);
