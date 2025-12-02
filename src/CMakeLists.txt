@@ -15,6 +15,7 @@ PRIVATE
 
 	options/Options.c
 	options/Flag.c
+	options/printHelp.c
 
 	common/int24.c
 )
