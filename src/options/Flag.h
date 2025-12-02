@@ -31,6 +31,13 @@ static const Flag flags[] = {
      .shortFlag = "-i",
      .argName = "file",
      .description = "Audio file to decode"},
+
+    {.id = "help",
+     .type = Flag_String,
+     .longFlag = "--help",
+     .shortFlag = "-h",
+     .argName = NULL,
+     .description = "Print this message and exit"},
 };
 static const size_t nFlags = sizeof(flags) / sizeof(*flags);
 
