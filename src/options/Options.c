@@ -41,22 +41,41 @@ void* bindFlagDestination(const Flag* flag, Options* dest)
 // parseOptions is a deterministic finite state machine
 // its alphabet is the different types of tokens: long flag, short flag, values
 // etc
-// TODO: implement short clusters maybe
-typedef enum { T_LongFlag, T_ShortFlag, T_Value, T_DoubleDash, T_EOF } Token;
 
-Token classify(const char* s)
+// its states
+typedef enum { State_Normal, State_ExpectingValue } ParserState;
+
+typedef struct {
+    ParserState state;
+    const char** tokens;
+    size_t i;
+    size_t sz;
+} Parser;
+
+Parser parserNew(const char** args, size_t sz)
 {
-    if (s == NULL) {
-        return T_EOF;
-    } else if (strEq(s, "--")) {
-        return T_DoubleDash;
-    } else if (s[0] == '-' && s[1] == '-') {
-        return T_LongFlag;
-    } else if (s[0] == '-') {
-        return T_ShortFlag;
+    return (Parser){.state = State_Normal, .tokens = args, .i = 0, .sz = sz};
+}
+
+bool parserEof(const Parser* parser)
+{
+    return parser->i < parser->sz;
+}
+
+const char* parserPeek(Parser* parser)
+{
+    if (!parserEof(parser)) {
+        return parser->tokens[parser->i];
     } else {
-        return T_Value;
+        return NULL;
     }
+}
+
+const char* parserTake(Parser* parser)
+{
+    const char* out = parserPeek(parser);
+    parser->i++;
+    return out;
 }
 
 OptionsResult parseOptions(const char** args, size_t sz)
@@ -68,11 +87,13 @@ OptionsResult parseOptions(const char** args, size_t sz)
     Options out = defaultOptions();
 
     for (size_t i = 0; i < sz;) {
-        if (args[i][0] == '-') {
+        const char* token = args[i];
+
+        if (token[0] == '-') {
             // flag arguments
-            const Flag* flag = matchFlag(args[i]);
+            const Flag* flag = matchFlag(token);
             if (flag == NULL) {
-                return Err(E_Unknown_Flag, args[i]);
+                return Err(E_Unknown_Flag, token);
             }
 
             void* dest = bindFlagDestination(flag, &out);
@@ -81,18 +102,19 @@ OptionsResult parseOptions(const char** args, size_t sz)
                 i++;
             } else if (flag->type == Flag_String) {
                 if (i == sz - 1) {
-                    return Err(E_Bad_Usage, args[i]);
+                    return Err(E_Bad_Usage, token);
                 }
 
                 *(const char**)dest = args[i + 1];
                 i += 2;
             } else {
                 logFn(LogLevel_Error, "Unimplemented flag\n");
-                return Err(E_Unimplemented, args[i]);
+                return Err(E_Unimplemented, token);
             }
         } else {
             // positional arguments
-            out.input = args[i++];
+            out.input = token;
+            i++;
         }
     }
 
