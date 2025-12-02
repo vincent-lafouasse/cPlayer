@@ -7,11 +7,6 @@
 #include "Flag.h"
 #include "log.h"
 
-Options defaultOptions(void)
-{
-    return (Options){.input = NULL, .headless = false};
-}
-
 static OptionsResult Ok(Options opt)
 {
     return (OptionsResult){.options = opt, .err = NoError};
@@ -80,14 +75,11 @@ const char* parserTake(Parser* parser)
 
 OptionsResult parseOptions(const char** args, size_t sz)
 {
-    if (sz != 0 && (strEq(args[0], "-h") || strEq(args[0], "--help"))) {
-        return Err(E_HelpRequested, NULL);
-    }
+    Parser parser = parserNew(args, sz);
+    Options out = {.input = NULL, .headless = false};
 
-    Options out = defaultOptions();
-
-    for (size_t i = 0; i < sz;) {
-        const char* token = args[i];
+    while (!parserEof(&parser)) {
+        const char* token = parserTake(&parser);
 
         if (token[0] == '-') {
             // flag arguments
@@ -99,14 +91,12 @@ OptionsResult parseOptions(const char** args, size_t sz)
             void* dest = bindFlagDestination(flag, &out);
             if (flag->type == Flag_Bool) {
                 *(bool*)dest = true;
-                i++;
             } else if (flag->type == Flag_String) {
-                if (i == sz - 1) {
+                if (parserEof(&parser)) {
                     return Err(E_Bad_Usage, token);
                 }
 
-                *(const char**)dest = args[i + 1];
-                i += 2;
+                *(const char**)dest = parserTake(&parser);
             } else {
                 logFn(LogLevel_Error, "Unimplemented flag\n");
                 return Err(E_Unimplemented, token);
@@ -114,7 +104,6 @@ OptionsResult parseOptions(const char** args, size_t sz)
         } else {
             // positional arguments
             out.input = token;
-            i++;
         }
     }
 
