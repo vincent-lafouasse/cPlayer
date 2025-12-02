@@ -111,18 +111,15 @@ void logOptions(const Options* opts)
 
 static size_t flagDisplayWidth(const Flag* f)
 {
-    size_t width;
+    // "-s, --long ARG"
+    size_t width = strlen(f->longFlag);
+
     if (f->shortFlag) {
-        // "-s, --long ARG"
-        // len(short) + 2 (comma space) + len(long) [+ 1 (space) + len(arg)]
-        width = strlen(f->shortFlag) + 2 + strlen(f->longFlag);
-    } else {
-        // "--long ARG"
-        return strlen(f->longFlag);
+        width += strlen(f->shortFlag) + 2;  // comma space
     }
 
     if (f->argName) {
-        width += 1 + strlen(f->argName);
+        width += 1 + strlen(f->argName);  // space before arg
     }
 
     return width;
