@@ -4,20 +4,9 @@ extern "C" {
 #include "options/Options.h"
 }
 
-TEST(ParseOptions, HeadlessFlagLong)
+TEST(ParseOptions, HeadlessFlag)
 {
     const char* args[] = {"--headless", "--input", "file.wav"};
-    const size_t sz = sizeof(args) / sizeof(*args);
-    OptionsResult res = parseOptions(args, sz);
-
-    ASSERT_EQ(res.err, NoError);
-    EXPECT_TRUE(res.options.headless);
-    EXPECT_STREQ(res.options.input, "file.wav");
-}
-
-TEST(ParseOptions, HeadlessFlagShort)
-{
-    const char* args[] = {"-h", "--input", "file.wav"};
     const size_t sz = sizeof(args) / sizeof(*args);
     OptionsResult res = parseOptions(args, sz);
 
@@ -111,7 +100,7 @@ TEST(ParseOptions, NoInputProvided)
 
 TEST(ParseOptions, MixedFlagsAndPositionals)
 {
-    const char* args[] = {"file.wav", "-h"};
+    const char* args[] = {"file.wav", "--headless"};
     const size_t sz = sizeof(args) / sizeof(*args);
     OptionsResult res = parseOptions(args, sz);
 
