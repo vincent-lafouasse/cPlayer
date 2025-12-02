@@ -22,6 +22,8 @@ static size_t flagDisplayWidth(const Flag* f)
 
 void printHelp(const char* programName)
 {
+    logFn(LogLevel_Info, "cPlayer: a wav decoder and player\n");
+    logFn(LogLevel_Info, "\n");
     logFn(LogLevel_Info, "Usage: %s [OPTIONS] <input>\n", programName);
     logFn(LogLevel_Info, "\n");
     logFn(LogLevel_Info, "Options:\n");
