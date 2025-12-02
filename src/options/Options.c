@@ -96,7 +96,33 @@ OptionsResult parseOptions(const char** args, size_t sz)
     }
 }
 
-const char* boolRepr(bool b)
+static Parser parserNew(const char** args, size_t sz)
+{
+    return (Parser){.state = State_Normal, .tokens = args, .i = 0, .sz = sz};
+}
+
+static bool parserEof(const Parser* parser)
+{
+    return parser->i >= parser->sz;
+}
+
+static const char* parserPeek(Parser* parser)
+{
+    if (!parserEof(parser)) {
+        return parser->tokens[parser->i];
+    } else {
+        return NULL;
+    }
+}
+
+static const char* parserTake(Parser* parser)
+{
+    const char* out = parserPeek(parser);
+    parser->i++;
+    return out;
+}
+
+static const char* boolRepr(bool b)
 {
     return b ? "True" : "False";
 }
@@ -123,32 +149,6 @@ static size_t flagDisplayWidth(const Flag* f)
     }
 
     return width;
-}
-
-static Parser parserNew(const char** args, size_t sz)
-{
-    return (Parser){.state = State_Normal, .tokens = args, .i = 0, .sz = sz};
-}
-
-static bool parserEof(const Parser* parser)
-{
-    return parser->i >= parser->sz;
-}
-
-static const char* parserPeek(Parser* parser)
-{
-    if (!parserEof(parser)) {
-        return parser->tokens[parser->i];
-    } else {
-        return NULL;
-    }
-}
-
-static const char* parserTake(Parser* parser)
-{
-    const char* out = parserPeek(parser);
-    parser->i++;
-    return out;
 }
 
 void printHelp(const char* programName)
