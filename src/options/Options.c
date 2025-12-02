@@ -170,7 +170,7 @@ void printHelp(const char* programName)
     // Print help lines
     for (size_t i = 0; i < nFlags; i++) {
         const Flag* f = flags + i;
-        const size_t pad = maxWidth - flagDisplayWidth(f);
+        const size_t pad = maxWidth + 1 - flagDisplayWidth(f);
 
         const char* maybeSpace = f->argName ? " " : "";
         const char* maybeArg = f->argName ? f->argName : "";
