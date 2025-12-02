@@ -47,31 +47,10 @@ typedef struct {
     size_t sz;
 } Parser;
 
-Parser parserNew(const char** args, size_t sz)
-{
-    return (Parser){.state = State_Normal, .tokens = args, .i = 0, .sz = sz};
-}
-
-bool parserEof(const Parser* parser)
-{
-    return parser->i < parser->sz;
-}
-
-const char* parserPeek(Parser* parser)
-{
-    if (!parserEof(parser)) {
-        return parser->tokens[parser->i];
-    } else {
-        return NULL;
-    }
-}
-
-const char* parserTake(Parser* parser)
-{
-    const char* out = parserPeek(parser);
-    parser->i++;
-    return out;
-}
+static Parser parserNew(const char** args, size_t sz);
+static bool parserEof(const Parser* parser);
+static const char* parserPeek(Parser* parser);
+static const char* parserTake(Parser* parser);
 
 OptionsResult parseOptions(const char** args, size_t sz)
 {
@@ -86,6 +65,9 @@ OptionsResult parseOptions(const char** args, size_t sz)
             const Flag* flag = matchFlag(token);
             if (flag == NULL) {
                 return Err(E_Unknown_Flag, token);
+            }
+            if (strEq(flag->id, "help")) {
+                return Err(E_HelpRequested, NULL);
             }
 
             void* dest = bindFlagDestination(flag, &out);
@@ -144,6 +126,32 @@ static size_t flagDisplayWidth(const Flag* f)
     }
 
     return width;
+}
+
+static Parser parserNew(const char** args, size_t sz)
+{
+    return (Parser){.state = State_Normal, .tokens = args, .i = 0, .sz = sz};
+}
+
+static bool parserEof(const Parser* parser)
+{
+    return parser->i < parser->sz;
+}
+
+static const char* parserPeek(Parser* parser)
+{
+    if (!parserEof(parser)) {
+        return parser->tokens[parser->i];
+    } else {
+        return NULL;
+    }
+}
+
+static const char* parserTake(Parser* parser)
+{
+    const char* out = parserPeek(parser);
+    parser->i++;
+    return out;
 }
 
 void printHelp(const char* programName)
