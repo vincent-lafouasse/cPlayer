@@ -132,7 +132,7 @@ static Parser parserNew(const char** args, size_t sz)
 
 static bool parserEof(const Parser* parser)
 {
-    return parser->i < parser->sz;
+    return parser->i >= parser->sz;
 }
 
 static const char* parserPeek(Parser* parser)
