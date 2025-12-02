@@ -38,7 +38,26 @@ void* bindFlagDestination(const Flag* flag, Options* dest)
     }
 }
 
-Error setFlagDestination(const Flag* flag, void* dest, const char* value);
+// parseOptions is a deterministic finite state machine
+// its alphabet is the different types of tokens: long flag, short flag, values
+// etc
+// TODO: implement short clusters maybe
+typedef enum { T_LongFlag, T_ShortFlag, T_Value, T_DoubleDash, T_EOF } Token;
+
+Token classify(const char* s)
+{
+    if (s == NULL) {
+        return T_EOF;
+    } else if (strEq(s, "--")) {
+        return T_DoubleDash;
+    } else if (s[0] == '-' && s[1] == '-') {
+        return T_LongFlag;
+    } else if (s[0] == '-') {
+        return T_ShortFlag;
+    } else {
+        return T_Value;
+    }
+}
 
 OptionsResult parseOptions(const char** args, size_t sz)
 {
