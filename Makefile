@@ -1,7 +1,7 @@
 NAME = cPlayer
 
 BUILD_DIR = ./build
-INSTALL_PREFIX = $(BUILD_DIR)/src
+INSTALL_PREFIX = $(BUILD_DIR)/bin
 FULL_PATH = $(INSTALL_PREFIX)/$(NAME)
 
 .PHONY: all
