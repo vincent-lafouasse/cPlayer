@@ -1,4 +1,5 @@
 #include "Error.h"
+#include "FileReader.h"
 
 const char* errorRepr(Error e)
 {
@@ -11,9 +12,9 @@ const char* errorRepr(Error e)
         case E_Bad_Usage:
             return "Bad usage";
 
-        case E_Read_Error:
+        case E_FailedRead:
             return "Read failed";
-        case E_Read_EOF:
+        case E_UnexpectedEOF:
             return "Unexpected EOF when reading";
 
         case E_Codec_UnsupportedCodec:
@@ -27,5 +28,19 @@ const char* errorRepr(Error e)
             return "Unsupported sample format";
         default:
             return "Unkown error";
+    }
+}
+
+Error error_fromReadStatus(ReadStatus readStatus)
+{
+    switch (readStatus) {
+        case ReadStatus_Ok:
+            return NoError;
+        case ReadStatus_ReadErr:
+            return E_FailedRead;
+        case ReadStatus_EOF:
+            return E_UnexpectedEOF;
+        case ReadStatus_OOM:
+            return E_OOM;
     }
 }

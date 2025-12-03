@@ -1,5 +1,7 @@
 #pragma once
 
+#include "FileReader.h"
+
 typedef enum {
     NoError = 0,
     E_OOM,
@@ -8,8 +10,8 @@ typedef enum {
     E_Unknown_Flag,
     E_HelpRequested,
 
-    E_Read_Error,
-    E_Read_EOF,
+    E_FailedRead,
+    E_UnexpectedEOF,
 
     E_Codec_UnsupportedCodec,
     E_Codec_UnsupportedChannelLayout,
@@ -21,3 +23,4 @@ typedef enum {
 } Error;
 
 const char* errorRepr(Error e);
+Error error_fromReadStatus(ReadStatus readStatus);
