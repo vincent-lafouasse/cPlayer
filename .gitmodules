@@ -1,0 +1,3 @@
+[submodule "lib/FileReader"]
+	path = lib/FileReader
+	url = https://github.com/vincent-lafouasse/FileReader.git
