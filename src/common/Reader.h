@@ -1,14 +1,14 @@
 #pragma once
 
-#include <sys/types.h>
 #include <string.h>
+#include <sys/types.h>
 
 #include "FileReader.h"
 
 typedef struct Reader Reader;
 
-typedef ssize_t (*ReadFn)(Reader*, uint8_t*, size_t); // POSIX read-esque
-typedef ssize_t (*SkipFn)(Reader*, size_t); // POSIX lseek-esque
+typedef ssize_t (*ReadFn)(Reader*, uint8_t*, size_t);  // POSIX read-esque
+typedef ssize_t (*SkipFn)(Reader*, size_t);            // POSIX lseek-esque
 
 struct Reader {
     void* ctx;
@@ -55,5 +55,8 @@ ssize_t skipFromFileReader(Reader* reader, size_t n)
 
 Reader reader_fromFileReader(FileReader* fileReader)
 {
-    return (Reader){.ctx = fileReader, .read = readFromFileReader, .skip = skipFromFileReader, .offset = 0};
+    return (Reader){.ctx = fileReader,
+                    .read = readFromFileReader,
+                    .skip = skipFromFileReader,
+                    .offset = 0};
 }

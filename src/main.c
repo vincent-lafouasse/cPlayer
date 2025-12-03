@@ -2,12 +2,12 @@
 
 #include "Error.h"
 #include "FileReader.h"
+#include "Reader.h"
 #include "audio.h"
 #include "codec/decode.h"
 #include "common/log.h"
 #include "options/Options.h"
 #include "play/play.h"
-#include "Reader.h"
 
 #define STREAM_BUFFER_SIZE 256
 
