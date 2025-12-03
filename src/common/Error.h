@@ -1,7 +1,5 @@
 #pragma once
 
-#include "FileReader.h"
-
 typedef enum {
     NoError = 0,
     E_OOM,
@@ -23,4 +21,3 @@ typedef enum {
 } Error;
 
 const char* errorRepr(Error e);
-Error error_fromReadStatus(ReadStatus readStatus);

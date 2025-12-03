@@ -10,6 +10,7 @@ PRIVATE
 	codec/wav/header.c
 	codec/wav/dump.c
 	codec/wav/sampleFormat.c
+	codec/codec_internals.c
 
 	play/callback.c
 

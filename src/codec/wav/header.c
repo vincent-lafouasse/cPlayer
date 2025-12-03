@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../codec_internals.h"
 #include "Error.h"
 #include "FileReader.h"
 #include "bitcast.h"

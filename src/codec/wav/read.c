@@ -1,5 +1,6 @@
 #include "wav_internals.h"
 
+#include "../codec_internals.h"
 #include "Error.h"
 #include "int24.h"
 
