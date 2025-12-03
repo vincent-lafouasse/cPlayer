@@ -1,5 +1,3 @@
-set(testedSourceDir ${CMAKE_SOURCE_DIR}/src)
-
 set(TEST_RUNNER_NAME bitcastTest)
 
 add_executable(${TEST_RUNNER_NAME})
