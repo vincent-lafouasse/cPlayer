@@ -11,6 +11,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 include(FetchContent)
 
 include(cmake/fetch_portaudio.cmake)
+set(FILE_READER_BUFFER_SIZE 16384 CACHE STRING "" FORCE)
 add_subdirectory(lib)
 add_subdirectory(src)
 

@@ -57,6 +57,8 @@ int main(int ac, char** av)
         logFn(LogLevel_Error, "Failed to open file %s\n", path);
         return 1;
     }
+    logFn(LogLevel_Debug, "FileReader buffer size: %zu\n",
+          FILE_READER_BUFFER_SIZE);
 
     AudioDataResult maybeTrack = decodeAudio(&reader);
     fr_close(&reader);
