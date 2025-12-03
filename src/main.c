@@ -2,7 +2,7 @@
 
 #include "Error.h"
 #include "FileReader.h"
-#include "Reader.h"
+#include "Reader/Reader.h"
 #include "audio.h"
 #include "codec/decode.h"
 #include "common/log.h"
