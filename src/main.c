@@ -13,7 +13,7 @@
 #define STREAM_BUFFER_SIZE 256
 
 // also cleanup portaudio later
-static void cleanup(FileReader* reader, AudioData* track)
+static int cleanup(int status, FileReader* reader, AudioData* track)
 {
     if (reader && fr_isOpened(reader)) {
         fr_close(reader);
@@ -27,10 +27,13 @@ static void cleanup(FileReader* reader, AudioData* track)
             free(track->right);
         }
     }
+
+    return status;
 }
 
 int main(int ac, char** av)
 {
+    // ----- parse argv -----
     const OptionsResult maybeOptions =
         parseOptions((const char**)av + 1, ac - 1);
     if (maybeOptions.err == E_HelpRequested) {
@@ -49,6 +52,7 @@ int main(int ac, char** av)
     const Options* options = &maybeOptions.options;
     logOptions(options);
 
+    // ----- load audio file -----
     const char* path = options->input;
     logFn(LogLevel_Debug, "-----Reading file\t%s-----\n", path);
 
@@ -60,6 +64,7 @@ int main(int ac, char** av)
     logFn(LogLevel_Debug, "FileReader buffer size: %zu\n",
           FILE_READER_BUFFER_SIZE);
 
+    // ----- decode audio file -----
     AudioDataResult maybeTrack = decodeAudio(&reader);
     fr_close(&reader);
     if (maybeTrack.err != NoError) {
@@ -71,6 +76,7 @@ int main(int ac, char** av)
     AudioPlayer player = (AudioPlayer){
         .left = track.left, .right = track.right, .head = 0, .len = track.size};
 
+    // ----- start stream -----
     Pa_Initialize();
 
     const PaDeviceIndex device = Pa_GetDefaultOutputDevice();
