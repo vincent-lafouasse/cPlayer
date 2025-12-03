@@ -2,43 +2,21 @@
 
 #include "Error.h"
 #include "FileReader.h"
-
 #include "audio.h"
 #include "codec/decode.h"
 #include "common/log.h"
-#include "play/play.h"
-
 #include "options/Options.h"
+#include "play/play.h"
 
 #define STREAM_BUFFER_SIZE 256
 
-// also cleanup portaudio later
-static int cleanup(int status, FileReader* reader, AudioData* track)
+static Options parseFlagsOrExit(int ac, char** av)
 {
-    if (reader && fr_isOpened(reader)) {
-        fr_close(reader);
-    }
-
-    if (track) {
-        if (track->left == track->right) {
-            free(track->left);
-        } else {
-            free(track->left);
-            free(track->right);
-        }
-    }
-
-    return status;
-}
-
-int main(int ac, char** av)
-{
-    // ----- parse argv -----
     const OptionsResult maybeOptions =
         parseOptions((const char**)av + 1, ac - 1);
     if (maybeOptions.err == E_HelpRequested) {
         printHelp(av[0]);
-        return 0;
+        exit(0);
     }
     if (maybeOptions.err != NoError) {
         logFn(LogLevel_Error, "Failed to parse flags: %s\n",
@@ -47,32 +25,48 @@ int main(int ac, char** av)
             logFn(LogLevel_Error, "Error at: %s\n", maybeOptions.fault);
         }
         logFn(LogLevel_Error, "Usage: %s track.wav\n", av[0]);
-        return 1;
+        exit(1);
     }
-    const Options* options = &maybeOptions.options;
-    logOptions(options);
 
-    // ----- load audio file -----
-    const char* path = options->input;
-    logFn(LogLevel_Debug, "-----Reading file\t%s-----\n", path);
+    return maybeOptions.options;
+}
 
+static FileReader openFileOrExit(const char* path)
+{
     FileReader reader = fr_open(path);
     if (!fr_isOpened(&reader)) {
         logFn(LogLevel_Error, "Failed to open file %s\n", path);
-        return 1;
+        exit(1);
     }
     logFn(LogLevel_Debug, "FileReader buffer size: %zu\n",
           FILE_READER_BUFFER_SIZE);
 
-    // ----- decode audio file -----
-    AudioDataResult maybeTrack = decodeAudio(&reader);
-    fr_close(&reader);
+    return reader;
+}
+
+// the function takes ownership of the reader
+static AudioData decodeAudioOrExit(FileReader* reader)
+{
+    AudioDataResult maybeTrack = decodeAudio(reader);
+    fr_close(reader);  // this isn't needed anymore
     if (maybeTrack.err != NoError) {
         logFn(LogLevel_Error, "%s\n", errorRepr(maybeTrack.err));
-        return 1;
+        exit(1);
     }
 
-    const AudioData track = maybeTrack.track;
+    return maybeTrack.track;
+}
+
+int main(int ac, char** av)
+{
+    const Options options = parseFlagsOrExit(ac, av);
+    logOptions(&options);
+
+    logFn(LogLevel_Debug, "-----Reading file\t%s-----\n", options.input);
+    FileReader reader = openFileOrExit(options.input);
+
+    // decodeOrExit() takes ownership of the reader
+    const AudioData track = decodeAudioOrExit(&reader);
     AudioPlayer player = (AudioPlayer){
         .left = track.left, .right = track.right, .head = 0, .len = track.size};
 
@@ -105,6 +99,9 @@ int main(int ac, char** av)
     Pa_CloseStream(stream);
     Pa_Terminate();
 
-    cleanup(&reader, (AudioData*)&track);
+    if (track.left != track.right) {
+        free(track.right);
+    }
+    free(track.left);
     logFn(LogLevel_Debug, "ok\n");
 }
