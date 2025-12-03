@@ -4,6 +4,9 @@ target_sources(${PROJECT_NAME}
 PRIVATE
 	main.c
 
+	Reader/fromFileReader.c
+	Reader/fromFixedBufferReader.c
+
 	codec/decode.c
 	codec/wav/wav.c
 	codec/wav/read.c
