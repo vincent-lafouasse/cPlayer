@@ -1,30 +1,19 @@
-#include "Error.h"
-#include "FileReader.h"
-#include "bitcast.h"
 #include "wav_internals.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-#include "log.h"
+#include "Error.h"
+#include "FileReader.h"
+#include "bitcast.h"
 
-static Error translateError(ReadError re)
-{
-    switch (re) {
-        case Read_Err:
-            return E_Read_Error;
-        case Read_EOF:
-            return E_Read_EOF;
-        default:
-            return NoError;
-    }
-}
+#include "log.h"
 
 static Error getToFormatChunk(FileReader* reader)
 {
     SliceResult maybeSlice = fr_takeSlice(reader, 12);
-    if (maybeSlice.err != Read_Ok) {
-        return translateError(maybeSlice.err);
+    if (maybeSlice.status != ReadStatus_Ok) {
+        return error_fromReadStatus(maybeSlice.status);
     }
 
     // "RIFF" magic word, wav is a RIFF container
@@ -66,12 +55,16 @@ static inline WavFormatChunkResult WavFormatChunk_Err(Error err)
 {
     return (WavFormatChunkResult){.err = err};
 }
+static inline WavFormatChunkResult WavFormatChunk_ReadErr(ReadStatus readStatus)
+{
+    return (WavFormatChunkResult){.err = error_fromReadStatus(readStatus)};
+}
 
 WavFormatChunkResult readFormatChunk(FileReader* reader)
 {
     SliceResult maybeHeader = fr_takeSlice(reader, 8);
-    if (maybeHeader.err != Read_Ok) {
-        return WavFormatChunk_Err(translateError(maybeHeader.err));
+    if (maybeHeader.status != ReadStatus_Ok) {
+        return WavFormatChunk_ReadErr(maybeHeader.status);
     }
     const uint8_t* header = maybeHeader.slice;
 
@@ -85,8 +78,8 @@ WavFormatChunkResult readFormatChunk(FileReader* reader)
     logFn(LogLevel_Debug, "format chunk size:\t%u bytes\n", fmtChunkSize);
 
     SliceResult maybeFormatChunk = fr_takeSlice(reader, fmtChunkSize);
-    if (maybeFormatChunk.err != NoError) {
-        return WavFormatChunk_Err(translateError(maybeFormatChunk.err));
+    if (maybeFormatChunk.status != ReadStatus_Ok) {
+        return WavFormatChunk_ReadErr(maybeFormatChunk.status);
     }
     const uint8_t* slice = maybeFormatChunk.slice;
 
@@ -154,34 +147,48 @@ SampleFormatResult determineSampleFormat(WavFormatChunk format)
     }
 }
 
+static inline WavHeaderResult WavHeader_Ok(Header header)
+{
+    return (WavHeaderResult){.header = header, .err = NoError};
+}
+
+static inline WavHeaderResult WavHeader_Err(Error err)
+{
+    return (WavHeaderResult){.err = err};
+}
+static inline WavHeaderResult WavHeader_ReadErr(ReadStatus readStatus)
+{
+    return (WavHeaderResult){.err = error_fromReadStatus(readStatus)};
+}
+
 WavHeaderResult readWavHeader(FileReader* reader)
 {
     // master chunk
     Error err = getToFormatChunk(reader);
     if (err != NoError) {
-        return (WavHeaderResult){.err = err};
+        return WavHeader_Err(err);
     }
 
     // format chunk
     WavFormatChunkResult maybeFormat = readFormatChunk(reader);
     if (maybeFormat.err != NoError) {
-        return (WavHeaderResult){.err = maybeFormat.err};
+        return WavHeader_Err(maybeFormat.err);
     }
     WavFormatChunk format = maybeFormat.format;
 
     // data chunk
     SliceResult maybeSlice = fr_takeSlice(reader, 4);
-    if (maybeSlice.err != Read_Ok) {
-        return (WavHeaderResult){.err = translateError(maybeSlice.err)};
+    if (maybeSlice.status != ReadStatus_Ok) {
+        return WavHeader_ReadErr(maybeSlice.status);
     }
     if (strncmp((const char*)maybeSlice.slice, "data", 4) != 0) {
-        return (WavHeaderResult){.err = E_Wav_UnknownFourCC};
+        return WavHeader_Err(E_Wav_UnknownFourCC);
     }
     logFn(LogLevel_Debug, "next chunk ID:\t\t%s\n", maybeSlice.slice);
 
     maybeSlice = fr_takeSlice(reader, 4);
-    if (maybeSlice.err != Read_Ok) {
-        return (WavHeaderResult){.err = translateError(maybeSlice.err)};
+    if (maybeSlice.status != ReadStatus_Ok) {
+        return WavHeader_ReadErr(maybeSlice.status);
     }
     uint32_t dataSize = bitcastU32_LE(maybeSlice.slice);
     logFn(LogLevel_Debug, "data size:\t\t%u\n", dataSize);
@@ -192,7 +199,7 @@ WavHeaderResult readWavHeader(FileReader* reader)
 
     SampleFormatResult maybeSampleFormat = determineSampleFormat(format);
     if (maybeSampleFormat.err != NoError) {
-        return (WavHeaderResult){.err = maybeSampleFormat.err};
+        return WavHeader_Err(maybeSampleFormat.err);
     }
 
     const Header h = (Header){
@@ -202,7 +209,7 @@ WavHeaderResult readWavHeader(FileReader* reader)
         .size = nBlocks,
     };
 
-    return (WavHeaderResult){.header = h, .err = NoError};
+    return WavHeader_Ok(h);
 }
 
 void logHeader(const Header* wh)
