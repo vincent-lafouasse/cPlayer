@@ -21,6 +21,9 @@ add_subdirectory(test)
 include(CTest)
 enable_testing()
 
+add_test(NAME FileReaderTest
+    COMMAND FileReaderTest
+)
 add_test(NAME bitcastTest
     COMMAND bitcastTest
 )
