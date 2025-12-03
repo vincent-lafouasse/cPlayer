@@ -18,6 +18,7 @@ PRIVATE
 	options/printHelp.c
 
 	common/int24.c
+	common/Error.c
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
