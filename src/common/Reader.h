@@ -1,14 +1,16 @@
 #pragma once
 
+#include <stdbool.h>
 #include <string.h>
-#include <sys/types.h>
 
 #include "FileReader.h"
 
 typedef struct Reader Reader;
 
-typedef ssize_t (*ReadFn)(Reader*, uint8_t*, size_t);  // POSIX read-esque
-typedef ssize_t (*SkipFn)(Reader*, size_t);            // POSIX lseek-esque
+// true means a complete read has happened
+// false means partial read or read error
+typedef bool (*ReadFn)(Reader*, uint8_t*, size_t);
+typedef bool (*SkipFn)(Reader*, size_t);
 
 struct Reader {
     void* ctx;
@@ -17,40 +19,27 @@ struct Reader {
     size_t offset;
 };
 
-ssize_t readFromFileReader(Reader* reader, uint8_t* buffer, size_t n)
+bool readFromFileReader(Reader* reader, uint8_t* buffer, size_t n)
 {
     FileReader* fileReader = reader->ctx;
 
     SliceResult slice = fr_takeSlice(fileReader, n);
-    if (slice.status == ReadStatus_ReadErr) {
-        return -1;
-    } else if (slice.status == ReadStatus_EOF) {
-        return 0;
-    } else {
-        memcpy(buffer, slice.slice, slice.len);
-        reader->offset += slice.len;
-        return slice.len;
+    if (slice.status != ReadStatus_Ok) {
+        return false;
     }
+
+    memcpy(buffer, slice.slice, slice.len);
+    reader->offset += slice.len;
+    return true;
 }
 
-ssize_t skipFromFileReader(Reader* reader, size_t n)
+bool skipFromFileReader(Reader* reader, size_t n)
 {
     FileReader* fileReader = reader->ctx;
-    ssize_t bytesSkipped = 0;
 
-    for (size_t i = 0; i < n; ++i) {
-        ByteResult tmp = fr_takeByte(fileReader);
-        if (tmp.status == ReadStatus_ReadErr) {
-            return -1;
-        } else if (tmp.status == ReadStatus_EOF) {
-            break;
-        }
+    SliceResult slice = fr_takeSlice(fileReader, n);
 
-        bytesSkipped++;
-        reader->offset++;
-    }
-
-    return bytesSkipped;
+    return slice.status == ReadStatus_Ok;
 }
 
 Reader reader_fromFileReader(FileReader* fileReader)
@@ -58,5 +47,46 @@ Reader reader_fromFileReader(FileReader* fileReader)
     return (Reader){.ctx = fileReader,
                     .read = readFromFileReader,
                     .skip = skipFromFileReader,
+                    .offset = 0};
+}
+
+#define FIXED_BUFFER_SIZE 4096
+
+typedef struct {
+    uint8_t buffer[FIXED_BUFFER_SIZE];
+    size_t head;
+} FixedBufferReader;
+
+bool readFromFixedBufferReader(Reader* reader, uint8_t* buffer, size_t n)
+{
+    FixedBufferReader* fbReader = reader->ctx;
+
+    if (fbReader->head + n < FIXED_BUFFER_SIZE) {
+        return false;
+    }
+
+    memcpy(buffer, fbReader->buffer + fbReader->head, n);
+    reader->offset += n;
+    fbReader->head += n;
+    return true;
+}
+
+bool skipFromFixedBufferReader(Reader* reader, size_t n)
+{
+    FixedBufferReader* fbReader = reader->ctx;
+
+    if (fbReader->head + n < FIXED_BUFFER_SIZE) {
+        return false;
+    }
+
+    fbReader->head += n;
+    return true;
+}
+
+Reader readerFromFixedBufferReader(FixedBufferReader* fbReader)
+{
+    return (Reader){.ctx = fbReader,
+                    .read = readFromFixedBufferReader,
+                    .skip = skipFromFixedBufferReader,
                     .offset = 0};
 }
