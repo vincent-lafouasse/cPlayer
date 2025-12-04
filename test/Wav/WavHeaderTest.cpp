@@ -17,16 +17,42 @@ std::vector<Byte> le32(uint32_t x)
             Byte((x >> 24) & 0xFF)};
 }
 
+std::vector<Byte> le16(uint16_t x)
+{
+    return {Byte(x & 0xFF), Byte((x >> 8) & 0xFF)};
+}
+
+void appendData(std::vector<Byte>& buf, const std::vector<Byte>& data)
+{
+    buf.insert(buf.end(), data.begin(), data.end());
+}
+
+void appendString(std::vector<Byte>& buf, const std::string& s)
+{
+    for (uint8_t byte : s) {
+        buf.push_back(byte);
+    }
+}
+
+void appendU16(std::vector<Byte>& buf, uint16_t x)
+{
+    appendData(buf, le16(x));
+}
+
+void appendU32(std::vector<Byte>& buf, uint32_t x)
+{
+    appendData(buf, le32(x));
+}
+
 // make a chunk
 void appendChunk(std::vector<Byte>& buf,
                  const std::string& fourcc,
                  uint32_t size,
                  const std::vector<Byte>& content)
 {
-    buf.insert(buf.end(), fourcc.begin(), fourcc.end());
-    auto sz = le32(size);
-    buf.insert(buf.end(), sz.begin(), sz.end());
-    buf.insert(buf.end(), content.begin(), content.end());
+    appendString(buf, fourcc);
+    appendU32(buf, size);
+    appendData(buf, content);
 }
 
 // ----------------------------
