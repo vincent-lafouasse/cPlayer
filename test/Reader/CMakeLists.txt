@@ -13,6 +13,7 @@ target_include_directories(${TEST_RUNNER_NAME} PUBLIC
 	${testedSourceDir}
 	${testedSourceDir}/common/
 	${testedSourceDir}/Reader/
+	../common/
 )
 
 target_link_libraries(${TEST_RUNNER_NAME}
