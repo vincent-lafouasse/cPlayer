@@ -62,11 +62,11 @@ static Error skipChunkUntil(FileReader* reader, const char* expectedId)
         memcpy(id, fourCC.slice, 4);
 
         uint32_t chunkSize = 0;
-        if ( (err = readU32(reader, &chunkSize)) != ReadStatus_Ok ) {
+        if ((err = readU32(reader, &chunkSize)) != ReadStatus_Ok) {
             return err;
         }
         logFn(LogLevel_Debug, "Skipping chunk %s of size %u\n", id, chunkSize);
-        if ( (err = skip(reader, chunkSize)) != ReadStatus_Ok ) {
+        if ((err = skip(reader, chunkSize)) != ReadStatus_Ok) {
             return err;
         }
     }
