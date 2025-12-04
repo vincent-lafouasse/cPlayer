@@ -4,7 +4,7 @@ static bool readFromMemoryReader(Reader* reader, uint8_t* buffer, size_t n)
 {
     MemoryReader* memoryReader = reader->ctx;
 
-    if (memoryReader->head + n < FIXED_BUFFER_SIZE) {
+    if (memoryReader->head + n > FIXED_BUFFER_SIZE) {
         return false;
     }
 
@@ -18,7 +18,7 @@ static bool skipFromMemoryReader(Reader* reader, size_t n)
 {
     MemoryReader* memoryReader = reader->ctx;
 
-    if (memoryReader->head + n < FIXED_BUFFER_SIZE) {
+    if (memoryReader->head + n > FIXED_BUFFER_SIZE) {
         return false;
     }
 
