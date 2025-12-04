@@ -228,6 +228,7 @@ TEST(WavReader, GetToFormatChunk_NoFmtChunk)
     EXPECT_EQ(getToFormatChunk(&r), E_UnexpectedEOF);
 }
 
+/*
 struct RawWavHeader {  // for reference
     uint32_t size;
     uint16_t formatTag;
@@ -242,6 +243,7 @@ struct RawWavHeader {  // for reference
     uint32_t channelMask;
     Byte subFormat[16];
 };
+*/
 
 // Helper: append format chunk
 // no extension
