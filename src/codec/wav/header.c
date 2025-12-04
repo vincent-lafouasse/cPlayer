@@ -10,18 +10,29 @@
 
 #include "log.h"
 
-static Error readFourCC(FileReader* reader, const char* expected)
+static Error skip(FileReader* reader, size_t n)
 {
-    SliceResult fourCC = fr_takeSlice(reader, 4);
+    return error_fromReadStatus(fr_skip(reader, n));
+}
+
+static Error peekFourCC(FileReader* reader, uint8_t* out)
+{
+    SliceResult fourCC = fr_peekSlice(reader, 4);
     if (fourCC.status != ReadStatus_Ok) {
         return error_fromReadStatus(fourCC.status);
     }
+    memcpy(out, fourCC.slice, 4);
+    return NoError;
+}
 
-    if (memcmp(fourCC.slice, expected, 4) != 0) {
-        return E_Wav_UnknownFourCC;
-    } else {
-        return NoError;
+static Error takeFourCC(FileReader* reader, uint8_t* out)
+{
+    Error err = peekFourCC(reader, out);
+
+    if (err != NoError) {
+        return err;
     }
+    return skip(reader, 4);
 }
 
 static Error readU16(FileReader* reader, uint16_t* out)
@@ -44,37 +55,34 @@ static Error readU32(FileReader* reader, uint32_t* out)
     return bitcastU32_LE(slice.slice);
 }
 
-static Error skip(FileReader* reader, size_t n)
-{
-    return error_fromReadStatus(fr_skip(reader, n));
-}
-
 static Error skipChunkUntil(FileReader* reader, const char* expectedId)
 {
-    SliceResult fourCC = fr_peekSlice(reader, 4);
-    if (fourCC.status != ReadStatus_Ok) {
-        return error_fromReadStatus(fourCC.status);
+    Error err = NoError;
+    uint8_t id[5] = {0};
+
+    if ((err = peekFourCC(reader, id)) != NoError) {
+        return err;
     }
-    while (memcmp(fourCC.slice, expectedId, 4) != 0) {
-        Error err = NoError;
-
-        char id[5] = {0};
-        memcpy(id, fourCC.slice, 4);
-
+    while (memcmp(id, expectedId, 4) != 0) {
         uint32_t chunkSize = 0;
         if ((err = readU32(reader, &chunkSize)) != ReadStatus_Ok) {
-            return err;
+            break;
         }
         logFn(LogLevel_Debug, "Skipping chunk %s of size %u\n", id, chunkSize);
         if ((err = skip(reader, chunkSize)) != ReadStatus_Ok) {
-            return err;
+            break;
+        }
+
+        if ((err = peekFourCC(reader, id)) != NoError) {
+            break;
         }
     }
-    return NoError;
+    return err;
 }
 
 static Error getToFormatChunk(FileReader* reader)
 {
+    uint8_t id[5] = {0};
     SliceResult maybeSlice = fr_takeSlice(reader, 12);
     if (maybeSlice.status != ReadStatus_Ok) {
         return error_fromReadStatus(maybeSlice.status);
