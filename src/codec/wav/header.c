@@ -10,6 +10,40 @@
 
 #include "log.h"
 
+static Error readFourCC(FileReader* reader, const char* expected)
+{
+    SliceResult fourCC = fr_takeSlice(reader, 4);
+    if (fourCC.status != ReadStatus_Ok) {
+        return error_fromReadStatus(fourCC.status);
+    }
+
+    if (memcmp(fourCC.slice, expected, 4) != 0) {
+        return E_Wav_UnknownFourCC;
+    } else {
+        return NoError;
+    }
+}
+
+static Error readU16(FileReader* reader, uint16_t* out)
+{
+    SliceResult slice = fr_takeSlice(reader, 2);
+    if (slice.status != ReadStatus_Ok) {
+        return error_fromReadStatus(slice.status);
+    }
+
+    return bitcastU16_LE(slice.slice);
+}
+
+static Error readU32(FileReader* reader, uint32_t* out)
+{
+    SliceResult slice = fr_takeSlice(reader, 4);
+    if (slice.status != ReadStatus_Ok) {
+        return error_fromReadStatus(slice.status);
+    }
+
+    return bitcastU32_LE(slice.slice);
+}
+
 static Error getToFormatChunk(FileReader* reader)
 {
     SliceResult maybeSlice = fr_takeSlice(reader, 12);
