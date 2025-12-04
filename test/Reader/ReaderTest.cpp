@@ -199,3 +199,222 @@ TEST(Reader, MixedOperations_Consistency)
 
     ASSERT_EQ(reader.peekSlice(&reader, 3, &slice), E_UnexpectedEOF);
 }
+
+TEST(Reader, PeekSlice_SingleByteAdvances)
+{
+    MemoryReader mem("ABCDEFGH");
+    Reader r = memoryReaderInterface(&mem);
+
+    Slice s;
+    for (size_t i = 0; i < 8; i++)
+    {
+        ASSERT_EQ(r.peekSlice(&r, 1, &s), NoError);
+        ASSERT_EQ(s.len, 1u);
+        ASSERT_EQ((char)s.slice[0], char('A' + i));
+
+        ASSERT_EQ(r.skip(&r, 1), NoError);
+        ASSERT_EQ(r.offset, i + 1);
+    }
+
+    // now at EOF
+    ASSERT_EQ(r.peekSlice(&r, 1, &s), E_UnexpectedEOF);
+}
+
+TEST(Reader, OffsetMonotonicity_PeekDoesNotAdvance)
+{
+    MemoryReader mem("0123456789");
+    Reader r = memoryReaderInterface(&mem);
+
+    for (int i = 0; i < 20; i++)
+    {
+        Slice s;
+        size_t before = r.offset;
+
+        // varying peek sizes
+        size_t n = (i % 11);
+        Error err = r.peekSlice(&r, n, &s);
+
+        if (n <= 10) {
+            if (n <= 10 - before)
+                ASSERT_EQ(err, NoError);
+            else
+                ASSERT_EQ(err, E_UnexpectedEOF);
+        }
+
+        ASSERT_EQ(r.offset, before) << "peek must never advance offset";
+    }
+}
+
+TEST(Reader, RepeatedEOFPeek)
+{
+    MemoryReader mem("xyz");
+    Reader r = memoryReaderInterface(&mem);
+
+    ASSERT_EQ(r.skip(&r, 3), NoError);
+    ASSERT_EQ(r.offset, 3u);
+
+    for (int i = 0; i < 10; i++)
+    {
+        Slice s;
+        ASSERT_EQ(r.peekSlice(&r, 1, &s), E_UnexpectedEOF);
+        ASSERT_EQ(r.offset, 3u);
+    }
+}
+
+TEST(Reader, ExhaustiveByteWalk)
+{
+    const char* data = "abcdefghijklmnop";
+    MemoryReader mem(data);
+    Reader r = memoryReaderInterface(&mem);
+
+    uint8_t buf[32];
+
+    for (size_t i = 0; i < strlen(data); i++)
+    {
+        // peek next byte
+        ASSERT_EQ(r.peekInto(&r, 1, buf), NoError);
+        ASSERT_EQ(buf[0], (uint8_t)data[i]);
+
+        // now skip it
+        ASSERT_EQ(r.skip(&r, 1), NoError);
+        ASSERT_EQ(r.offset, i + 1);
+    }
+
+    // exhausted
+    ASSERT_EQ(r.peekInto(&r, 1, buf), E_UnexpectedEOF);
+}
+
+TEST(Reader, SlidingWindows)
+{
+    const char* data = "0123456789";
+    MemoryReader mem(data);
+    Reader r = memoryReaderInterface(&mem);
+
+    Slice s;
+
+    // at each offset j, try peeking windows of size k
+    for (size_t j = 0; j < 10; j++)
+    {
+        ASSERT_EQ(r.skip(&r, j - r.offset), NoError);
+
+        for (size_t k = 0; k <= 10; k++)
+        {
+            size_t remaining = 10 - j;
+
+            Error err = r.peekSlice(&r, k, &s);
+
+            if (k <= remaining)
+            {
+                ASSERT_EQ(err, NoError);
+                ASSERT_EQ(s.len, k);
+                ASSERT_EQ(memcmp(s.slice, data + j, k), 0);
+            }
+            else
+            {
+                ASSERT_EQ(err, E_UnexpectedEOF);
+            }
+        }
+    }
+}
+
+TEST(Reader, SliceStabilityAcrossPeeks)
+{
+    MemoryReader mem("ABCDE");
+    Reader r = memoryReaderInterface(&mem);
+
+    Slice s1, s2;
+
+    ASSERT_EQ(r.peekSlice(&r, 3, &s1), NoError);
+    ASSERT_EQ(memcmp(s1.slice, "ABC", 3), 0);
+
+    ASSERT_EQ(r.peekSlice(&r, 5, &s2), NoError);
+    ASSERT_EQ(memcmp(s2.slice, "ABCDE", 5), 0);
+
+    // original slice must still match "ABC"
+    ASSERT_EQ(memcmp(s1.slice, "ABC", 3), 0);
+
+    ASSERT_EQ(r.offset, 0u);
+}
+
+TEST(Reader, SkipToLastByte)
+{
+    MemoryReader mem("Z123");
+    Reader r = memoryReaderInterface(&mem);
+
+    ASSERT_EQ(r.skip(&r, 3), NoError);
+    ASSERT_EQ(r.offset, 3u);
+
+    Slice s;
+    ASSERT_EQ(r.peekSlice(&r, 1, &s), NoError);
+    ASSERT_EQ((char)s.slice[0], '3');
+
+    ASSERT_EQ(r.peekSlice(&r, 2, &s), E_UnexpectedEOF);
+}
+
+TEST(Reader, LargePeekRequest)
+{
+    MemoryReader mem("short");
+    Reader r = memoryReaderInterface(&mem);
+
+    Slice s;
+    ASSERT_EQ(r.peekSlice(&r, 1000, &s), E_UnexpectedEOF);
+    ASSERT_EQ(r.offset, 0u);
+}
+
+TEST(Reader, SkipExhaustively)
+{
+    MemoryReader mem("aaa");
+    Reader r = memoryReaderInterface(&mem);
+
+    ASSERT_EQ(r.skip(&r, 3), NoError);
+    ASSERT_EQ(r.offset, 3u);
+
+    for (int i = 0; i < 5; i++)
+        ASSERT_EQ(r.skip(&r, 1), E_UnexpectedEOF);
+}
+
+TEST(Reader, PeekInto_Substrings)
+{
+    const char* data = "HelloWorld";
+    MemoryReader mem(data);
+    Reader r = memoryReaderInterface(&mem);
+
+    uint8_t buf[64];
+
+    for (size_t n = 0; n <= strlen(data); n++)
+    {
+        Error e = r.peekInto(&r, n, buf);
+        ASSERT_EQ(e, NoError);
+        ASSERT_EQ(memcmp(buf, data, n), 0);
+    }
+
+    ASSERT_EQ(r.peekInto(&r, strlen(data) + 1, buf), E_UnexpectedEOF);
+}
+
+TEST(Reader, ComplexSkipPattern)
+{
+    const char* data = "abcdefghijklmnopqrstuv";
+    MemoryReader mem(data);
+    Reader r = memoryReaderInterface(&mem);
+
+    size_t total = strlen(data);
+
+    size_t steps[] = {1, 2, 3, 5, 8, 3, 2, 1};
+
+    size_t expectedOffset = 0;
+    for (size_t s : steps)
+    {
+        if (expectedOffset + s <= total)
+        {
+            ASSERT_EQ(r.skip(&r, s), NoError);
+            expectedOffset += s;
+        }
+        else
+        {
+            ASSERT_EQ(r.skip(&r, s), E_UnexpectedEOF);
+        }
+
+        ASSERT_EQ(r.offset, expectedOffset);
+    }
+}
+
