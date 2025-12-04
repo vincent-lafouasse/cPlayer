@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FileReader.h"
+#include "Reader/Reader.h"
 
 #include "Error.h"
 #include "audio.h"
@@ -9,4 +9,4 @@ typedef enum {
     Codec_Wav,
 } Codec;
 
-AudioDataResult decodeAudio(FileReader* reader);
+AudioDataResult decodeAudio(Reader* reader);

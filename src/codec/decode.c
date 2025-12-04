@@ -3,7 +3,7 @@
 #include "audio.h"
 #include "wav/wav.h"
 
-AudioDataResult decodeAudio(FileReader* reader)
+AudioDataResult decodeAudio(Reader* reader)
 {
     const AudioDataResult maybeTrack = decodeWav(reader);
     if (maybeTrack.err != NoError) {

@@ -26,32 +26,12 @@ typedef struct {
     SampleFormat sampleFormat;
 } Header;
 
-typedef struct {
-    Header header;
-    Error err;
-} WavHeaderResult;
-
-WavHeaderResult readWavHeader(FileReader* reader);
+Error readWavHeader(Reader* reader, Header* out);
 void logHeader(const Header* wh);
 
-typedef struct {
-    float f;
-    Error err;
-} FloatResult;
+Error readSample(Reader* reader, SampleFormat fmt, float* out);
 
-static inline FloatResult FloatResult_Ok(float f)
-{
-    return (FloatResult){.f = f, .err = NoError};
-}
-
-static inline FloatResult FloatResult_Err(Error err)
-{
-    return (FloatResult){.err = err};
-}
-
-FloatResult readSample(FileReader* reader, SampleFormat fmt);
-
-AudioDataResult readWavData(FileReader* reader, Header h);
+AudioDataResult readWavData(Reader* reader, Header h);
 
 #define DUMP_PREFIX "./build/dump_"
 #define DUMP_SUFFIX ".csv"

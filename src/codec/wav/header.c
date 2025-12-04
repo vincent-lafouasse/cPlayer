@@ -1,111 +1,64 @@
 #include "wav_internals.h"
 
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "../codec_internals.h"
 #include "Error.h"
-#include "FileReader.h"
 #include "bitcast.h"
 
 #include "log.h"
 
-static Error skip(FileReader* reader, size_t n)
-{
-    return error_fromReadStatus(fr_skip(reader, n));
-}
-
-static Error peekFourCC(FileReader* reader, uint8_t* out)
-{
-    SliceResult fourCC = fr_peekSlice(reader, 4);
-    if (fourCC.status != ReadStatus_Ok) {
-        return error_fromReadStatus(fourCC.status);
-    }
-    memcpy(out, fourCC.slice, 4);
-    return NoError;
-}
-
-static Error takeFourCC(FileReader* reader, uint8_t* out)
-{
-    Error err = peekFourCC(reader, out);
-
-    if (err != NoError) {
-        return err;
-    }
-    return skip(reader, 4);
-}
-
-static Error readU16(FileReader* reader, uint16_t* out)
-{
-    SliceResult slice = fr_takeSlice(reader, 2);
-    if (slice.status != ReadStatus_Ok) {
-        return error_fromReadStatus(slice.status);
-    }
-
-    *out = bitcastU16_LE(slice.slice);
-    return NoError;
-}
-
-static Error readU32(FileReader* reader, uint32_t* out)
-{
-    SliceResult slice = fr_takeSlice(reader, 4);
-    if (slice.status != ReadStatus_Ok) {
-        return error_fromReadStatus(slice.status);
-    }
-
-    *out = bitcastU32_LE(slice.slice);
-    return NoError;
-}
-
-static Error skipChunkUntil(FileReader* reader, const char* expectedId)
+static Error skipChunkUntil(Reader* reader, const char* expectedId)
 {
     Error err = NoError;
     uint8_t id[5] = {0};
 
-    if ((err = peekFourCC(reader, id)) != NoError) {
+    if ((err = reader_peekFourCC(reader, id)) != NoError) {
         return err;
     }
     while (memcmp(id, expectedId, 4) != 0) {
         // skip the fourCC we just peeked
-        if ((err = skip(reader, 4)) != NoError) {
+        if ((err = reader->skip(reader, 4)) != NoError) {
             return err;
         }
 
         uint32_t chunkSize = 0;
-        if ((err = readU32(reader, &chunkSize)) != ReadStatus_Ok) {
+        if ((err = reader_takeU32_LE(reader, &chunkSize)) != NoError) {
             break;
         }
         logFn(LogLevel_Debug, "Skipping chunk %s of size %u\n", id, chunkSize);
-        if ((err = skip(reader, chunkSize)) != ReadStatus_Ok) {
+        if ((err = reader->skip(reader, chunkSize)) != NoError) {
             break;
         }
 
-        if ((err = peekFourCC(reader, id)) != NoError) {
+        if ((err = reader_peekFourCC(reader, id)) != NoError) {
             break;
         }
     }
     return err;
 }
 
-static Error getToFormatChunk(FileReader* reader)
+static Error getToFormatChunk(Reader* reader)
 {
     uint8_t id[5] = {0};
     uint32_t size;
     Error err;
 
-    if ((err = takeFourCC(reader, id)) != NoError) {
+    if ((err = reader_takeFourCC(reader, id)) != NoError) {
         return err;
     }
     if (memcmp(id, "RIFF", 4) != 0) {
         return E_Wav_UnknownFourCC;
     }
 
-    if ((err = readU32(reader, &size)) != NoError) {
+    if ((err = reader_takeU32_LE(reader, &size)) != NoError) {
         return err;
     }
     logFn(LogLevel_Debug, "master RIFF chunk:\t %u bytes\n", size);
 
-    if ((err = takeFourCC(reader, id)) != NoError) {
+    if ((err = reader_takeFourCC(reader, id)) != NoError) {
         return err;
     }
     if (memcmp(id, "WAVE", 4) != 0) {
@@ -123,54 +76,32 @@ typedef struct {
     uint16_t blockSize;
 } WavFormatChunk;
 
-typedef struct {
-    WavFormatChunk format;
+Error readFormatChunk(Reader* reader, WavFormatChunk* out)
+{
     Error err;
-} WavFormatChunkResult;
 
-static inline WavFormatChunkResult WavFormatChunk_Ok(WavFormatChunk format)
-{
-    return (WavFormatChunkResult){.format = format, .err = NoError};
-}
-
-static inline WavFormatChunkResult WavFormatChunk_Err(Error err)
-{
-    return (WavFormatChunkResult){.err = err};
-}
-static inline WavFormatChunkResult WavFormatChunk_ReadErr(ReadStatus readStatus)
-{
-    return (WavFormatChunkResult){.err = error_fromReadStatus(readStatus)};
-}
-
-WavFormatChunkResult readFormatChunk(FileReader* reader)
-{
-    SliceResult maybeHeader = fr_takeSlice(reader, 8);
-    if (maybeHeader.status != ReadStatus_Ok) {
-        return WavFormatChunk_ReadErr(maybeHeader.status);
+    Slice header;
+    if ((err = reader_takeSlice(reader, 8, &header)) != NoError) {
+        return err;
     }
-    const uint8_t* header = maybeHeader.slice;
-
-    // head should be at the format chunk
-    if (strncmp((const char*)header, "fmt ", 4) != 0) {
-        return WavFormatChunk_Err(E_Wav_UnknownFourCC);
+    if (strncmp((const char*)header.slice, "fmt ", 4) != 0) {
+        return E_Wav_UnknownFourCC;
     }
-
-    // size of the rest of the format chunk
-    const uint32_t fmtChunkSize = bitcastU32_LE(header + 4);
+    const uint32_t fmtChunkSize = bitcastU32_BE(header.slice);
     logFn(LogLevel_Debug, "format chunk size:\t%u bytes\n", fmtChunkSize);
 
-    SliceResult maybeFormatChunk = fr_takeSlice(reader, fmtChunkSize);
-    if (maybeFormatChunk.status != ReadStatus_Ok) {
-        return WavFormatChunk_ReadErr(maybeFormatChunk.status);
+    Slice slice;
+    if ((err = reader_takeSlice(reader, fmtChunkSize, &slice)) != NoError) {
+        return err;
     }
-    const uint8_t* slice = maybeFormatChunk.slice;
+    const uint8_t* format = slice.slice;
 
-    const uint16_t waveFormat = bitcastU16_LE(slice);
-    const uint16_t nChannels = bitcastU16_LE(slice + 2);
-    const uint32_t sampleRate = bitcastU32_LE(slice + 4);
-    const uint32_t bytesPerSec = bitcastU32_LE(slice + 8);
-    const uint16_t blockSize = bitcastU16_LE(slice + 12);
-    const uint16_t bitDepth = bitcastU16_LE(slice + 14);
+    const uint16_t waveFormat = bitcastU16_LE(format);
+    const uint16_t nChannels = bitcastU16_LE(format + 2);
+    const uint32_t sampleRate = bitcastU32_LE(format + 4);
+    const uint32_t bytesPerSec = bitcastU32_LE(format + 8);
+    const uint16_t blockSize = bitcastU16_LE(format + 12);
+    const uint16_t bitDepth = bitcastU16_LE(format + 14);
 
     logFn(LogLevel_Debug, "wave format:\t\t0x%04:x\n", waveFormat);
     logFn(LogLevel_Debug, "n. channels:\t\t%x\n", nChannels);
@@ -184,118 +115,86 @@ WavFormatChunkResult readFormatChunk(FileReader* reader)
     logFn(LogLevel_Debug, "fmt extension:\t\t%u bytes\n",
           formatChunkExtensionSize);
 
-    WavFormatChunk format = (WavFormatChunk){
+    *out = (WavFormatChunk){
         .formatTag = waveFormat,
         .nChannels = nChannels,
         .sampleRate = sampleRate,
         .bitDepth = bitDepth,
         .blockSize = blockSize,
     };
-    return WavFormatChunk_Ok(format);
+    return NoError;
 }
 
-typedef struct {
-    SampleFormat format;
-    Error err;
-} SampleFormatResult;
-
-static inline SampleFormatResult sf_Ok(SampleFormat fmt)
-{
-    return (SampleFormatResult){.format = fmt, .err = NoError};
-}
-
-static inline SampleFormatResult sf_Err(Error err)
-{
-    return (SampleFormatResult){.err = err};
-}
-
-SampleFormatResult determineSampleFormat(WavFormatChunk format)
+Error determineSampleFormat(WavFormatChunk format, SampleFormat* out)
 {
     if (format.formatTag != WAVE_FORMAT_PCM) {
-        return sf_Err(E_Wav_UnsupportedSampleFormat);
+        return E_Wav_UnsupportedSampleFormat;
     }
 
+    Error err = NoError;
     const size_t sz = format.bitDepth / 8;
     if (sz == 1) {
-        return sf_Ok(Unsigned8);
+        *out = Unsigned8;
     } else if (sz == 2) {
-        return sf_Ok(Signed16);
+        *out = Signed16;
     } else if (sz == 3) {
-        return sf_Ok(Signed32);
+        *out = Signed24;
+        ;
     } else if (sz == 4) {
-        return sf_Ok(Signed32);
+        *out = Signed32;
     } else {
-        return sf_Err(E_Wav_UnsupportedSampleFormat);
+        err = E_Wav_UnsupportedSampleFormat;
     }
+
+    return err;
 }
 
-static inline WavHeaderResult WavHeader_Ok(Header header)
+Error readWavHeader(Reader* reader, Header* out)
 {
-    return (WavHeaderResult){.header = header, .err = NoError};
-}
+    Error err;
 
-static inline WavHeaderResult WavHeader_Err(Error err)
-{
-    return (WavHeaderResult){.err = err};
-}
-static inline WavHeaderResult WavHeader_ReadErr(ReadStatus readStatus)
-{
-    return (WavHeaderResult){.err = error_fromReadStatus(readStatus)};
-}
-
-WavHeaderResult readWavHeader(FileReader* reader)
-{
     // master chunk
-    Error err = getToFormatChunk(reader);
-    if (err != NoError) {
-        return WavHeader_Err(err);
+    // also skip other chunks
+    if ((err = getToFormatChunk(reader)) != NoError) {
+        return err;
     }
 
-    // format chunk
-    WavFormatChunkResult maybeFormat = readFormatChunk(reader);
-    if (maybeFormat.err != NoError) {
-        return WavHeader_Err(maybeFormat.err);
+    WavFormatChunk format;
+    if ((err = readFormatChunk(reader, &format)) != NoError) {
+        return err;
     }
-    WavFormatChunk format = maybeFormat.format;
 
     if ((err = skipChunkUntil(reader, "data")) != NoError) {
-        return WavHeader_Err(err);
+        return err;
     }
 
     // data chunk
-    SliceResult maybeSlice = fr_takeSlice(reader, 4);
-    if (maybeSlice.status != ReadStatus_Ok) {
-        return WavHeader_ReadErr(maybeSlice.status);
+    Slice dataChunkHeader;
+    if ((err = reader_takeSlice(reader, 8, &dataChunkHeader)) != NoError) {
+        return err;
     }
-    if (strncmp((const char*)maybeSlice.slice, "data", 4) != 0) {
-        return WavHeader_Err(E_Wav_UnknownFourCC);
-    }
-    logFn(LogLevel_Debug, "next chunk ID:\t\t%s\n", maybeSlice.slice);
+    assert(strncmp((const char*)dataChunkHeader.slice, "data", 4) == 0);
+    logFn(LogLevel_Debug, "reached data chunk\n");
 
-    maybeSlice = fr_takeSlice(reader, 4);
-    if (maybeSlice.status != ReadStatus_Ok) {
-        return WavHeader_ReadErr(maybeSlice.status);
-    }
-    uint32_t dataSize = bitcastU32_LE(maybeSlice.slice);
+    uint32_t dataSize = bitcastU32_LE(dataChunkHeader.slice + 4);
     logFn(LogLevel_Debug, "data size:\t\t%u\n", dataSize);
 
     uint32_t nBlocks = 8 * dataSize / format.bitDepth / format.nChannels;
     logFn(LogLevel_Debug, "n blocks:\t\t%u\n", nBlocks);
     logFn(LogLevel_Debug, "\n");
 
-    SampleFormatResult maybeSampleFormat = determineSampleFormat(format);
-    if (maybeSampleFormat.err != NoError) {
-        return WavHeader_Err(maybeSampleFormat.err);
+    SampleFormat sampleFormat;
+    if ((err = determineSampleFormat(format, &sampleFormat)) != NoError) {
+        return err;
     }
 
-    const Header h = (Header){
+    *out = (Header){
         .nChannels = format.nChannels,
         .sampleRate = format.sampleRate,
-        .sampleFormat = maybeSampleFormat.format,
+        .sampleFormat = sampleFormat,
         .size = nBlocks,
     };
-
-    return WavHeader_Ok(h);
+    return NoError;
 }
 
 void logHeader(const Header* wh)

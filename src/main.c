@@ -2,7 +2,7 @@
 
 #include "Error.h"
 #include "FileReader.h"
-#include "Reader/Reader.h"
+#include "Reader/ReaderAdapters.h"
 #include "audio.h"
 #include "codec/decode.h"
 #include "common/log.h"
@@ -36,16 +36,18 @@ static Options parseFlagsOrExit(int ac, char** av)
 static AudioData loadAudioOrExit(const char* path)
 {
     logFn(LogLevel_Debug, "-----Reading file\t%s-----\n", path);
-    FileReader reader = fr_open(path);
-    if (!fr_isOpened(&reader)) {
+    FileReader fileReader = fr_open(path);
+    if (!fr_isOpened(&fileReader)) {
         logFn(LogLevel_Error, "Failed to open file %s\n", path);
         exit(1);
     }
     logFn(LogLevel_Debug, "FileReader buffer size: %zu\n",
           FILE_READER_BUFFER_SIZE);
 
+    Reader reader = reader_fromFileReader(&fileReader);
+
     AudioDataResult maybeTrack = decodeAudio(&reader);
-    fr_close(&reader);  // this isn't needed anymore
+    fr_close(&fileReader);  // this isn't needed anymore
     if (maybeTrack.err != NoError) {
         logFn(LogLevel_Error, "%s\n", errorRepr(maybeTrack.err));
         exit(1);
