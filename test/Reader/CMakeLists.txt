@@ -7,6 +7,9 @@ target_sources(${TEST_RUNNER_NAME}
 PRIVATE
 	./main.cpp
 	./MemoryReaderReaderTest.cpp
+	./FileReaderReaderTest.cpp
+
+	${testedSourceDir}/Reader/fileReaderAdapter.c
 )
 
 target_include_directories(${TEST_RUNNER_NAME} PUBLIC
@@ -16,5 +19,6 @@ target_include_directories(${TEST_RUNNER_NAME} PUBLIC
 target_link_libraries(${TEST_RUNNER_NAME}
 PRIVATE
 	MemoryReader
+	FileReader
 	gtest
 )

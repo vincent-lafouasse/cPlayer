@@ -3,11 +3,32 @@
 
 #include "gtest/gtest.h"
 
-#include "MemoryReader.hpp"
-
 extern "C" {
+#include "FileReader.h"
 #include "Reader.h"
+#include "ReaderAdapters.h"
 }
+
+struct TmpFileReader {
+    FileReader reader;
+
+    TmpFileReader(const std::string& data)
+    {
+        char path[] = "/tmp/fr_testXXXXXX";
+        int fd = mkstemp(path);
+        if (fd < 0) {
+            perror("mkstemp");
+            abort();
+        }
+        write(fd, data.c_str(), data.size());
+        close(fd);
+
+        this->reader = fr_open(path);
+        assert(fr_isOpened(&this->reader));
+    }
+
+    ~TmpFileReader() { fr_close(&this->reader); }
+};
 
 static void assertSliceEq(const Slice& slice, const std::string& expected)
 {
@@ -15,10 +36,11 @@ static void assertSliceEq(const Slice& slice, const std::string& expected)
     ASSERT_EQ(actual, expected);
 }
 
-TEST(MemoryReaderReader, PeekSlice_Basic)
+TEST(FileReaderReader, PeekSlice_Basic)
 {
-    MemoryReader memoryReader("1234567");
-    Reader reader = memoryReaderInterface(&memoryReader);
+    const std::string data = "1234567";
+    TmpFileReader fileReader(data);
+    Reader reader = reader_fromFileReader(&fileReader.reader);
 
     Slice slice;
 
@@ -46,10 +68,11 @@ TEST(MemoryReaderReader, PeekSlice_Basic)
     ASSERT_EQ(reader.peekSlice(&reader, 8, &slice), E_UnexpectedEOF);
 }
 
-TEST(MemoryReaderReader, PeekInto_Basic)
+TEST(FileReaderReader, PeekInto_Basic)
 {
-    MemoryReader memoryReader("abcdefg");
-    Reader reader = memoryReaderInterface(&memoryReader);
+    const std::string data = "abcdefg";
+    TmpFileReader fileReader(data);
+    Reader reader = reader_fromFileReader(&fileReader.reader);
 
     uint8_t buf[16] = {};
 
@@ -62,10 +85,11 @@ TEST(MemoryReaderReader, PeekInto_Basic)
     ASSERT_EQ(reader.peekInto(&reader, 8, buf), E_UnexpectedEOF);
 }
 
-TEST(MemoryReaderReader, PeekInto_DoesNotAdvance)
+TEST(FileReaderReader, PeekInto_DoesNotAdvance)
 {
-    MemoryReader memoryReader("hello");
-    Reader reader = memoryReaderInterface(&memoryReader);
+    const std::string data = "hello";
+    TmpFileReader fileReader(data);
+    Reader reader = reader_fromFileReader(&fileReader.reader);
 
     uint8_t buf[8] = {};
     ASSERT_EQ(reader.peekInto(&reader, 5, buf), NoError);
@@ -80,10 +104,11 @@ TEST(MemoryReaderReader, PeekInto_DoesNotAdvance)
     ASSERT_EQ(reader.offset, 0u);
 }
 
-TEST(MemoryReaderReader, Skip_Basic)
+TEST(FileReaderReader, Skip_Basic)
 {
-    MemoryReader memoryReader("ABCDEFG");
-    Reader reader = memoryReaderInterface(&memoryReader);
+    const std::string data = "ABCDEFG";
+    TmpFileReader fileReader(data);
+    Reader reader = reader_fromFileReader(&fileReader.reader);
 
     ASSERT_EQ(reader.skip(&reader, 1), NoError);
     ASSERT_EQ(reader.offset, 1u);
@@ -100,10 +125,11 @@ TEST(MemoryReaderReader, Skip_Basic)
     ASSERT_EQ(reader.skip(&reader, 1), E_UnexpectedEOF);
 }
 
-TEST(MemoryReaderReader, Skip_Then_Peek)
+TEST(FileReaderReader, Skip_Then_Peek)
 {
-    MemoryReader memoryReader("0123456789");
-    Reader reader = memoryReaderInterface(&memoryReader);
+    const std::string data = "0123456789";
+    TmpFileReader fileReader(data);
+    Reader reader = reader_fromFileReader(&fileReader.reader);
 
     ASSERT_EQ(reader.skip(&reader, 3), NoError);
     ASSERT_EQ(reader.offset, 3u);
@@ -121,10 +147,11 @@ TEST(MemoryReaderReader, Skip_Then_Peek)
     ASSERT_EQ(reader.peekSlice(&reader, 4, &slice), E_UnexpectedEOF);
 }
 
-TEST(MemoryReaderReader, ZeroLength_Peeks)
+TEST(FileReaderReader, ZeroLength_Peeks)
 {
-    MemoryReader memoryReader("xyz");
-    Reader reader = memoryReaderInterface(&memoryReader);
+    const std::string data = "xyz";
+    TmpFileReader fileReader(data);
+    Reader reader = reader_fromFileReader(&fileReader.reader);
 
     Slice slice;
     ASSERT_EQ(reader.peekSlice(&reader, 0, &slice), NoError);
@@ -134,10 +161,11 @@ TEST(MemoryReaderReader, ZeroLength_Peeks)
     ASSERT_EQ(reader.peekInto(&reader, 0, buf), NoError);
 }
 
-TEST(MemoryReaderReader, EOF_PeekSlice_Exact)
+TEST(FileReaderReader, EOF_PeekSlice_Exact)
 {
-    MemoryReader memoryReader("hi");
-    Reader reader = memoryReaderInterface(&memoryReader);
+    const std::string data = "hi";
+    TmpFileReader fileReader(data);
+    Reader reader = reader_fromFileReader(&fileReader.reader);
 
     Slice slice;
     ASSERT_EQ(reader.peekSlice(&reader, 2, &slice), NoError);
@@ -146,10 +174,11 @@ TEST(MemoryReaderReader, EOF_PeekSlice_Exact)
     ASSERT_EQ(reader.peekSlice(&reader, 3, &slice), E_UnexpectedEOF);
 }
 
-TEST(MemoryReaderReader, EOF_PeekInto_Exact)
+TEST(FileReaderReader, EOF_PeekInto_Exact)
 {
-    MemoryReader memoryReader("xy");
-    Reader reader = memoryReaderInterface(&memoryReader);
+    const std::string data = "xy";
+    TmpFileReader fileReader(data);
+    Reader reader = reader_fromFileReader(&fileReader.reader);
 
     uint8_t buf[4];
 
@@ -159,10 +188,11 @@ TEST(MemoryReaderReader, EOF_PeekInto_Exact)
     ASSERT_EQ(reader.peekInto(&reader, 3, buf), E_UnexpectedEOF);
 }
 
-TEST(MemoryReaderReader, PeekSlice_AfterEOFOffset)
+TEST(FileReaderReader, PeekSlice_AfterEOFOffset)
 {
-    MemoryReader memoryReader("aaa");
-    Reader reader = memoryReaderInterface(&memoryReader);
+    const std::string data = "aaa";
+    TmpFileReader fileReader(data);
+    Reader reader = reader_fromFileReader(&fileReader.reader);
 
     ASSERT_EQ(reader.skip(&reader, 3), NoError);
     ASSERT_EQ(reader.offset, 3u);
@@ -171,10 +201,11 @@ TEST(MemoryReaderReader, PeekSlice_AfterEOFOffset)
     ASSERT_EQ(reader.peekSlice(&reader, 1, &slice), E_UnexpectedEOF);
 }
 
-TEST(MemoryReaderReader, MixedOperations_Consistency)
+TEST(FileReaderReader, MixedOperations_Consistency)
 {
-    MemoryReader memoryReader("abcdefghij");
-    Reader reader = memoryReaderInterface(&memoryReader);
+    const std::string data = "abcdefghij";
+    TmpFileReader fileReader(data);
+    Reader reader = reader_fromFileReader(&fileReader.reader);
 
     Slice slice;
 
@@ -200,10 +231,11 @@ TEST(MemoryReaderReader, MixedOperations_Consistency)
     ASSERT_EQ(reader.peekSlice(&reader, 3, &slice), E_UnexpectedEOF);
 }
 
-TEST(MemoryReaderReader, PeekSlice_SingleByteAdvances)
+TEST(FileReaderReader, PeekSlice_SingleByteAdvances)
 {
-    MemoryReader mem("ABCDEFGH");
-    Reader r = memoryReaderInterface(&mem);
+    const std::string data = "ABCDEFGH";
+    TmpFileReader fileReader(data);
+    Reader r = reader_fromFileReader(&fileReader.reader);
 
     Slice s;
     for (size_t i = 0; i < 8; i++) {
@@ -219,10 +251,11 @@ TEST(MemoryReaderReader, PeekSlice_SingleByteAdvances)
     ASSERT_EQ(r.peekSlice(&r, 1, &s), E_UnexpectedEOF);
 }
 
-TEST(MemoryReaderReader, OffsetMonotonicity_PeekDoesNotAdvance)
+TEST(FileReaderReader, OffsetMonotonicity_PeekDoesNotAdvance)
 {
-    MemoryReader mem("0123456789");
-    Reader r = memoryReaderInterface(&mem);
+    const std::string data = "0123456789";
+    TmpFileReader fileReader(data);
+    Reader r = reader_fromFileReader(&fileReader.reader);
 
     for (int i = 0; i < 20; i++) {
         Slice s;
@@ -243,10 +276,11 @@ TEST(MemoryReaderReader, OffsetMonotonicity_PeekDoesNotAdvance)
     }
 }
 
-TEST(MemoryReaderReader, RepeatedEOFPeek)
+TEST(FileReaderReader, RepeatedEOFPeek)
 {
-    MemoryReader mem("xyz");
-    Reader r = memoryReaderInterface(&mem);
+    const std::string data = "xyz";
+    TmpFileReader fileReader(data);
+    Reader r = reader_fromFileReader(&fileReader.reader);
 
     ASSERT_EQ(r.skip(&r, 3), NoError);
     ASSERT_EQ(r.offset, 3u);
@@ -258,15 +292,15 @@ TEST(MemoryReaderReader, RepeatedEOFPeek)
     }
 }
 
-TEST(MemoryReaderReader, ExhaustiveByteWalk)
+TEST(FileReaderReader, ExhaustiveByteWalk)
 {
-    const char* data = "abcdefghijklmnop";
-    MemoryReader mem(data);
-    Reader r = memoryReaderInterface(&mem);
+    const std::string data = "abcdefghijklmnop";
+    TmpFileReader fileReader(data);
+    Reader r = reader_fromFileReader(&fileReader.reader);
 
     uint8_t buf[32];
 
-    for (size_t i = 0; i < strlen(data); i++) {
+    for (size_t i = 0; i < data.size(); i++) {
         // peek next byte
         ASSERT_EQ(r.peekInto(&r, 1, buf), NoError);
         ASSERT_EQ(buf[0], (uint8_t)data[i]);
@@ -280,11 +314,11 @@ TEST(MemoryReaderReader, ExhaustiveByteWalk)
     ASSERT_EQ(r.peekInto(&r, 1, buf), E_UnexpectedEOF);
 }
 
-TEST(MemoryReaderReader, SlidingWindows)
+TEST(FileReaderReader, SlidingWindows)
 {
-    const char* data = "0123456789";
-    MemoryReader mem(data);
-    Reader r = memoryReaderInterface(&mem);
+    const std::string data = "0123456789";
+    TmpFileReader fileReader(data);
+    Reader r = reader_fromFileReader(&fileReader.reader);
 
     Slice s;
 
@@ -300,7 +334,7 @@ TEST(MemoryReaderReader, SlidingWindows)
             if (k <= remaining) {
                 ASSERT_EQ(err, NoError);
                 ASSERT_EQ(s.len, k);
-                ASSERT_EQ(memcmp(s.slice, data + j, k), 0);
+                ASSERT_EQ(memcmp(s.slice, data.c_str() + j, k), 0);
             } else {
                 ASSERT_EQ(err, E_UnexpectedEOF);
             }
@@ -308,10 +342,11 @@ TEST(MemoryReaderReader, SlidingWindows)
     }
 }
 
-TEST(MemoryReaderReader, SliceStabilityAcrossPeeks)
+TEST(FileReaderReader, SliceStabilityAcrossPeeks)
 {
-    MemoryReader mem("ABCDE");
-    Reader r = memoryReaderInterface(&mem);
+    const std::string data = "ABCDE";
+    TmpFileReader fileReader(data);
+    Reader r = reader_fromFileReader(&fileReader.reader);
 
     Slice s1, s2;
 
@@ -327,10 +362,11 @@ TEST(MemoryReaderReader, SliceStabilityAcrossPeeks)
     ASSERT_EQ(r.offset, 0u);
 }
 
-TEST(MemoryReaderReader, SkipToLastByte)
+TEST(FileReaderReader, SkipToLastByte)
 {
-    MemoryReader mem("Z123");
-    Reader r = memoryReaderInterface(&mem);
+    const std::string data = "Z123";
+    TmpFileReader fileReader(data);
+    Reader r = reader_fromFileReader(&fileReader.reader);
 
     ASSERT_EQ(r.skip(&r, 3), NoError);
     ASSERT_EQ(r.offset, 3u);
@@ -342,20 +378,22 @@ TEST(MemoryReaderReader, SkipToLastByte)
     ASSERT_EQ(r.peekSlice(&r, 2, &s), E_UnexpectedEOF);
 }
 
-TEST(MemoryReaderReader, LargePeekRequest)
+TEST(FileReaderReader, LargePeekRequest)
 {
-    MemoryReader mem("short");
-    Reader r = memoryReaderInterface(&mem);
+    const std::string data = "short";
+    TmpFileReader fileReader(data);
+    Reader r = reader_fromFileReader(&fileReader.reader);
 
     Slice s;
     ASSERT_EQ(r.peekSlice(&r, 1000, &s), E_UnexpectedEOF);
     ASSERT_EQ(r.offset, 0u);
 }
 
-TEST(MemoryReaderReader, SkipExhaustively)
+TEST(FileReaderReader, SkipExhaustively)
 {
-    MemoryReader mem("aaa");
-    Reader r = memoryReaderInterface(&mem);
+    const std::string data = "aaa";
+    TmpFileReader fileReader(data);
+    Reader r = reader_fromFileReader(&fileReader.reader);
 
     ASSERT_EQ(r.skip(&r, 3), NoError);
     ASSERT_EQ(r.offset, 3u);
@@ -364,30 +402,30 @@ TEST(MemoryReaderReader, SkipExhaustively)
         ASSERT_EQ(r.skip(&r, 1), E_UnexpectedEOF);
 }
 
-TEST(MemoryReaderReader, PeekInto_Substrings)
+TEST(FileReaderReader, PeekInto_Substrings)
 {
-    const char* data = "HelloWorld";
-    MemoryReader mem(data);
-    Reader r = memoryReaderInterface(&mem);
+    const std::string data = "HelloWorld";
+    TmpFileReader fileReader(data);
+    Reader r = reader_fromFileReader(&fileReader.reader);
 
     uint8_t buf[64];
 
-    for (size_t n = 0; n <= strlen(data); n++) {
+    for (size_t n = 0; n <= data.size(); n++) {
         Error e = r.peekInto(&r, n, buf);
         ASSERT_EQ(e, NoError);
-        ASSERT_EQ(memcmp(buf, data, n), 0);
+        ASSERT_EQ(memcmp(buf, data.c_str(), n), 0);
     }
 
-    ASSERT_EQ(r.peekInto(&r, strlen(data) + 1, buf), E_UnexpectedEOF);
+    ASSERT_EQ(r.peekInto(&r, data.size() + 1, buf), E_UnexpectedEOF);
 }
 
-TEST(MemoryReaderReader, ComplexSkipPattern)
+TEST(FileReaderReader, ComplexSkipPattern)
 {
-    const char* data = "abcdefghijklmnopqrstuv";
-    MemoryReader mem(data);
-    Reader r = memoryReaderInterface(&mem);
+    const std::string data = "abcdefghijklmnopqrstuv";
+    TmpFileReader fileReader(data);
+    Reader r = reader_fromFileReader(&fileReader.reader);
 
-    size_t total = strlen(data);
+    size_t total = data.size();
 
     size_t steps[] = {1, 2, 3, 5, 8, 3, 2, 1};
 
