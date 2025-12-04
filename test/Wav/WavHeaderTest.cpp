@@ -374,3 +374,96 @@ TEST(WavReader, ReadFormatChunk_CheckZeroingBeyondChunk)
     for (int i = 0; i < 16; i++)
         EXPECT_EQ(fmt.subFormat[i], 0);
 }
+
+TEST(WavReader, ReadFormatChunk_PCM16Stereo)
+{
+    std::vector<Byte> data;
+    appendFmtChunk(data, WAVE_FORMAT_PCM, 2, 44100, 16, 4);
+    MemoryReader mem(data);
+    Reader r = memoryReaderInterface(&mem);
+
+    WavFormatChunk fmt{};
+    ASSERT_EQ(readFormatChunk(&r, &fmt), NoError);
+    EXPECT_EQ(fmt.formatTag, WAVE_FORMAT_PCM);
+    EXPECT_EQ(fmt.nChannels, 2);
+    EXPECT_EQ(fmt.sampleRate, 44100);
+    EXPECT_EQ(fmt.bytesPerSecond, 44100 * 2 * 16 / 8);
+    EXPECT_EQ(fmt.blockAlign, 4);
+    EXPECT_EQ(fmt.bitDepth, 16);
+}
+
+TEST(WavReader, ReadFormatChunk_IEEEFloatStereo)
+{
+    std::vector<Byte> data;
+    appendFmtChunk(data, WAVE_FORMAT_IEEE_FLOAT, 2, 48000, 32, 8);
+    MemoryReader mem(data);
+    Reader r = memoryReaderInterface(&mem);
+
+    WavFormatChunk fmt{};
+    ASSERT_EQ(readFormatChunk(&r, &fmt), NoError);
+    EXPECT_EQ(fmt.formatTag, WAVE_FORMAT_IEEE_FLOAT);
+    EXPECT_EQ(fmt.nChannels, 2);
+    EXPECT_EQ(fmt.sampleRate, 48000);
+    EXPECT_EQ(fmt.bytesPerSecond, 48000 * 2 * 32 / 8);
+    EXPECT_EQ(fmt.blockAlign, 8);
+    EXPECT_EQ(fmt.bitDepth, 32);
+}
+
+TEST(WavReader, ReadFormatChunk_ALAWMono)
+{
+    std::vector<Byte> data;
+    appendFmtChunk(data, WAVE_FORMAT_ALAW, 1, 44100, 8, 1);
+    MemoryReader mem(data);
+    Reader r = memoryReaderInterface(&mem);
+
+    WavFormatChunk fmt{};
+    ASSERT_EQ(readFormatChunk(&r, &fmt), NoError);
+    EXPECT_EQ(fmt.formatTag, WAVE_FORMAT_ALAW);
+    EXPECT_EQ(fmt.nChannels, 1);
+    EXPECT_EQ(fmt.sampleRate, 44100);
+    EXPECT_EQ(fmt.bytesPerSecond, 44100 * 1 * 8 / 8);
+    EXPECT_EQ(fmt.blockAlign, 1);
+    EXPECT_EQ(fmt.bitDepth, 8);
+}
+
+TEST(WavReader, ReadFormatChunk_MULAWMono)
+{
+    std::vector<Byte> data;
+    appendFmtChunk(data, WAVE_FORMAT_MULAW, 1, 44100, 8, 1);
+    MemoryReader mem(data);
+    Reader r = memoryReaderInterface(&mem);
+
+    WavFormatChunk fmt{};
+    ASSERT_EQ(readFormatChunk(&r, &fmt), NoError);
+    EXPECT_EQ(fmt.formatTag, WAVE_FORMAT_MULAW);
+    EXPECT_EQ(fmt.nChannels, 1);
+    EXPECT_EQ(fmt.sampleRate, 44100);
+    EXPECT_EQ(fmt.bytesPerSecond, 44100 * 1 * 8 / 8);
+    EXPECT_EQ(fmt.blockAlign, 1);
+    EXPECT_EQ(fmt.bitDepth, 8);
+}
+
+TEST(WavReader, ReadFormatChunk_ExtensibleStereo)
+{
+    std::vector<Byte> data;
+    uint8_t subFmt[16] = {0x01, 0x00, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00,
+                          0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71, 0x00, 0x00};
+    appendFmtChunk(data, WAVE_FORMAT_EXTENSIBLE, 2, 44100, 16, 4, 22, 16, 3,
+                   subFmt);
+    MemoryReader mem(data);
+    Reader r = memoryReaderInterface(&mem);
+
+    WavFormatChunk fmt{};
+    ASSERT_EQ(readFormatChunk(&r, &fmt), NoError);
+    EXPECT_EQ(fmt.formatTag, WAVE_FORMAT_EXTENSIBLE);
+    EXPECT_EQ(fmt.nChannels, 2);
+    EXPECT_EQ(fmt.sampleRate, 44100);
+    EXPECT_EQ(fmt.bytesPerSecond, 44100 * 2 * 16 / 8);
+    EXPECT_EQ(fmt.blockAlign, 4);
+    EXPECT_EQ(fmt.bitDepth, 16);
+    EXPECT_EQ(fmt.extensionSize, 22);
+    EXPECT_EQ(fmt.validBitsPerSample, 16);
+    EXPECT_EQ(fmt.channelMask, 3);
+    for (int i = 0; i < 16; i++)
+        EXPECT_EQ(fmt.subFormat[i], subFmt[i]);
+}
