@@ -36,7 +36,7 @@ Error reader_takeU16_LE(Reader* reader, uint16_t* out)
     TRY(reader->peekSlice(reader, 2, &slice));
 
     *out = bitcastU16_LE(slice.slice);
-    return NoError;
+    return reader->skip(reader, 2);
 }
 
 Error reader_takeU32_LE(Reader* reader, uint32_t* out)
@@ -45,7 +45,7 @@ Error reader_takeU32_LE(Reader* reader, uint32_t* out)
     TRY(reader->peekSlice(reader, 4, &slice));
 
     *out = bitcastU32_LE(slice.slice);
-    return NoError;
+    return reader->skip(reader, 4);
 }
 
 Error reader_takeI24_LE(Reader* reader, Int24* out)
@@ -53,6 +53,5 @@ Error reader_takeI24_LE(Reader* reader, Int24* out)
     Slice slice;
     TRY(reader->peekSlice(reader, 4, &slice));
 
-    *out = bitcastI24_LE(slice.slice);
-    return NoError;
+    return reader->skip(reader, 3);
 }
