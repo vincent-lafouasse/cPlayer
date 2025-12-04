@@ -1,5 +1,7 @@
 #include "Reader.h"
 
+#include <string.h>
+
 static bool readFromFileReader(Reader* reader, uint8_t* buffer, size_t n)
 {
     FileReader* fileReader = reader->ctx;
@@ -25,8 +27,6 @@ static bool skipFromFileReader(Reader* reader, size_t n)
 
 Reader reader_fromFileReader(FileReader* fileReader)
 {
-    return (Reader){.ctx = fileReader,
-                    .read = readFromFileReader,
-                    .skip = skipFromFileReader,
-                    .offset = 0};
+    (void)fileReader;
+    return (Reader){0};
 }
