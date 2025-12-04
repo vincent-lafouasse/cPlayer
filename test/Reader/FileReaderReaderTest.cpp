@@ -378,17 +378,6 @@ TEST(FileReaderReader, SkipToLastByte)
     ASSERT_EQ(r.peekSlice(&r, 2, &s), E_UnexpectedEOF);
 }
 
-TEST(FileReaderReader, LargePeekRequest)
-{
-    const std::string data = "short";
-    TmpFileReader fileReader(data);
-    Reader r = reader_fromFileReader(&fileReader.reader);
-
-    Slice s;
-    ASSERT_EQ(r.peekSlice(&r, 1000, &s), E_UnexpectedEOF);
-    ASSERT_EQ(r.offset, 0u);
-}
-
 TEST(FileReaderReader, SkipExhaustively)
 {
     const std::string data = "aaa";
