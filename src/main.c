@@ -32,7 +32,7 @@ static Options parseFlagsOrExit(int ac, char** av)
     return maybeOptions.options;
 }
 
-static FileReader openFileOrExit(const char* path)
+static AudioData loadAudioOrExit(const char* path)
 {
     FileReader reader = fr_open(path);
     if (!fr_isOpened(&reader)) {
@@ -42,14 +42,8 @@ static FileReader openFileOrExit(const char* path)
     logFn(LogLevel_Debug, "FileReader buffer size: %zu\n",
           FILE_READER_BUFFER_SIZE);
 
-    return reader;
-}
-
-// the function takes ownership of the reader
-static AudioData decodeAudioOrExit(FileReader* reader)
-{
-    AudioDataResult maybeTrack = decodeAudio(reader);
-    fr_close(reader);  // this isn't needed anymore
+    AudioDataResult maybeTrack = decodeAudio(&reader);
+    fr_close(&reader);  // this isn't needed anymore
     if (maybeTrack.err != NoError) {
         logFn(LogLevel_Error, "%s\n", errorRepr(maybeTrack.err));
         exit(1);
@@ -64,10 +58,7 @@ int main(int ac, char** av)
     logOptions(&options);
 
     logFn(LogLevel_Debug, "-----Reading file\t%s-----\n", options.input);
-    FileReader reader = openFileOrExit(options.input);
-
-    // decodeOrExit() takes ownership of the reader
-    const AudioData track = decodeAudioOrExit(&reader);
+    const AudioData track = loadAudioOrExit(options.input);
     AudioPlayer player = (AudioPlayer){
         .left = track.left, .right = track.right, .head = 0, .len = track.size};
 
