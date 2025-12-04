@@ -10,7 +10,7 @@
 
 #include "log.h"
 
-static Error skipChunkUntil(Reader* reader, const char* expectedId)
+Error skipChunkUntil(Reader* reader, const char* expectedId)
 {
     Error err = NoError;
     uint8_t id[5] = {0};
@@ -29,7 +29,7 @@ static Error skipChunkUntil(Reader* reader, const char* expectedId)
     return err;
 }
 
-static Error getToFormatChunk(Reader* reader)
+Error getToFormatChunk(Reader* reader)
 {
     uint8_t id[5] = {0};
     TRY(reader_takeFourCC(reader, id));
@@ -48,14 +48,6 @@ static Error getToFormatChunk(Reader* reader)
 
     return skipChunkUntil(reader, "fmt ");
 }
-
-typedef struct {
-    uint16_t formatTag;
-    uint16_t nChannels;
-    uint32_t sampleRate;
-    uint16_t bitDepth;
-    uint16_t blockSize;
-} WavFormatChunk;
 
 Error readFormatChunk(Reader* reader, WavFormatChunk* out)
 {

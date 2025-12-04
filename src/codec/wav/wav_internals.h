@@ -26,11 +26,21 @@ typedef struct {
     SampleFormat sampleFormat;
 } WavHeader;
 
+typedef struct {
+    uint16_t formatTag;
+    uint16_t nChannels;
+    uint32_t sampleRate;
+    uint16_t bitDepth;
+    uint16_t blockSize;
+} WavFormatChunk;
+
+Error skipChunkUntil(Reader* reader, const char* expectedId);
+Error getToFormatChunk(Reader* reader);
+Error readFormatChunk(Reader* reader, WavFormatChunk* out);
 Error readWavHeader(Reader* reader, WavHeader* out);
 void logHeader(const WavHeader* wh);
 
 Error readSample(Reader* reader, SampleFormat fmt, float* out);
-
 AudioDataResult readWavData(Reader* reader, WavHeader h);
 
 #define DUMP_PREFIX "./build/dump_"
