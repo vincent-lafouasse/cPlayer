@@ -15,27 +15,16 @@ static Error skipChunkUntil(Reader* reader, const char* expectedId)
     Error err = NoError;
     uint8_t id[5] = {0};
 
-    if ((err = reader_peekFourCC(reader, id)) != NoError) {
-        return err;
-    }
+    TRY(reader_peekFourCC(reader, id));
     while (memcmp(id, expectedId, 4) != 0) {
         // skip the fourCC we just peeked
-        if ((err = reader->skip(reader, 4)) != NoError) {
-            return err;
-        }
+        TRY(reader->skip(reader, 4));
 
         uint32_t chunkSize = 0;
-        if ((err = reader_takeU32_LE(reader, &chunkSize)) != NoError) {
-            break;
-        }
+        TRY(reader_takeU32_LE(reader, &chunkSize));
         logFn(LogLevel_Debug, "Skipping chunk %s of size %u\n", id, chunkSize);
-        if ((err = reader->skip(reader, chunkSize)) != NoError) {
-            break;
-        }
-
-        if ((err = reader_peekFourCC(reader, id)) != NoError) {
-            break;
-        }
+        TRY(reader->skip(reader, chunkSize));
+        TRY(reader_peekFourCC(reader, id));
     }
     return err;
 }
@@ -43,24 +32,16 @@ static Error skipChunkUntil(Reader* reader, const char* expectedId)
 static Error getToFormatChunk(Reader* reader)
 {
     uint8_t id[5] = {0};
-    uint32_t size;
-    Error err;
-
-    if ((err = reader_takeFourCC(reader, id)) != NoError) {
-        return err;
-    }
+    TRY(reader_takeFourCC(reader, id));
     if (memcmp(id, "RIFF", 4) != 0) {
         return E_Wav_UnknownFourCC;
     }
 
-    if ((err = reader_takeU32_LE(reader, &size)) != NoError) {
-        return err;
-    }
+    uint32_t size;
+    TRY(reader_takeU32_LE(reader, &size));
     logFn(LogLevel_Debug, "master RIFF chunk:\t %u bytes\n", size);
 
-    if ((err = reader_takeFourCC(reader, id)) != NoError) {
-        return err;
-    }
+    TRY(reader_takeFourCC(reader, id));
     if (memcmp(id, "WAVE", 4) != 0) {
         return E_Wav_UnknownFourCC;
     }
@@ -78,12 +59,8 @@ typedef struct {
 
 Error readFormatChunk(Reader* reader, WavFormatChunk* out)
 {
-    Error err;
-
     Slice header;
-    if ((err = reader_takeSlice(reader, 8, &header)) != NoError) {
-        return err;
-    }
+    TRY(reader_takeSlice(reader, 8, &header));
     if (strncmp((const char*)header.slice, "fmt ", 4) != 0) {
         return E_Wav_UnknownFourCC;
     }
@@ -91,9 +68,7 @@ Error readFormatChunk(Reader* reader, WavFormatChunk* out)
     logFn(LogLevel_Debug, "format chunk size:\t%u bytes\n", fmtChunkSize);
 
     Slice slice;
-    if ((err = reader_takeSlice(reader, fmtChunkSize, &slice)) != NoError) {
-        return err;
-    }
+    TRY(reader_takeSlice(reader, fmtChunkSize, &slice));
     const uint8_t* format = slice.slice;
 
     const uint16_t waveFormat = bitcastU16_LE(format);
@@ -151,28 +126,17 @@ Error determineSampleFormat(WavFormatChunk format, SampleFormat* out)
 
 Error readWavHeader(Reader* reader, Header* out)
 {
-    Error err;
-
     // master chunk
     // also skip other chunks
-    if ((err = getToFormatChunk(reader)) != NoError) {
-        return err;
-    }
+    TRY(getToFormatChunk(reader));
 
     WavFormatChunk format;
-    if ((err = readFormatChunk(reader, &format)) != NoError) {
-        return err;
-    }
-
-    if ((err = skipChunkUntil(reader, "data")) != NoError) {
-        return err;
-    }
+    TRY(readFormatChunk(reader, &format));
+    TRY(skipChunkUntil(reader, "data"));
 
     // data chunk
     Slice dataChunkHeader;
-    if ((err = reader_takeSlice(reader, 8, &dataChunkHeader)) != NoError) {
-        return err;
-    }
+    TRY(reader_takeSlice(reader, 8, &dataChunkHeader));
     assert(strncmp((const char*)dataChunkHeader.slice, "data", 4) == 0);
     logFn(LogLevel_Debug, "reached data chunk\n");
 
@@ -184,9 +148,7 @@ Error readWavHeader(Reader* reader, Header* out)
     logFn(LogLevel_Debug, "\n");
 
     SampleFormat sampleFormat;
-    if ((err = determineSampleFormat(format, &sampleFormat)) != NoError) {
-        return err;
-    }
+    TRY(determineSampleFormat(format, &sampleFormat));
 
     *out = (Header){
         .nChannels = format.nChannels,

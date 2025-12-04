@@ -67,16 +67,8 @@ static Error readStereoFrame(Reader* reader,
                              float* left,
                              float* right)
 {
-    Error err = readSample(reader, format, left);
-    if (err != NoError) {
-        return err;
-    }
-
-    err = readSample(reader, format, right);
-    if (err != NoError) {
-        return err;
-    }
-
+    TRY(readSample(reader, format, left));
+    TRY(readSample(reader, format, right));
     return NoError;
 }
 
