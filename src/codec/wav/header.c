@@ -42,7 +42,8 @@ static Error readU16(FileReader* reader, uint16_t* out)
         return error_fromReadStatus(slice.status);
     }
 
-    return bitcastU16_LE(slice.slice);
+    *out = bitcastU16_LE(slice.slice);
+    return NoError;
 }
 
 static Error readU32(FileReader* reader, uint32_t* out)
@@ -52,7 +53,8 @@ static Error readU32(FileReader* reader, uint32_t* out)
         return error_fromReadStatus(slice.status);
     }
 
-    return bitcastU32_LE(slice.slice);
+    *out = bitcastU32_LE(slice.slice);
+    return NoError;
 }
 
 static Error skipChunkUntil(FileReader* reader, const char* expectedId)
@@ -64,6 +66,11 @@ static Error skipChunkUntil(FileReader* reader, const char* expectedId)
         return err;
     }
     while (memcmp(id, expectedId, 4) != 0) {
+        // skip the fourCC we just peeked
+        if ((err = skip(reader, 4)) != NoError) {
+            return err;
+        }
+
         uint32_t chunkSize = 0;
         if ((err = readU32(reader, &chunkSize)) != ReadStatus_Ok) {
             break;
@@ -83,26 +90,29 @@ static Error skipChunkUntil(FileReader* reader, const char* expectedId)
 static Error getToFormatChunk(FileReader* reader)
 {
     uint8_t id[5] = {0};
-    SliceResult maybeSlice = fr_takeSlice(reader, 12);
-    if (maybeSlice.status != ReadStatus_Ok) {
-        return error_fromReadStatus(maybeSlice.status);
-    }
+    uint32_t size;
+    Error err;
 
-    // "RIFF" magic word, wav is a RIFF container
-    const uint8_t* masterChunk = maybeSlice.slice;
-    if (strncmp((const char*)masterChunk, "RIFF", 4) != 0) {
+    if ((err = takeFourCC(reader, id)) != NoError) {
+        return err;
+    }
+    if (memcmp(id, "RIFF", 4) != 0) {
         return E_Wav_UnknownFourCC;
     }
 
-    const uint32_t masterChunkSize = bitcastU32_LE(masterChunk + 4);
-    logFn(LogLevel_Debug, "master chunk size:\t%u bytes\n", masterChunkSize);
+    if ((err = readU32(reader, &size)) != NoError) {
+        return err;
+    }
+    logFn(LogLevel_Debug, "master RIFF chunk:\t %u bytes\n", size);
 
-    // the WAVE chunk contains our metadata and data
-    if (strncmp((const char*)masterChunk + 8, "WAVE", 4) != 0) {
+    if ((err = takeFourCC(reader, id)) != NoError) {
+        return err;
+    }
+    if (memcmp(id, "WAVE", 4) != 0) {
         return E_Wav_UnknownFourCC;
     }
 
-    return NoError;
+    return skipChunkUntil(reader, "fmt ");
 }
 
 typedef struct {
@@ -247,6 +257,10 @@ WavHeaderResult readWavHeader(FileReader* reader)
         return WavHeader_Err(maybeFormat.err);
     }
     WavFormatChunk format = maybeFormat.format;
+
+    if ((err = skipChunkUntil(reader, "data")) != NoError) {
+        return WavHeader_Err(err);
+    }
 
     // data chunk
     SliceResult maybeSlice = fr_takeSlice(reader, 4);
