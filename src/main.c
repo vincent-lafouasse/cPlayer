@@ -29,11 +29,13 @@ static Options parseFlagsOrExit(int ac, char** av)
         exit(1);
     }
 
+    logOptions(&maybeOptions.options);
     return maybeOptions.options;
 }
 
 static AudioData loadAudioOrExit(const char* path)
 {
+    logFn(LogLevel_Debug, "-----Reading file\t%s-----\n", path);
     FileReader reader = fr_open(path);
     if (!fr_isOpened(&reader)) {
         logFn(LogLevel_Error, "Failed to open file %s\n", path);
@@ -55,9 +57,7 @@ static AudioData loadAudioOrExit(const char* path)
 int main(int ac, char** av)
 {
     const Options options = parseFlagsOrExit(ac, av);
-    logOptions(&options);
 
-    logFn(LogLevel_Debug, "-----Reading file\t%s-----\n", options.input);
     const AudioData track = loadAudioOrExit(options.input);
     AudioPlayer player = (AudioPlayer){
         .left = track.left, .right = track.right, .head = 0, .len = track.size};
