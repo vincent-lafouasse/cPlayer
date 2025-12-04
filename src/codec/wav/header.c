@@ -145,7 +145,6 @@ Error readWavHeader(Reader* reader, WavHeader* out)
 
     uint32_t nBlocks = 8 * dataSize / format.bitDepth / format.nChannels;
     logFn(LogLevel_Debug, "n blocks:\t\t%u\n", nBlocks);
-    logFn(LogLevel_Debug, "\n");
 
     SampleFormat sampleFormat;
     TRY(determineSampleFormat(format, &sampleFormat));
@@ -156,6 +155,7 @@ Error readWavHeader(Reader* reader, WavHeader* out)
         .sampleFormat = sampleFormat,
         .size = nBlocks,
     };
+    logFn(LogLevel_Debug, "\n");
     return NoError;
 }
 
