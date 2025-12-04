@@ -55,7 +55,7 @@ Error readFormatChunk(Reader* reader, WavFormatChunk* out)
     if (memcmp(header.slice, "fmt ", 4) != 0) {
         return E_Wav_UnknownFourCC;
     }
-    const uint32_t fmtChunkSize = bitcastU32_BE(header.slice);
+    const uint32_t fmtChunkSize = bitcastU32_LE(header.slice + 4);
     logFn(LogLevel_Debug, "format chunk size:\t%u bytes\n", fmtChunkSize);
 
     Slice slice;
