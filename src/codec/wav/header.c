@@ -124,7 +124,7 @@ Error determineSampleFormat(WavFormatChunk format, SampleFormat* out)
     return err;
 }
 
-Error readWavHeader(Reader* reader, Header* out)
+Error readWavHeader(Reader* reader, WavHeader* out)
 {
     // master chunk
     // also skip other chunks
@@ -150,7 +150,7 @@ Error readWavHeader(Reader* reader, Header* out)
     SampleFormat sampleFormat;
     TRY(determineSampleFormat(format, &sampleFormat));
 
-    *out = (Header){
+    *out = (WavHeader){
         .nChannels = format.nChannels,
         .sampleRate = format.sampleRate,
         .sampleFormat = sampleFormat,
@@ -159,7 +159,7 @@ Error readWavHeader(Reader* reader, Header* out)
     return NoError;
 }
 
-void logHeader(const Header* wh)
+void logHeader(const WavHeader* wh)
 {
     logFn(LogLevel_Info, "%s {\n", "WavHeader");
     logFn(LogLevel_Info, "\tnumber of Channels:\t%u\n", wh->nChannels);

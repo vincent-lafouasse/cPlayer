@@ -7,7 +7,7 @@
 
 AudioDataResult decodeWav(Reader* reader)
 {
-    Header wavHeader;
+    WavHeader wavHeader;
     const Error err = readWavHeader(reader, &wavHeader);
     if (err != NoError) {
         return AudioDataResult_Err(err);
@@ -17,10 +17,10 @@ AudioDataResult decodeWav(Reader* reader)
     return readWavData(reader, wavHeader);
 }
 
-static AudioDataResult readWavDataMono(Reader* reader, Header h);
-static AudioDataResult readWavDataStereo(Reader* reader, Header h);
+static AudioDataResult readWavDataMono(Reader* reader, WavHeader h);
+static AudioDataResult readWavDataStereo(Reader* reader, WavHeader h);
 
-AudioDataResult readWavData(Reader* reader, Header h)
+AudioDataResult readWavData(Reader* reader, WavHeader h)
 {
     if (h.nChannels == 1) {
         return readWavDataMono(reader, h);
@@ -31,7 +31,7 @@ AudioDataResult readWavData(Reader* reader, Header h)
     }
 }
 
-static AudioDataResult readWavDataMono(Reader* reader, Header h)
+static AudioDataResult readWavDataMono(Reader* reader, WavHeader h)
 {
     Error err = NoError;
 
@@ -72,7 +72,7 @@ static Error readStereoFrame(Reader* reader,
     return NoError;
 }
 
-static AudioDataResult readWavDataStereo(Reader* reader, Header h)
+static AudioDataResult readWavDataStereo(Reader* reader, WavHeader h)
 {
     Error err = NoError;
 
