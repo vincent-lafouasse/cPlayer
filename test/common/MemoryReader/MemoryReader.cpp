@@ -1,5 +1,7 @@
 #include "MemoryReader.hpp"
 
+#include <cstring>
+
 MemoryReader::MemoryReader(const std::vector<Byte>& v) : data(v), pos(0) {}
 
 MemoryReader::MemoryReader(const std::string& s) : data(), pos(0)
