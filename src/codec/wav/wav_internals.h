@@ -27,11 +27,18 @@ typedef struct {
 } WavHeader;
 
 typedef struct {
+    uint32_t size;
     uint16_t formatTag;
     uint16_t nChannels;
     uint32_t sampleRate;
-    uint16_t bitDepth;
+    uint32_t bytesPerSecond;
     uint16_t blockSize;
+    uint16_t bitDepth;
+    uint16_t extensionSize;
+    // extension
+    uint16_t validBitsPerSample;
+    uint32_t channelMask;
+    uint8_t subFormat[16];
 } WavFormatChunk;
 
 Error skipChunkUntil(Reader* reader, const char* expectedId);

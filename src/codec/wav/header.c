@@ -81,13 +81,28 @@ Error readFormatChunk(Reader* reader, WavFormatChunk* out)
     logFn(LogLevel_Debug, "fmt extension:\t\t%u bytes\n",
           formatChunkExtensionSize);
 
+    memset(out, 0, sizeof(*out));
     *out = (WavFormatChunk){
+        .size = fmtChunkSize,
         .formatTag = waveFormat,
         .nChannels = nChannels,
         .sampleRate = sampleRate,
-        .bitDepth = bitDepth,
+        .bytesPerSecond = bytesPerSec,
         .blockSize = blockSize,
+        .bitDepth = bitDepth,
     };
+    if (fmtChunkSize >= 18) {
+        out->extensionSize = bitcastU16_LE(format + 16);
+    }
+    if (fmtChunkSize >= 20) {
+        out->validBitsPerSample = bitcastU16_LE(format + 18);
+    }
+    if (fmtChunkSize >= 24) {
+        out->channelMask = bitcastU32_LE(format + 20);
+    }
+    if (fmtChunkSize >= 40) {
+        memcpy(out->subFormat, format + 24, 16);
+    }
     return NoError;
 }
 
