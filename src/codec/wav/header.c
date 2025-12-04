@@ -66,17 +66,16 @@ Error readFormatChunk(Reader* reader, WavFormatChunk* out)
     const uint16_t nChannels = bitcastU16_LE(format + 2);
     const uint32_t sampleRate = bitcastU32_LE(format + 4);
     const uint32_t bytesPerSec = bitcastU32_LE(format + 8);
-    const uint16_t blockSize = bitcastU16_LE(format + 12);
+    const uint16_t blockAlign = bitcastU16_LE(format + 12);
     const uint16_t bitDepth = bitcastU16_LE(format + 14);
 
     logFn(LogLevel_Debug, "wave format:\t\t0x%04:x\n", waveFormat);
     logFn(LogLevel_Debug, "n. channels:\t\t%x\n", nChannels);
     logFn(LogLevel_Debug, "sample rate:\t\t%u\n", sampleRate);
     logFn(LogLevel_Debug, "data rate:\t\t%u bytes per sec\n", bytesPerSec);
-    logFn(LogLevel_Debug, "block size:\t\t%u bytes\n", blockSize);
+    logFn(LogLevel_Debug, "block align:\t\t%u bytes\n", blockAlign);
     logFn(LogLevel_Debug, "bit depth:\t\t%u bits\n", bitDepth);
 
-    // not doing anything with the extension
     uint16_t formatChunkExtensionSize = fmtChunkSize - 16;
     logFn(LogLevel_Debug, "fmt extension:\t\t%u bytes\n",
           formatChunkExtensionSize);
@@ -88,7 +87,7 @@ Error readFormatChunk(Reader* reader, WavFormatChunk* out)
         .nChannels = nChannels,
         .sampleRate = sampleRate,
         .bytesPerSecond = bytesPerSec,
-        .blockSize = blockSize,
+        .blockAlign = blockAlign,
         .bitDepth = bitDepth,
     };
     if (fmtChunkSize >= 18) {

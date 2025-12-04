@@ -32,7 +32,7 @@ typedef struct {
     uint16_t nChannels;
     uint32_t sampleRate;
     uint32_t bytesPerSecond;
-    uint16_t blockSize;
+    uint16_t blockAlign;
     uint16_t bitDepth;
     uint16_t extensionSize;
     // extension
