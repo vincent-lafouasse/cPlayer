@@ -36,3 +36,6 @@ add_test(NAME i24Test
 add_test(NAME OptionsTest
     COMMAND OptionsTest
 )
+add_test(NAME WavTest
+    COMMAND WavTest
+)
