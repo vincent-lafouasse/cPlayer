@@ -132,3 +132,50 @@ TEST(WavReader, SkipChunkUntil_MalformedSize)
     // Should fail due to trying to skip beyond EOF
     EXPECT_EQ(skipChunkUntil(&r, "fmt "), E_UnexpectedEOF);
 }
+
+// Helper: append RIFF/WAVE header
+void appendRiffWave(std::vector<Byte>& buf, uint32_t totalSize)
+{
+    appendString(buf, "RIFF");
+    appendU32(buf, totalSize);
+    appendString(buf, "WAVE");
+}
+
+struct RawWavHeader {  // for reference
+    uint32_t size;
+    uint16_t formatTag;
+    uint16_t nChannels;
+    uint32_t sampleRate;
+    uint32_t avgBytesPerSec;
+    uint16_t blockAlign;
+    uint16_t bitsPerSample;
+    uint16_t extensionSize;
+    // extension
+    uint16_t validBitsPerSample;
+    uint32_t channelMask;
+    Byte subFormat[16];
+}
+
+// Helper: append format chunk
+void appendFmtChunk(std::vector<Byte>& buf, uint16_t formatTag, uint16_t nChannels,
+                    uint32_t sampleRate, uint16_t bitDepth, uint16_t blockSize)
+{
+    std::vector<Byte> content;
+    appendU16(buf, formatTag);
+    appendU16(buf, nChannels);
+    appendU32(content, sampleRate);
+
+    // ByteRate (sampleRate * nChannels * bitDepth/8)
+    uint32_t byteRate = sampleRate * nChannels * (bitDepth / 8);
+    appendU32(content, byteRate);
+
+    // BlockAlign
+    content.push_back(blockSize & 0xFF);
+    content.push_back((blockSize >> 8) & 0xFF);
+
+    // BitsPerSample
+    content.push_back(bitDepth & 0xFF);
+    content.push_back((bitDepth >> 8) & 0xFF);
+
+    appendChunk(buf, "fmt ", content.size(), content);
+}
