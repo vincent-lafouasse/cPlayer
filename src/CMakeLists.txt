@@ -4,8 +4,6 @@ target_sources(${PROJECT_NAME}
 PRIVATE
 	main.c
 
-	Reader/fromFileReader.c
-
 	codec/decode.c
 	codec/wav/wav.c
 	codec/wav/read.c
@@ -15,6 +13,8 @@ PRIVATE
 	codec/codec_internals.c
 
 	play/callback.c
+
+	Reader/fileReaderAdapter.c
 
 	options/Options.c
 	options/Flag.c

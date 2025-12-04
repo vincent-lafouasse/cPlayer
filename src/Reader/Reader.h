@@ -1,8 +1,9 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
-#include "FileReader.h"
 #include "Error.h"
 
 typedef struct Reader Reader;
@@ -23,5 +24,3 @@ struct Reader {
     SkipFn skip;
     size_t offset;
 };
-
-Reader reader_fromFileReader(FileReader* fileReader);
