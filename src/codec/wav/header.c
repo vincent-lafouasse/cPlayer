@@ -61,7 +61,7 @@ Error readFormatChunk(Reader* reader, WavFormatChunk* out)
 {
     Slice header;
     TRY(reader_takeSlice(reader, 8, &header));
-    if (strncmp((const char*)header.slice, "fmt ", 4) != 0) {
+    if (memcmp(header.slice, "fmt ", 4) != 0) {
         return E_Wav_UnknownFourCC;
     }
     const uint32_t fmtChunkSize = bitcastU32_BE(header.slice);
@@ -127,7 +127,7 @@ Error determineSampleFormat(WavFormatChunk format, SampleFormat* out)
 Error readWavHeader(Reader* reader, WavHeader* out)
 {
     // master chunk
-    // also skip other chunks
+    // skip other chunks
     TRY(getToFormatChunk(reader));
 
     WavFormatChunk format;
@@ -137,7 +137,7 @@ Error readWavHeader(Reader* reader, WavHeader* out)
     // data chunk
     Slice dataChunkHeader;
     TRY(reader_takeSlice(reader, 8, &dataChunkHeader));
-    assert(strncmp((const char*)dataChunkHeader.slice, "data", 4) == 0);
+    assert(memcmp(dataChunkHeader.slice, "data", 4) == 0);
     logFn(LogLevel_Debug, "reached data chunk\n");
 
     uint32_t dataSize = bitcastU32_LE(dataChunkHeader.slice + 4);
