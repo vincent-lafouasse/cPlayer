@@ -14,6 +14,7 @@ PRIVATE
 
 	play/callback.c
 
+	Reader/read.c
 	Reader/fileReaderAdapter.c
 
 	options/Options.c

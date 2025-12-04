@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "Error.h"
+#include "int24.h"
 
 typedef struct Reader Reader;
 
@@ -24,3 +25,10 @@ struct Reader {
     SkipFn skip;
     size_t offset;
 };
+
+Error reader_peekFourCC(Reader* reader, uint8_t* out);
+Error reader_takeFourCC(Reader* reader, uint8_t* out);
+
+Error reader_takeU16(Reader* reader, uint16_t* out);
+Error reader_takeU32(Reader* reader, uint32_t* out);
+Error reader_takeI24(Reader* reader, Int24* out);
