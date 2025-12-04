@@ -13,7 +13,7 @@ buildsystem:
 
 .PHONY: build
 build: buildsystem
-	cmake --build build --target $(NAME)
+	cmake --build build
 
 .PHONY: run
 run: build
