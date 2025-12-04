@@ -5,23 +5,22 @@
 
 #include <stdlib.h>
 
-AudioDataResult decodeWav(FileReader* reader)
+AudioDataResult decodeWav(Reader* reader)
 {
-    const WavHeaderResult maybeHeader = readWavHeader(reader);
-    if (maybeHeader.err != NoError) {
-        return AudioDataResult_Err(maybeHeader.err);
+    WavHeader wavHeader;
+    const Error err = readWavHeader(reader, &wavHeader);
+    if (err != NoError) {
+        return AudioDataResult_Err(err);
     }
+    logHeader(&wavHeader);
 
-    const Header header = maybeHeader.header;
-    logHeader(&header);
-
-    return readWavData(reader, header);
+    return readWavData(reader, wavHeader);
 }
 
-static AudioDataResult readWavDataMono(FileReader* reader, Header h);
-static AudioDataResult readWavDataStereo(FileReader* reader, Header h);
+static AudioDataResult readWavDataMono(Reader* reader, WavHeader h);
+static AudioDataResult readWavDataStereo(Reader* reader, WavHeader h);
 
-AudioDataResult readWavData(FileReader* reader, Header h)
+AudioDataResult readWavData(Reader* reader, WavHeader h)
 {
     if (h.nChannels == 1) {
         return readWavDataMono(reader, h);
@@ -32,7 +31,7 @@ AudioDataResult readWavData(FileReader* reader, Header h)
     }
 }
 
-static AudioDataResult readWavDataMono(FileReader* reader, Header h)
+static AudioDataResult readWavDataMono(Reader* reader, WavHeader h)
 {
     Error err = NoError;
 
@@ -43,12 +42,10 @@ static AudioDataResult readWavDataMono(FileReader* reader, Header h)
     }
 
     for (uint32_t i = 0; i < h.size; ++i) {
-        FloatResult maybeSample = readSample(reader, h.sampleFormat);
-        if (maybeSample.err != NoError) {
-            err = maybeSample.err;
+        err = readSample(reader, h.sampleFormat, left + i);
+        if (err != NoError) {
             goto out;
         }
-        left[i] = maybeSample.f;
     }
     dumpFloatCsv(left, h.size, DUMP_PREFIX "float" DUMP_SUFFIX);
 
@@ -65,27 +62,17 @@ out:
     }
 }
 
-static Error readStereoFrame(FileReader* reader,
+static Error readStereoFrame(Reader* reader,
                              SampleFormat format,
                              float* left,
                              float* right)
 {
-    FloatResult maybeLeft = readSample(reader, format);
-    if (maybeLeft.err != NoError) {
-        return maybeLeft.err;
-    }
-
-    FloatResult maybeRight = readSample(reader, format);
-    if (maybeRight.err != NoError) {
-        return maybeRight.err;
-    }
-
-    *left = maybeLeft.f;
-    *right = maybeRight.f;
+    TRY(readSample(reader, format, left));
+    TRY(readSample(reader, format, right));
     return NoError;
 }
 
-static AudioDataResult readWavDataStereo(FileReader* reader, Header h)
+static AudioDataResult readWavDataStereo(Reader* reader, WavHeader h)
 {
     Error err = NoError;
 
@@ -97,10 +84,8 @@ static AudioDataResult readWavDataStereo(FileReader* reader, Header h)
     }
 
     for (uint32_t i = 0; i < h.size; ++i) {
-        Error readError =
-            readStereoFrame(reader, h.sampleFormat, left + i, right + i);
-        if (readError != NoError) {
-            err = readError;
+        err = readStereoFrame(reader, h.sampleFormat, left + i, right + i);
+        if (err != NoError) {
             goto out;
         }
     }

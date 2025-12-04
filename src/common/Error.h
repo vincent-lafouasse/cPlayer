@@ -1,5 +1,13 @@
 #pragma once
 
+#define TRY(func_call)                  \
+    do {                                \
+        Error __temp_err = (func_call); \
+        if (__temp_err != NoError) {    \
+            return __temp_err;          \
+        }                               \
+    } while (0)
+
 typedef enum {
     NoError = 0,
     E_OOM,

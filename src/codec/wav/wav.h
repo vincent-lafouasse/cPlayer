@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FileReader.h"
+#include "Reader/Reader.h"
 #include "audio.h"
 
-AudioDataResult decodeWav(FileReader* reader);
+AudioDataResult decodeWav(Reader* reader);

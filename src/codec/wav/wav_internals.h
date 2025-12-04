@@ -24,34 +24,24 @@ typedef struct {
     uint32_t sampleRate;
     uint32_t size;
     SampleFormat sampleFormat;
-} Header;
+} WavHeader;
 
 typedef struct {
-    Header header;
-    Error err;
-} WavHeaderResult;
+    uint16_t formatTag;
+    uint16_t nChannels;
+    uint32_t sampleRate;
+    uint16_t bitDepth;
+    uint16_t blockSize;
+} WavFormatChunk;
 
-WavHeaderResult readWavHeader(FileReader* reader);
-void logHeader(const Header* wh);
+Error skipChunkUntil(Reader* reader, const char* expectedId);
+Error getToFormatChunk(Reader* reader);
+Error readFormatChunk(Reader* reader, WavFormatChunk* out);
+Error readWavHeader(Reader* reader, WavHeader* out);
+void logHeader(const WavHeader* wh);
 
-typedef struct {
-    float f;
-    Error err;
-} FloatResult;
-
-static inline FloatResult FloatResult_Ok(float f)
-{
-    return (FloatResult){.f = f, .err = NoError};
-}
-
-static inline FloatResult FloatResult_Err(Error err)
-{
-    return (FloatResult){.err = err};
-}
-
-FloatResult readSample(FileReader* reader, SampleFormat fmt);
-
-AudioDataResult readWavData(FileReader* reader, Header h);
+Error readSample(Reader* reader, SampleFormat fmt, float* out);
+AudioDataResult readWavData(Reader* reader, WavHeader h);
 
 #define DUMP_PREFIX "./build/dump_"
 #define DUMP_SUFFIX ".csv"

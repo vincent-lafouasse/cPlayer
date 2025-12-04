@@ -6,24 +6,21 @@
 
 #define INT24_MAX_ABS (1 << 23)
 
-FloatResult readI24(FileReader* reader)
+Error readI24(Reader* reader, float* out)
 {
-    const SliceResult maybeSlice = fr_takeSlice(reader, 3);
-    if (maybeSlice.status != ReadStatus_Ok) {
-        return FloatResult_Err(error_fromReadStatus(maybeSlice.status));
-    }
+    Int24 i24;
+    TRY(reader_takeI24_LE(reader, &i24));
 
-    const Int24 i24 = bitcastI24_LE(maybeSlice.slice);
-    const float f = (float)i24_asI32(i24) / (float)INT24_MAX_ABS;
-    return FloatResult_Ok(f);
+    *out = (float)i24_asI32(i24) / (float)INT24_MAX_ABS;
+    return NoError;
 }
 
-FloatResult readSample(FileReader* reader, SampleFormat fmt)
+Error readSample(Reader* reader, SampleFormat fmt, float* out)
 {
     switch (fmt) {
         case Signed24:
-            return readI24(reader);
+            return readI24(reader, out);
         default:
-            return FloatResult_Err(E_Wav_UnsupportedSampleFormat);
+            return E_Wav_UnsupportedSampleFormat;
     }
 }
