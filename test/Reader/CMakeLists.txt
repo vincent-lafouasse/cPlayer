@@ -6,7 +6,7 @@ add_executable(${TEST_RUNNER_NAME})
 target_sources(${TEST_RUNNER_NAME}
 PRIVATE
 	./main.cpp
-	./ReaderTest.cpp
+	./MemoryReaderReaderTest.cpp
 )
 
 target_include_directories(${TEST_RUNNER_NAME} PUBLIC

@@ -15,7 +15,7 @@ void assertSliceEq(const Slice& slice, const std::string& expected)
     ASSERT_EQ(actual, expected);
 }
 
-TEST(Reader, PeekSlice_Basic)
+TEST(MemoryReaderReader, PeekSlice_Basic)
 {
     MemoryReader memoryReader("1234567");
     Reader reader = memoryReaderInterface(&memoryReader);
@@ -46,7 +46,7 @@ TEST(Reader, PeekSlice_Basic)
     ASSERT_EQ(reader.peekSlice(&reader, 8, &slice), E_UnexpectedEOF);
 }
 
-TEST(Reader, PeekInto_Basic)
+TEST(MemoryReaderReader, PeekInto_Basic)
 {
     MemoryReader memoryReader("abcdefg");
     Reader reader = memoryReaderInterface(&memoryReader);
@@ -62,7 +62,7 @@ TEST(Reader, PeekInto_Basic)
     ASSERT_EQ(reader.peekInto(&reader, 8, buf), E_UnexpectedEOF);
 }
 
-TEST(Reader, PeekInto_DoesNotAdvance)
+TEST(MemoryReaderReader, PeekInto_DoesNotAdvance)
 {
     MemoryReader memoryReader("hello");
     Reader reader = memoryReaderInterface(&memoryReader);
@@ -80,7 +80,7 @@ TEST(Reader, PeekInto_DoesNotAdvance)
     ASSERT_EQ(reader.offset, 0u);
 }
 
-TEST(Reader, Skip_Basic)
+TEST(MemoryReaderReader, Skip_Basic)
 {
     MemoryReader memoryReader("ABCDEFG");
     Reader reader = memoryReaderInterface(&memoryReader);
@@ -100,7 +100,7 @@ TEST(Reader, Skip_Basic)
     ASSERT_EQ(reader.skip(&reader, 1), E_UnexpectedEOF);
 }
 
-TEST(Reader, Skip_Then_Peek)
+TEST(MemoryReaderReader, Skip_Then_Peek)
 {
     MemoryReader memoryReader("0123456789");
     Reader reader = memoryReaderInterface(&memoryReader);
@@ -121,7 +121,7 @@ TEST(Reader, Skip_Then_Peek)
     ASSERT_EQ(reader.peekSlice(&reader, 4, &slice), E_UnexpectedEOF);
 }
 
-TEST(Reader, ZeroLength_Peeks)
+TEST(MemoryReaderReader, ZeroLength_Peeks)
 {
     MemoryReader memoryReader("xyz");
     Reader reader = memoryReaderInterface(&memoryReader);
@@ -134,7 +134,7 @@ TEST(Reader, ZeroLength_Peeks)
     ASSERT_EQ(reader.peekInto(&reader, 0, buf), NoError);
 }
 
-TEST(Reader, EOF_PeekSlice_Exact)
+TEST(MemoryReaderReader, EOF_PeekSlice_Exact)
 {
     MemoryReader memoryReader("hi");
     Reader reader = memoryReaderInterface(&memoryReader);
@@ -146,7 +146,7 @@ TEST(Reader, EOF_PeekSlice_Exact)
     ASSERT_EQ(reader.peekSlice(&reader, 3, &slice), E_UnexpectedEOF);
 }
 
-TEST(Reader, EOF_PeekInto_Exact)
+TEST(MemoryReaderReader, EOF_PeekInto_Exact)
 {
     MemoryReader memoryReader("xy");
     Reader reader = memoryReaderInterface(&memoryReader);
@@ -159,7 +159,7 @@ TEST(Reader, EOF_PeekInto_Exact)
     ASSERT_EQ(reader.peekInto(&reader, 3, buf), E_UnexpectedEOF);
 }
 
-TEST(Reader, PeekSlice_AfterEOFOffset)
+TEST(MemoryReaderReader, PeekSlice_AfterEOFOffset)
 {
     MemoryReader memoryReader("aaa");
     Reader reader = memoryReaderInterface(&memoryReader);
@@ -171,7 +171,7 @@ TEST(Reader, PeekSlice_AfterEOFOffset)
     ASSERT_EQ(reader.peekSlice(&reader, 1, &slice), E_UnexpectedEOF);
 }
 
-TEST(Reader, MixedOperations_Consistency)
+TEST(MemoryReaderReader, MixedOperations_Consistency)
 {
     MemoryReader memoryReader("abcdefghij");
     Reader reader = memoryReaderInterface(&memoryReader);
@@ -200,14 +200,13 @@ TEST(Reader, MixedOperations_Consistency)
     ASSERT_EQ(reader.peekSlice(&reader, 3, &slice), E_UnexpectedEOF);
 }
 
-TEST(Reader, PeekSlice_SingleByteAdvances)
+TEST(MemoryReaderReader, PeekSlice_SingleByteAdvances)
 {
     MemoryReader mem("ABCDEFGH");
     Reader r = memoryReaderInterface(&mem);
 
     Slice s;
-    for (size_t i = 0; i < 8; i++)
-    {
+    for (size_t i = 0; i < 8; i++) {
         ASSERT_EQ(r.peekSlice(&r, 1, &s), NoError);
         ASSERT_EQ(s.len, 1u);
         ASSERT_EQ((char)s.slice[0], char('A' + i));
@@ -220,13 +219,12 @@ TEST(Reader, PeekSlice_SingleByteAdvances)
     ASSERT_EQ(r.peekSlice(&r, 1, &s), E_UnexpectedEOF);
 }
 
-TEST(Reader, OffsetMonotonicity_PeekDoesNotAdvance)
+TEST(MemoryReaderReader, OffsetMonotonicity_PeekDoesNotAdvance)
 {
     MemoryReader mem("0123456789");
     Reader r = memoryReaderInterface(&mem);
 
-    for (int i = 0; i < 20; i++)
-    {
+    for (int i = 0; i < 20; i++) {
         Slice s;
         size_t before = r.offset;
 
@@ -245,7 +243,7 @@ TEST(Reader, OffsetMonotonicity_PeekDoesNotAdvance)
     }
 }
 
-TEST(Reader, RepeatedEOFPeek)
+TEST(MemoryReaderReader, RepeatedEOFPeek)
 {
     MemoryReader mem("xyz");
     Reader r = memoryReaderInterface(&mem);
@@ -253,15 +251,14 @@ TEST(Reader, RepeatedEOFPeek)
     ASSERT_EQ(r.skip(&r, 3), NoError);
     ASSERT_EQ(r.offset, 3u);
 
-    for (int i = 0; i < 10; i++)
-    {
+    for (int i = 0; i < 10; i++) {
         Slice s;
         ASSERT_EQ(r.peekSlice(&r, 1, &s), E_UnexpectedEOF);
         ASSERT_EQ(r.offset, 3u);
     }
 }
 
-TEST(Reader, ExhaustiveByteWalk)
+TEST(MemoryReaderReader, ExhaustiveByteWalk)
 {
     const char* data = "abcdefghijklmnop";
     MemoryReader mem(data);
@@ -269,8 +266,7 @@ TEST(Reader, ExhaustiveByteWalk)
 
     uint8_t buf[32];
 
-    for (size_t i = 0; i < strlen(data); i++)
-    {
+    for (size_t i = 0; i < strlen(data); i++) {
         // peek next byte
         ASSERT_EQ(r.peekInto(&r, 1, buf), NoError);
         ASSERT_EQ(buf[0], (uint8_t)data[i]);
@@ -284,7 +280,7 @@ TEST(Reader, ExhaustiveByteWalk)
     ASSERT_EQ(r.peekInto(&r, 1, buf), E_UnexpectedEOF);
 }
 
-TEST(Reader, SlidingWindows)
+TEST(MemoryReaderReader, SlidingWindows)
 {
     const char* data = "0123456789";
     MemoryReader mem(data);
@@ -293,31 +289,26 @@ TEST(Reader, SlidingWindows)
     Slice s;
 
     // at each offset j, try peeking windows of size k
-    for (size_t j = 0; j < 10; j++)
-    {
+    for (size_t j = 0; j < 10; j++) {
         ASSERT_EQ(r.skip(&r, j - r.offset), NoError);
 
-        for (size_t k = 0; k <= 10; k++)
-        {
+        for (size_t k = 0; k <= 10; k++) {
             size_t remaining = 10 - j;
 
             Error err = r.peekSlice(&r, k, &s);
 
-            if (k <= remaining)
-            {
+            if (k <= remaining) {
                 ASSERT_EQ(err, NoError);
                 ASSERT_EQ(s.len, k);
                 ASSERT_EQ(memcmp(s.slice, data + j, k), 0);
-            }
-            else
-            {
+            } else {
                 ASSERT_EQ(err, E_UnexpectedEOF);
             }
         }
     }
 }
 
-TEST(Reader, SliceStabilityAcrossPeeks)
+TEST(MemoryReaderReader, SliceStabilityAcrossPeeks)
 {
     MemoryReader mem("ABCDE");
     Reader r = memoryReaderInterface(&mem);
@@ -336,7 +327,7 @@ TEST(Reader, SliceStabilityAcrossPeeks)
     ASSERT_EQ(r.offset, 0u);
 }
 
-TEST(Reader, SkipToLastByte)
+TEST(MemoryReaderReader, SkipToLastByte)
 {
     MemoryReader mem("Z123");
     Reader r = memoryReaderInterface(&mem);
@@ -351,7 +342,7 @@ TEST(Reader, SkipToLastByte)
     ASSERT_EQ(r.peekSlice(&r, 2, &s), E_UnexpectedEOF);
 }
 
-TEST(Reader, LargePeekRequest)
+TEST(MemoryReaderReader, LargePeekRequest)
 {
     MemoryReader mem("short");
     Reader r = memoryReaderInterface(&mem);
@@ -361,7 +352,7 @@ TEST(Reader, LargePeekRequest)
     ASSERT_EQ(r.offset, 0u);
 }
 
-TEST(Reader, SkipExhaustively)
+TEST(MemoryReaderReader, SkipExhaustively)
 {
     MemoryReader mem("aaa");
     Reader r = memoryReaderInterface(&mem);
@@ -373,7 +364,7 @@ TEST(Reader, SkipExhaustively)
         ASSERT_EQ(r.skip(&r, 1), E_UnexpectedEOF);
 }
 
-TEST(Reader, PeekInto_Substrings)
+TEST(MemoryReaderReader, PeekInto_Substrings)
 {
     const char* data = "HelloWorld";
     MemoryReader mem(data);
@@ -381,8 +372,7 @@ TEST(Reader, PeekInto_Substrings)
 
     uint8_t buf[64];
 
-    for (size_t n = 0; n <= strlen(data); n++)
-    {
+    for (size_t n = 0; n <= strlen(data); n++) {
         Error e = r.peekInto(&r, n, buf);
         ASSERT_EQ(e, NoError);
         ASSERT_EQ(memcmp(buf, data, n), 0);
@@ -391,7 +381,7 @@ TEST(Reader, PeekInto_Substrings)
     ASSERT_EQ(r.peekInto(&r, strlen(data) + 1, buf), E_UnexpectedEOF);
 }
 
-TEST(Reader, ComplexSkipPattern)
+TEST(MemoryReaderReader, ComplexSkipPattern)
 {
     const char* data = "abcdefghijklmnopqrstuv";
     MemoryReader mem(data);
@@ -402,19 +392,14 @@ TEST(Reader, ComplexSkipPattern)
     size_t steps[] = {1, 2, 3, 5, 8, 3, 2, 1};
 
     size_t expectedOffset = 0;
-    for (size_t s : steps)
-    {
-        if (expectedOffset + s <= total)
-        {
+    for (size_t s : steps) {
+        if (expectedOffset + s <= total) {
             ASSERT_EQ(r.skip(&r, s), NoError);
             expectedOffset += s;
-        }
-        else
-        {
+        } else {
             ASSERT_EQ(r.skip(&r, s), E_UnexpectedEOF);
         }
 
         ASSERT_EQ(r.offset, expectedOffset);
     }
 }
-
