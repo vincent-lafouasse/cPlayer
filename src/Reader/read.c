@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "bitcast.h"
+#include "int24.h"
 
 Error reader_takeSlice(Reader* reader, size_t n, Slice* out)
 {
@@ -53,5 +54,6 @@ Error reader_takeI24_LE(Reader* reader, Int24* out)
     Slice slice;
     TRY(reader->peekSlice(reader, 4, &slice));
 
+    *out = bitcastI24_LE(slice.slice);
     return reader->skip(reader, 3);
 }
