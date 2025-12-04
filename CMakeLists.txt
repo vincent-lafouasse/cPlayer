@@ -24,6 +24,9 @@ enable_testing()
 add_test(NAME FileReaderTest
     COMMAND FileReaderTest
 )
+add_test(NAME ReaderTest
+    COMMAND ReaderTest
+)
 add_test(NAME bitcastTest
     COMMAND bitcastTest
 )
