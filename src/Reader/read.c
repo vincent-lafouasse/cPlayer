@@ -4,6 +4,16 @@
 
 #include "bitcast.h"
 
+Error reader_takeSlice(Reader* reader, size_t n, Slice* out)
+{
+    Error err = reader->peekSlice(reader, n, out);
+
+    if (err == NoError) {
+        reader->skip(reader, n);
+    }
+    return err;
+}
+
 Error reader_peekFourCC(Reader* reader, uint8_t* out)
 {
     Slice slice;

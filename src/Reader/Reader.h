@@ -26,9 +26,11 @@ struct Reader {
     size_t offset;
 };
 
+Error reader_takeSlice(Reader* reader, size_t n, Slice* out);
+
 Error reader_peekFourCC(Reader* reader, uint8_t* out);
 Error reader_takeFourCC(Reader* reader, uint8_t* out);
 
-Error reader_takeU16(Reader* reader, uint16_t* out);
-Error reader_takeU32(Reader* reader, uint32_t* out);
-Error reader_takeI24(Reader* reader, Int24* out);
+Error reader_takeU16_LE(Reader* reader, uint16_t* out);
+Error reader_takeU32_LE(Reader* reader, uint32_t* out);
+Error reader_takeI24_LE(Reader* reader, Int24* out);
