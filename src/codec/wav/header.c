@@ -143,7 +143,7 @@ Error readWavHeader(Reader* reader, WavHeader* out)
     uint32_t dataSize = bitcastU32_LE(dataChunkHeader.slice + 4);
     logFn(LogLevel_Debug, "data size:\t\t%u\n", dataSize);
 
-    // FIXME: this won't be true for ADPCM
+    // NOTE: this won't be true for ADPCM
     uint32_t nBlocks = 8 * dataSize / format.bitDepth / format.nChannels;
     logFn(LogLevel_Debug, "n blocks:\t\t%u\n", nBlocks);
 
