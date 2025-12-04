@@ -244,6 +244,7 @@ struct RawWavHeader {  // for reference
 };
 
 // Helper: append format chunk
+// no extension
 void appendFmtChunk(std::vector<Byte>& buf,
                     uint16_t formatTag,
                     uint16_t nChannels,
@@ -251,6 +252,7 @@ void appendFmtChunk(std::vector<Byte>& buf,
                     uint16_t bitDepth,
                     uint16_t blockSize)
 {
+    // prepare buffer
     std::vector<Byte> content;
     appendU16(buf, formatTag);
     appendU16(buf, nChannels);
@@ -259,14 +261,9 @@ void appendFmtChunk(std::vector<Byte>& buf,
     // ByteRate (sampleRate * nChannels * bitDepth/8)
     uint32_t byteRate = sampleRate * nChannels * (bitDepth / 8);
     appendU32(content, byteRate);
+    appendU16(content, blockSize);
+    appendU16(content, bitDepth);
 
-    // BlockAlign
-    content.push_back(blockSize & 0xFF);
-    content.push_back((blockSize >> 8) & 0xFF);
-
-    // BitsPerSample
-    content.push_back(bitDepth & 0xFF);
-    content.push_back((bitDepth >> 8) & 0xFF);
-
+    // write buffer
     appendChunk(buf, "fmt ", content.size(), content);
 }
