@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "FileReader.h"
-#include "FixedBufferReader.h"
+#include "MemoryReader.h"
 
 typedef struct Reader Reader;
 
@@ -21,4 +21,4 @@ struct Reader {
 };
 
 Reader reader_fromFileReader(FileReader* fileReader);
-Reader readerFromFixedBufferReader(FixedBufferReader* fbReader);
+Reader readerFromMemoryReader(MemoryReader* fbReader);

@@ -5,7 +5,7 @@ PRIVATE
 	main.c
 
 	Reader/fromFileReader.c
-	Reader/fromFixedBufferReader.c
+	Reader/fromMemoryReader.c
 
 	codec/decode.c
 	codec/wav/wav.c
