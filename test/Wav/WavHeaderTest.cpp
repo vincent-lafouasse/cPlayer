@@ -141,6 +141,93 @@ void appendRiffWave(std::vector<Byte>& buf, uint32_t totalSize)
     appendString(buf, "WAVE");
 }
 
+TEST(WavReader, GetToFormatChunk_SimpleFmt)
+{
+    std::vector<Byte> data;
+    appendRiffWave(data, 20);
+    appendString(data, "fmt ");
+
+    MemoryReader mem(data);
+    Reader r = memoryReaderInterface(&mem);
+
+    ASSERT_EQ(getToFormatChunk(&r), NoError);
+
+    Slice s;
+    ASSERT_EQ(reader_takeSlice(&r, 4, &s), NoError);
+    EXPECT_EQ(std::string((char*)s.slice, s.len), "fmt ");
+}
+
+TEST(WavReader, GetToFormatChunk_JunkBeforeFmt)
+{
+    std::vector<Byte> data;
+    appendRiffWave(data, 40);
+    appendChunk(data, "JUNK", 4, {0x01, 0x02, 0x03, 0x04});
+    appendString(data, "fmt ");
+
+    MemoryReader mem(data);
+    Reader r = memoryReaderInterface(&mem);
+
+    ASSERT_EQ(getToFormatChunk(&r), NoError);
+
+    Slice s;
+    ASSERT_EQ(reader_takeSlice(&r, 4, &s), NoError);
+    EXPECT_EQ(std::string((char*)s.slice, s.len), "fmt ");
+}
+
+TEST(WavReader, GetToFormatChunk_MultipleJunk)
+{
+    std::vector<Byte> data;
+    appendRiffWave(data, 60);
+    appendChunk(data, "JUNK", 2, {0xAA, 0xBB});
+    appendChunk(data, "FAKE", 4, {0x01, 0x02, 0x03, 0x04});
+    appendString(data, "fmt ");
+
+    MemoryReader mem(data);
+    Reader r = memoryReaderInterface(&mem);
+
+    ASSERT_EQ(getToFormatChunk(&r), NoError);
+
+    Slice s;
+    ASSERT_EQ(reader_takeSlice(&r, 4, &s), NoError);
+    EXPECT_EQ(std::string((char*)s.slice, s.len), "fmt ");
+}
+
+TEST(WavReader, GetToFormatChunk_TruncatedRiff)
+{
+    std::vector<Byte> data;
+    data.insert(data.end(), {'R', 'I', 'F'});  // only 3 bytes, truncated
+
+    MemoryReader mem(data);
+    Reader r = memoryReaderInterface(&mem);
+
+    EXPECT_EQ(getToFormatChunk(&r), E_UnexpectedEOF);
+}
+
+TEST(WavReader, GetToFormatChunk_NotWave)
+{
+    std::vector<Byte> data;
+    data.insert(data.end(), {'R', 'I', 'F', 'F', 0x10, 0x00, 0x00, 0x00, 'N',
+                             'O', 'P', 'E'});
+
+    MemoryReader mem(data);
+    Reader r = memoryReaderInterface(&mem);
+
+    EXPECT_EQ(getToFormatChunk(&r), E_Wav_UnknownFourCC);
+}
+
+TEST(WavReader, GetToFormatChunk_NoFmtChunk)
+{
+    std::vector<Byte> data;
+    appendRiffWave(data, 12);
+    appendChunk(data, "JUNK", 4, {0x00, 0x01, 0x02, 0x03});
+
+    MemoryReader mem(data);
+    Reader r = memoryReaderInterface(&mem);
+
+    // Should fail because no fmt chunk exists
+    EXPECT_EQ(getToFormatChunk(&r), E_UnexpectedEOF);
+}
+
 struct RawWavHeader {  // for reference
     uint32_t size;
     uint16_t formatTag;
@@ -154,11 +241,15 @@ struct RawWavHeader {  // for reference
     uint16_t validBitsPerSample;
     uint32_t channelMask;
     Byte subFormat[16];
-}
+};
 
 // Helper: append format chunk
-void appendFmtChunk(std::vector<Byte>& buf, uint16_t formatTag, uint16_t nChannels,
-                    uint32_t sampleRate, uint16_t bitDepth, uint16_t blockSize)
+void appendFmtChunk(std::vector<Byte>& buf,
+                    uint16_t formatTag,
+                    uint16_t nChannels,
+                    uint32_t sampleRate,
+                    uint16_t bitDepth,
+                    uint16_t blockSize)
 {
     std::vector<Byte> content;
     appendU16(buf, formatTag);
