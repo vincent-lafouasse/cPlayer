@@ -12,7 +12,6 @@
 
 Error skipChunkUntil(Reader* reader, const char* expectedId)
 {
-    Error err = NoError;
     uint8_t id[5] = {0};
 
     TRY(reader_peekFourCC(reader, id));
@@ -26,7 +25,7 @@ Error skipChunkUntil(Reader* reader, const char* expectedId)
         TRY(reader->skip(reader, chunkSize));
         TRY(reader_peekFourCC(reader, id));
     }
-    return err;
+    return NoError;
 }
 
 Error getToFormatChunk(Reader* reader)
