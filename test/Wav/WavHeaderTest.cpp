@@ -246,29 +246,6 @@ struct RawWavHeader {  // for reference
 */
 
 // Helper: append format chunk
-// no extension
-void appendFmtChunk(std::vector<Byte>& buf,
-                    uint16_t formatTag,
-                    uint16_t nChannels,
-                    uint32_t sampleRate,
-                    uint16_t bitDepth,
-                    uint16_t blockSize)
-{
-    // prepare buffer
-    std::vector<Byte> content;
-    appendU16(buf, formatTag);
-    appendU16(buf, nChannels);
-    appendU32(content, sampleRate);
-
-    // ByteRate (sampleRate * nChannels * bitDepth/8)
-    uint32_t byteRate = sampleRate * nChannels * (bitDepth / 8);
-    appendU32(content, byteRate);
-    appendU16(content, blockSize);
-    appendU16(content, bitDepth);
-
-    // write buffer
-    appendChunk(buf, "fmt ", content.size(), content);
-}
 
 void appendFmtChunk(std::vector<Byte>& buf,
                     uint16_t formatTag,
@@ -301,4 +278,99 @@ void appendFmtChunk(std::vector<Byte>& buf,
         content.insert(content.end(), subFormat, subFormat + 16);
 
     appendChunk(buf, "fmt ", content.size(), content);
+}
+
+TEST(WavReader, ReadFormatChunk_PCM16)
+{
+    std::vector<Byte> data;
+    appendFmtChunk(data, 1, 2, 44100, 16, 4);
+    MemoryReader mem(data);
+    Reader r = memoryReaderInterface(&mem);
+
+    WavFormatChunk fmt;
+    ASSERT_EQ(readFormatChunk(&r, &fmt), NoError);
+
+    EXPECT_EQ(fmt.formatTag, 1);
+    EXPECT_EQ(fmt.nChannels, 2);
+    EXPECT_EQ(fmt.sampleRate, 44100);
+    EXPECT_EQ(fmt.bytesPerSecond, 44100 * 2 * 16 / 8);
+    EXPECT_EQ(fmt.blockAlign, 4);
+    EXPECT_EQ(fmt.bitDepth, 16);
+
+    // verify zeroed fields
+    EXPECT_EQ(fmt.extensionSize, 0);
+    EXPECT_EQ(fmt.validBitsPerSample, 0);
+    EXPECT_EQ(fmt.channelMask, 0);
+    for (int i = 0; i < 16; i++) {
+        EXPECT_EQ(fmt.subFormat[i], 0);
+    }
+}
+TEST(WavReader, ReadFormatChunk_PCM24_Extended)
+{
+    std::vector<Byte> data;
+    uint8_t subFmt[16] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+                          0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10};
+    appendFmtChunk(data, 1, 1, 48000, 24, 3, 16, 24, 0x03, subFmt);
+    MemoryReader mem(data);
+    Reader r = memoryReaderInterface(&mem);
+
+    WavFormatChunk fmt;
+    ASSERT_EQ(readFormatChunk(&r, &fmt), NoError);
+
+    EXPECT_EQ(fmt.formatTag, 1);
+    EXPECT_EQ(fmt.nChannels, 1);
+    EXPECT_EQ(fmt.sampleRate, 48000);
+    EXPECT_EQ(fmt.bytesPerSecond, 48000 * 1 * 24 / 8);
+    EXPECT_EQ(fmt.blockAlign, 3);
+    EXPECT_EQ(fmt.bitDepth, 24);
+
+    EXPECT_EQ(fmt.extensionSize, 16);
+    EXPECT_EQ(fmt.validBitsPerSample, 24);
+    EXPECT_EQ(fmt.channelMask, 0x03);
+    for (int i = 0; i < 16; i++)
+        EXPECT_EQ(fmt.subFormat[i], subFmt[i]);
+}
+
+TEST(WavReader, ReadFormatChunk_Truncated)
+{
+    std::vector<Byte> data;
+    std::vector<Byte> content = {0x01, 0x00, 0x02};  // too short
+    appendChunk(data, "fmt ", 6, content);
+    MemoryReader mem(data);
+    Reader r = memoryReaderInterface(&mem);
+
+    WavFormatChunk fmt;
+    EXPECT_EQ(readFormatChunk(&r, &fmt), E_UnexpectedEOF);
+}
+
+TEST(WavReader, ReadFormatChunk_EmptyReader)
+{
+    std::vector<Byte> data;  // empty
+    MemoryReader mem(data);
+    Reader r = memoryReaderInterface(&mem);
+    WavFormatChunk fmt;
+    EXPECT_EQ(readFormatChunk(&r, &fmt), E_UnexpectedEOF);
+}
+
+TEST(WavReader, ReadFormatChunk_CheckZeroingBeyondChunk)
+{
+    std::vector<Byte> data;
+    appendFmtChunk(data, 1, 2, 44100, 16, 4);  // minimal 16 bytes
+    MemoryReader mem(data);
+    Reader r = memoryReaderInterface(&mem);
+
+    WavFormatChunk fmt;
+    fmt.extensionSize = 0xFFFF;
+    fmt.validBitsPerSample = 0xFFFF;
+    fmt.channelMask = 0xFFFFFFFF;
+    memset(fmt.subFormat, 0xFF, 16);
+
+    ASSERT_EQ(readFormatChunk(&r, &fmt), NoError);
+
+    // fields beyond 16 bytes should be zero
+    EXPECT_EQ(fmt.extensionSize, 0);
+    EXPECT_EQ(fmt.validBitsPerSample, 0);
+    EXPECT_EQ(fmt.channelMask, 0);
+    for (int i = 0; i < 16; i++)
+        EXPECT_EQ(fmt.subFormat[i], 0);
 }
