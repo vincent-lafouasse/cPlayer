@@ -44,6 +44,35 @@ static Error readU32(FileReader* reader, uint32_t* out)
     return bitcastU32_LE(slice.slice);
 }
 
+static Error skip(FileReader* reader, size_t n)
+{
+    return error_fromReadStatus(fr_skip(reader, n));
+}
+
+static Error skipChunkUntil(FileReader* reader, const char* expectedId)
+{
+    SliceResult fourCC = fr_peekSlice(reader, 4);
+    if (fourCC.status != ReadStatus_Ok) {
+        return error_fromReadStatus(fourCC.status);
+    }
+    while (memcmp(fourCC.slice, expectedId, 4) != 0) {
+        Error err = NoError;
+
+        char id[5] = {0};
+        memcpy(id, fourCC.slice, 4);
+
+        uint32_t chunkSize = 0;
+        if ( (err = readU32(reader, &chunkSize)) != ReadStatus_Ok ) {
+            return err;
+        }
+        logFn(LogLevel_Debug, "Skipping chunk %s of size %u\n", id, chunkSize);
+        if ( (err = skip(reader, chunkSize)) != ReadStatus_Ok ) {
+            return err;
+        }
+    }
+    return NoError;
+}
+
 static Error getToFormatChunk(FileReader* reader)
 {
     SliceResult maybeSlice = fr_takeSlice(reader, 12);
