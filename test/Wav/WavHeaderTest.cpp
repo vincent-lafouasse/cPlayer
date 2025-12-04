@@ -269,3 +269,36 @@ void appendFmtChunk(std::vector<Byte>& buf,
     // write buffer
     appendChunk(buf, "fmt ", content.size(), content);
 }
+
+void appendFmtChunk(std::vector<Byte>& buf,
+                    uint16_t formatTag,
+                    uint16_t nChannels,
+                    uint32_t sampleRate,
+                    uint16_t bitDepth,
+                    uint16_t blockAlign,
+                    uint16_t extensionSize = 0,
+                    uint16_t validBitsPerSample = 0,
+                    uint32_t channelMask = 0,
+                    const uint8_t subFormat[16] = nullptr)
+{
+    std::vector<Byte> content;
+    appendU16(content, formatTag);
+    appendU16(content, nChannels);
+    appendU32(content, sampleRate);
+    uint32_t byteRate = sampleRate * nChannels * (bitDepth / 8);
+    appendU32(content, byteRate);
+    appendU16(content, blockAlign);
+    appendU16(content, bitDepth);
+    if (extensionSize > 0 || validBitsPerSample > 0 || channelMask > 0 ||
+        subFormat != nullptr) {
+        appendU16(content, extensionSize);
+    }
+    if (extensionSize >= 2 || validBitsPerSample > 0)
+        appendU16(content, validBitsPerSample);
+    if (extensionSize >= 4 || channelMask > 0)
+        appendU32(content, channelMask);
+    if (extensionSize >= 16 && subFormat != nullptr)
+        content.insert(content.end(), subFormat, subFormat + 16);
+
+    appendChunk(buf, "fmt ", content.size(), content);
+}
