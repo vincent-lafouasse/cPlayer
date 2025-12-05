@@ -1,7 +1,7 @@
 #pragma once
 
-#include "audio.h"
 #include "Reader/Reader.h"
+#include "audio.h"
 
 typedef enum {
     Codec_Wav,
