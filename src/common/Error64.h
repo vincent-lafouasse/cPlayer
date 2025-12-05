@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "Error.h"
+
 #define TRY64(func_call)                  \
     do {                                  \
         Error64 __temp_err = (func_call); \
@@ -112,4 +114,52 @@ static inline uint16_t err_subCategory(Error64 err)
 static inline uint32_t err_context(Error64 err)
 {
     return (err >> 32) & 0xffffffff;
+}
+
+Error64 err_fromLegacy(Error legacy)
+{
+    switch (legacy) {
+        case NoError:
+            return err_Ok();
+        case E_OOM:
+            return err_Err(E64_System, ESys_OutOfMemory);
+
+        case E_Bad_Usage:
+            return err_Err(E64_Option, EOpt_BadUsage);
+        case E_Unknown_Flag:
+            return err_Err(E64_Option, EOpt_UnknownFlag);
+        case E_HelpRequested:
+            return err_Err(E64_Option, EOpt_HelpRequested);
+
+        case E_FailedRead:
+            return err_Err(E64_Read, ERd_ReadFailed);
+        case E_UnexpectedEOF:
+            return err_Err(E64_Read, ERd_UnexpectedEOF);
+
+        case E_Codec_UnsupportedCodec:
+            return err_Err(E64_Codec, ECdc_UnsupportedCodec);
+        case E_Codec_UnsupportedChannelLayout:
+            return err_Err(E64_Codec, ECdc_UnsupportedChannelLayout);
+        case E_Codec_AbsurdSampleRate:
+            return err_Err(E64_Codec, ECdc_AbsurdSampleRate);
+
+        case E_Wav_UnknownFourCC:
+            return err_Err(E64_Wav, EWav_UnknownFourCC);
+        case E_Wav_UnsupportedSampleFormat:
+            return err_Err(E64_Wav, EWav_UnsupportedSampleFormat);
+        case E_Wav_InvalidBitDepth:
+            return err_Err(E64_Wav, EWav_InvalidBitDepth);
+        case E_Wav_BlockAlignMismatch:
+            return err_Err(E64_Wav, EWav_BlockAlignMismatch);
+        case E_Wav_FormatChunkTooSmall:
+            return err_Err(E64_Wav, EWav_FormatChunkTooSmall);
+        case E_Wav_ExtensionSizeMismatch:
+            return err_Err(E64_Wav, EWav_ExtensionSizeMismatch);
+        case E_Wav_UnsupportedBitDepth:
+            return err_Err(E64_Wav, EWav_UnsupportedBitDepth);
+        case E_Wav_UnknownSampleFormat:
+            return err_Err(E64_Wav, EWav_UnknownSampleFormat);
+        case E_Unimplemented:
+            return err_Err(420, 67);
+    }
 }
