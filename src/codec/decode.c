@@ -6,7 +6,7 @@
 AudioDataResult decodeAudio(Reader* reader)
 {
     const AudioDataResult maybeTrack = decodeWav(reader);
-    if (maybeTrack.err != NoError) {
+    if (!err_isOk(maybeTrack.err)) {
         return maybeTrack;
     }
 

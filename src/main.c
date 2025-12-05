@@ -42,7 +42,7 @@ static Error64 loadAudioOrExit(const char* path, AudioData* out)
 
     AudioDataResult maybeTrack = decodeAudio(&reader);
     fr_close(&fileReader);  // this isn't needed anymore
-    if (maybeTrack.err != NoError) {
+    if (!err_isOk(maybeTrack.err)) {
         return maybeTrack.err;
     }
 

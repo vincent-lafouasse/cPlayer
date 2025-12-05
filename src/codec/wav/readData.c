@@ -1,4 +1,5 @@
 #include "Error.h"
+#include "Error64.h"
 #include "wav_internals.h"
 
 #include <stdlib.h>
@@ -10,7 +11,8 @@ static AudioDataResult readStereoPCM(Reader* reader,
 AudioDataResult readWavData(Reader* reader, const WavFormatInfo* format)
 {
     if (format->formatTag != WAVE_FORMAT_PCM) {
-        return AudioDataResult_Err(E_Wav_UnsupportedSampleFormat);
+        return AudioDataResult_Err(err_withCtx(
+            E64_Wav, EWav_UnsupportedSampleFormat, format->formatTag));
     }
 
     if (format->nChannels == 1) {
@@ -18,7 +20,8 @@ AudioDataResult readWavData(Reader* reader, const WavFormatInfo* format)
     } else if (format->nChannels == 2) {
         return readStereoPCM(reader, format);
     } else {
-        return AudioDataResult_Err(E_Codec_UnsupportedChannelLayout);
+        return AudioDataResult_Err(err_withCtx(
+            E64_Codec, ECdc_UnsupportedChannelLayout, format->nChannels));
     }
 }
 
@@ -49,7 +52,7 @@ out:
         return AudioDataResult_Ok(track);
     } else {
         free(left);
-        return AudioDataResult_Err(err);
+        return AudioDataResult_Err(err_fromLegacy(err));
     }
 }
 
@@ -86,7 +89,7 @@ out:
     if (err != NoError) {
         free(left);
         free(right);
-        return AudioDataResult_Err(err);
+        return AudioDataResult_Err(err_fromLegacy(err));
     } else {
         const AudioData track = (AudioData){.left = left,
                                             .right = right,
