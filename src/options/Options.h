@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "Error.h"
+#include "Error64.h"
 
 typedef struct Options {
     const char* input;
@@ -12,8 +12,7 @@ typedef struct Options {
 
 typedef struct {
     Options options;
-    Error err;
-    const char* fault;
+    Error64 err;
 } OptionsResult;
 
 OptionsResult parseOptions(const char** args, size_t sz);

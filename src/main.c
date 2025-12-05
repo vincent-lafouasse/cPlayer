@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "Error.h"
+#include "Error64.h"
 #include "FileReader.h"
 #include "Reader/ReaderAdapters.h"
 #include "audio.h"
@@ -15,17 +16,15 @@ static Options parseFlagsOrExit(int ac, char** av)
 {
     const OptionsResult maybeOptions =
         parseOptions((const char**)av + 1, ac - 1);
-    if (maybeOptions.err == E_HelpRequested) {
+    if (err_subCategory(maybeOptions.err) == EOpt_HelpRequested) {
         printHelp(av[0]);
         exit(0);
     }
-    if (maybeOptions.err != NoError) {
-        logFn(LogLevel_Error, "Failed to parse flags: %s\n",
-              errorRepr(maybeOptions.err));
-        if (maybeOptions.fault) {
-            logFn(LogLevel_Error, "Error at: %s\n", maybeOptions.fault);
-        }
-        logFn(LogLevel_Error, "Usage: %s track.wav\n", av[0]);
+    if (!err_isOk(maybeOptions.err)) {
+        logError(
+            maybeOptions.err,
+            &(ErrorLogCtx){
+                .argc = ac, .argv = (const char* const*)av, .options = NULL});
         exit(1);
     }
 

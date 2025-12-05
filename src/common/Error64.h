@@ -48,6 +48,7 @@ typedef enum {
 typedef enum {
     EOpt_BadUsage,
     EOpt_UnknownFlag,
+    EOpt_UnimplementedFlag,  // should not see prod
     EOpt_HelpRequested,
 } OptionError;
 
@@ -116,7 +117,7 @@ static inline uint32_t err_context(Error64 err)
     return (err >> 32) & 0xffffffff;
 }
 
-Error64 err_fromLegacy(Error legacy)
+static inline Error64 err_fromLegacy(Error legacy)
 {
     switch (legacy) {
         case NoError:
