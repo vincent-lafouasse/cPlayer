@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 // u32 error context      most significant digits
 // u16 error subcategory
@@ -13,7 +13,7 @@ typedef enum {
     NoError = 0,
     E_Read,
     E_Codec,
-    E_System, // e.g. oom
+    E_System,  // e.g. oom
     E_Portaudio,
 } ErrorCategory;
 
@@ -33,7 +33,9 @@ Error64 err_addCtx(Error64 err, uint32_t context)
     return err | ((uint64_t)context << 32);
 }
 
-Error64 err_withCtx(ErrorCategory category, uint16_t subCategory, uint32_t context)
+Error64 err_withCtx(ErrorCategory category,
+                    uint16_t subCategory,
+                    uint32_t context)
 {
     return err_addCtx(err_Err(category, subCategory), context);
 }
@@ -58,4 +60,3 @@ uint32_t err_context(Error64 err)
 {
     return (err >> 32) & 0xffffffff;
 }
-
