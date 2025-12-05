@@ -34,8 +34,8 @@ static inline Error64 err_addCtx(Error64 err, uint32_t context)
 }
 
 static inline Error64 err_withCtx(ErrorCategory category,
-                    uint16_t subCategory,
-                    uint32_t context)
+                                  uint16_t subCategory,
+                                  uint32_t context)
 {
     return err_addCtx(err_Err(category, subCategory), context);
 }
