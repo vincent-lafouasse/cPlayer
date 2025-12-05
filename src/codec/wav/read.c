@@ -27,11 +27,15 @@ Error readI16(Reader* reader, float* out)
 
 Error readSample(Reader* reader, const WavFormatInfo* format, float* out)
 {
+    const size_t sampleBlockSize = format->blockAlign / format->nChannels;
+
     switch (format->sampleFormat) {
         case SampleFormat_Signed24:
-            return readI24(reader, out);
+            TRY(readI24(reader, out));
+            return reader->skip(reader, sampleBlockSize - 3);
         case SampleFormat_Signed16:
-            return readI16(reader, out);
+            TRY(readI16(reader, out));
+            return reader->skip(reader, sampleBlockSize - 2);
         default:
             return E_Wav_UnsupportedSampleFormat;
     }
