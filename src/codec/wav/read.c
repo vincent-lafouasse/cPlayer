@@ -5,6 +5,7 @@
 #include "int24.h"
 
 #define INT24_MAX_ABS (1 << 23)
+#define INT16_MAX_ABS (-INT16_MIN)
 
 Error readI24(Reader* reader, float* out)
 {
@@ -15,11 +16,22 @@ Error readI24(Reader* reader, float* out)
     return NoError;
 }
 
-Error readSample(Reader* reader, SampleFormat fmt, float* out)
+Error readI16(Reader* reader, float* out)
 {
-    switch (fmt) {
+    int16_t i16;
+    TRY(reader_takeI16_LE(reader, &i16));
+
+    *out = (float)i16 / (float)INT16_MAX_ABS;
+    return NoError;
+}
+
+Error readSample(Reader* reader, const WavFormatInfo* format, float* out)
+{
+    switch (format->sampleFormat) {
         case SampleFormat_Signed24:
             return readI24(reader, out);
+        case SampleFormat_Signed16:
+            return readI16(reader, out);
         default:
             return E_Wav_UnsupportedSampleFormat;
     }

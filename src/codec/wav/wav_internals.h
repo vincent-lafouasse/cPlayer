@@ -59,7 +59,7 @@ Error validateWavFormatChunk(const WavFormatChunk* format, SampleFormat* out);
 Error readWavFormatInfo(Reader* reader, WavFormatInfo* out);
 void logWavFormatInfo(const WavFormatInfo* format);
 
-Error readSample(Reader* reader, SampleFormat fmt, float* out);
+Error readSample(Reader* reader, const WavFormatInfo* format, float* out);
 AudioDataResult readWavData(Reader* reader, const WavFormatInfo* format);
 
 #define DUMP_PREFIX "./build/dump_"

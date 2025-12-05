@@ -8,6 +8,7 @@ PRIVATE
 	codec/wav/wav.c
 	codec/wav/read.c
 	codec/wav/formatInfo.c
+	codec/wav/readData.c
 	codec/wav/dump.c
 	codec/wav/sampleFormat.c
 	codec/codec_internals.c

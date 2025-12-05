@@ -14,6 +14,7 @@ typedef struct {
 typedef struct {
     AudioData track;
     Error err;
+    const char* fault;
 } AudioDataResult;
 
 static inline AudioDataResult AudioDataResult_Ok(AudioData track)
