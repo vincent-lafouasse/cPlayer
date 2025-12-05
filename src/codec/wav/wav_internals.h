@@ -4,6 +4,7 @@
 #include "wav.h"
 
 #define WAVE_FORMAT_PCM 0x0001
+#define WAVE_FORMAT_ADPCM 0x0002
 #define WAVE_FORMAT_IEEE_FLOAT 0x0003
 #define WAVE_FORMAT_ALAW 0x0006
 #define WAVE_FORMAT_MULAW 0x0007
@@ -34,6 +35,7 @@ typedef enum {
     SampleFormat_Signed24,
     SampleFormat_Signed32,
     SampleFormat_Float32,
+    SampleFormat_Float64,
     SampleFormat_ADPCM,  // for IMA-ADPCM blocks
     SampleFormat_MULAW,  // μ-law
     SampleFormat_ALAW,   // A-law
@@ -42,6 +44,7 @@ typedef enum {
 const char* sampleFormatRepr(SampleFormat fmt);
 
 typedef struct {
+    uint16_t formatTag;
     uint16_t nChannels;
     uint32_t sampleRate;
     SampleFormat sampleFormat;

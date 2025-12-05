@@ -21,9 +21,16 @@ typedef enum {
 
     E_Codec_UnsupportedCodec,
     E_Codec_UnsupportedChannelLayout,
+    E_Codec_AbsurdSampleRate,
 
     E_Wav_UnknownFourCC,
     E_Wav_UnsupportedSampleFormat,
+    E_Wav_InvalidBitDepth,
+    E_Wav_BlockAlignMismatch,
+    E_Wav_FormatChunkTooSmall,
+    E_Wav_ExtensionSizeMismatch,
+    E_Wav_UnsupportedBitDepth,
+    E_Wav_UnknownSampleFormat,
 
     E_Unimplemented,
 } Error;

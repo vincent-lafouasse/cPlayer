@@ -13,6 +13,8 @@ const char* sampleFormatRepr(SampleFormat fmt)
             return "i32";
         case SampleFormat_Float32:
             return "f32";
+        case SampleFormat_Float64:
+            return "f64";
         case SampleFormat_ADPCM:
             return "ADPCM";
         case SampleFormat_MULAW:
