@@ -24,7 +24,9 @@
 // u32 error context      most significant digits
 // u16 error subcategory
 // u16 error category     least significant digits
-typedef uint64_t Error64;
+typedef struct {
+    uint64_t bits;
+} Error64;
 
 // will be cast to u16
 typedef enum {
@@ -76,17 +78,18 @@ typedef enum {
 // constructors
 static inline Error64 err_Ok(void)
 {
-    return 0ull;
+    return (Error64){.bits = 0ull};
 }
 
 static inline Error64 err_Err(ErrorCategory category, uint16_t subCategory)
 {
-    return (uint64_t)category | ((uint64_t)subCategory << 16);
+    return (Error64){.bits =
+                         (uint64_t)category | ((uint64_t)subCategory << 16)};
 }
 
 static inline Error64 err_addCtx(Error64 err, uint32_t context)
 {
-    return err | ((uint64_t)context << 32);
+    return (Error64){.bits = err.bits | ((uint64_t)context << 32)};
 }
 
 static inline Error64 err_withCtx(ErrorCategory category,
@@ -99,7 +102,7 @@ static inline Error64 err_withCtx(ErrorCategory category,
 // accessors
 static inline uint16_t err_category(Error64 err)
 {
-    return err & 0xffff;
+    return err.bits & 0xffff;
 }
 
 static inline bool err_isOk(Error64 err)
@@ -109,12 +112,12 @@ static inline bool err_isOk(Error64 err)
 
 static inline uint16_t err_subCategory(Error64 err)
 {
-    return (err >> 16) & 0xffff;
+    return (err.bits >> 16) & 0xffff;
 }
 
 static inline uint32_t err_context(Error64 err)
 {
-    return (err >> 32) & 0xffffffff;
+    return (err.bits >> 32) & 0xffffffff;
 }
 
 static inline Error64 err_fromLegacy(Error legacy)
