@@ -20,7 +20,7 @@ typedef enum {
 // constructors
 Error64 err_Ok(void)
 {
-    return (Error64){0};
+    return 0ull;
 }
 
 Error64 err_Err(ErrorCategory category, uint16_t subCategory)
