@@ -7,7 +7,7 @@ PRIVATE
 	codec/decode.c
 	codec/wav/wav.c
 	codec/wav/read.c
-	codec/wav/header.c
+	codec/wav/formatInfo.c
 	codec/wav/dump.c
 	codec/wav/sampleFormat.c
 	codec/codec_internals.c

@@ -229,7 +229,7 @@ TEST(WavReader, GetToFormatChunk_NoFmtChunk)
 }
 
 /*
-struct RawWavHeader {  // for reference
+struct WavFormatChunk {  // for reference
     uint32_t size;
     uint16_t formatTag;
     uint16_t nChannels;
@@ -244,8 +244,6 @@ struct RawWavHeader {  // for reference
     Byte subFormat[16];
 };
 */
-
-// Helper: append format chunk
 
 void appendFmtChunk(std::vector<Byte>& buf,
                     uint16_t formatTag,

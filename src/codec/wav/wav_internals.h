@@ -9,23 +9,6 @@
 #define WAVE_FORMAT_MULAW 0x0007
 #define WAVE_FORMAT_EXTENSIBLE 0xFFFE
 
-typedef enum {
-    Unsigned8,
-    Signed16,
-    Signed24,
-    Signed32,
-    Float32,
-} SampleFormat;
-
-const char* sampleFormatRepr(SampleFormat fmt);
-
-typedef struct {
-    uint8_t nChannels;
-    uint32_t sampleRate;
-    uint32_t size;
-    SampleFormat sampleFormat;
-} WavHeader;
-
 typedef struct {
     uint32_t size;
     uint16_t formatTag;
@@ -44,11 +27,36 @@ typedef struct {
 Error skipChunkUntil(Reader* reader, const char* expectedId);
 Error getToFormatChunk(Reader* reader);
 Error readFormatChunk(Reader* reader, WavFormatChunk* out);
-Error readWavHeader(Reader* reader, WavHeader* out);
-void logHeader(const WavHeader* wh);
+
+typedef enum {
+    SampleFormat_Unsigned8,
+    SampleFormat_Signed16,
+    SampleFormat_Signed24,
+    SampleFormat_Signed32,
+    SampleFormat_Float32,
+    SampleFormat_ADPCM,  // for IMA-ADPCM blocks
+    SampleFormat_MULAW,  // μ-law
+    SampleFormat_ALAW,   // A-law
+} SampleFormat;
+
+const char* sampleFormatRepr(SampleFormat fmt);
+
+typedef struct {
+    uint16_t nChannels;
+    uint32_t sampleRate;
+    SampleFormat sampleFormat;
+    uint16_t blockAlign;  // bytes per sample block (nChannels * bytesPerSample
+                          // or ADPCM block)
+    uint32_t nFrames;
+    uint16_t bitsPerSample;
+    uint16_t adpcmBlockSize;  // only for ADPCM, else 0
+} WavFormatInfo;
+
+Error readWavFormatInfo(Reader* reader, WavFormatInfo* out);
+void logWavFormatInfo(const WavFormatInfo* format);
 
 Error readSample(Reader* reader, SampleFormat fmt, float* out);
-AudioDataResult readWavData(Reader* reader, WavHeader h);
+AudioDataResult readWavData(Reader* reader, const WavFormatInfo* format);
 
 #define DUMP_PREFIX "./build/dump_"
 #define DUMP_SUFFIX ".csv"

@@ -18,7 +18,7 @@ Error readI24(Reader* reader, float* out)
 Error readSample(Reader* reader, SampleFormat fmt, float* out)
 {
     switch (fmt) {
-        case Signed24:
+        case SampleFormat_Signed24:
             return readI24(reader, out);
         default:
             return E_Wav_UnsupportedSampleFormat;

@@ -6,9 +6,9 @@ add_executable(${TEST_RUNNER_NAME})
 target_sources(${TEST_RUNNER_NAME}
 PRIVATE
 	./main.cpp
-	./WavHeaderTest.cpp
+	./readWavFormat.cpp
 
-	${testedSourceDir}/codec/wav/header.c
+	${testedSourceDir}/codec/wav/formatInfo.c
 	${testedSourceDir}/codec/wav/sampleFormat.c
 
 	${testedSourceDir}/Reader/read.c

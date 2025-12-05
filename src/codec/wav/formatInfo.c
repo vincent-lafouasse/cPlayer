@@ -114,14 +114,13 @@ Error determineSampleFormat(WavFormatChunk format, SampleFormat* out)
     Error err = NoError;
     const size_t sz = format.bitDepth / 8;
     if (sz == 1) {
-        *out = Unsigned8;
+        *out = SampleFormat_Unsigned8;
     } else if (sz == 2) {
-        *out = Signed16;
+        *out = SampleFormat_Signed16;
     } else if (sz == 3) {
-        *out = Signed24;
-        ;
+        *out = SampleFormat_Signed24;
     } else if (sz == 4) {
-        *out = Signed32;
+        *out = SampleFormat_Signed32;
     } else {
         err = E_Wav_UnsupportedSampleFormat;
     }
@@ -129,7 +128,7 @@ Error determineSampleFormat(WavFormatChunk format, SampleFormat* out)
     return err;
 }
 
-Error readWavHeader(Reader* reader, WavHeader* out)
+Error readWavFormatInfo(Reader* reader, WavFormatInfo* out)
 {
     // master chunk
     // skip other chunks
@@ -155,23 +154,27 @@ Error readWavHeader(Reader* reader, WavHeader* out)
     SampleFormat sampleFormat;
     TRY(determineSampleFormat(format, &sampleFormat));
 
-    *out = (WavHeader){
-        .nChannels = format.nChannels,
-        .sampleRate = format.sampleRate,
-        .sampleFormat = sampleFormat,
-        .size = nBlocks,
-    };
+    *out = (WavFormatInfo){.nChannels = format.nChannels,
+                           .sampleRate = format.sampleRate,
+                           .sampleFormat = sampleFormat,
+                           .blockAlign = format.blockAlign,
+                           .nFrames = nBlocks,
+                           .bitsPerSample = format.bitDepth,
+                           .adpcmBlockSize = 0};
     logFn(LogLevel_Debug, "\n");
     return NoError;
 }
 
-void logHeader(const WavHeader* wh)
+void logWavFormatInfo(const WavFormatInfo* info)
 {
-    logFn(LogLevel_Info, "%s {\n", "WavHeader");
-    logFn(LogLevel_Info, "\tnumber of Channels:\t%u\n", wh->nChannels);
-    logFn(LogLevel_Info, "\tsample rate:\t\t%u Hz\n", wh->sampleRate);
+    logFn(LogLevel_Info, "%s {\n", "WavFormatInfo");
+    logFn(LogLevel_Info, "\tnumber of Channels:\t%u\n", info->nChannels);
+    logFn(LogLevel_Info, "\tsample rate:\t\t%u Hz\n", info->sampleRate);
     logFn(LogLevel_Info, "\tsample format:\t\t%s\n",
-          sampleFormatRepr(wh->sampleFormat));
-    logFn(LogLevel_Info, "\tnumber of samples:\t%u\n", wh->size);
+          sampleFormatRepr(info->sampleFormat));
+    logFn(LogLevel_Info, "\tnumber of frames:\t%u\n", info->nFrames);
+    logFn(LogLevel_Info, "\tblock align:\t%u\n", info->blockAlign);
+    logFn(LogLevel_Info, "\tbit depth:\t\t%u\n", info->bitsPerSample);
+    logFn(LogLevel_Info, "\tadpcm block size:\t%u\n", info->adpcmBlockSize);
     logFn(LogLevel_Info, "}\n\n");
 }
