@@ -7,7 +7,7 @@
 
 static void logReadError(Error64 err, const ErrorLogCtx* ctx)
 {
-    assert(err_category(err) == E64_System);
+    assert(err_category(err) == E64_Read);
 
     const ReadError sub = err_subCategory(err);
     const uint32_t context = err_context(err);
@@ -73,7 +73,7 @@ static void logSystemError(Error64 err, const ErrorLogCtx* ctx)
 
 static void logCodecError(Error64 err, const ErrorLogCtx* ctx)
 {
-    assert(err_category(err) == E64_System);
+    assert(err_category(err) == E64_Codec);
 
     const CodecError sub = err_subCategory(err);
     const uint32_t context = err_context(err);
@@ -90,7 +90,7 @@ static void logCodecError(Error64 err, const ErrorLogCtx* ctx)
 
 static void logWavError(Error64 err, const ErrorLogCtx* ctx)
 {
-    assert(err_category(err) == E64_System);
+    assert(err_category(err) == E64_Wav);
 
     const WavError sub = err_subCategory(err);
     const uint32_t context = err_context(err);
