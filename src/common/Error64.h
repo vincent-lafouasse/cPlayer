@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define TRY(func_call)                    \
+#define TRY64(func_call)                  \
     do {                                  \
         Error64 __temp_err = (func_call); \
         if (!err_isOk(__temp_err)) {      \
@@ -11,7 +11,7 @@
         }                                 \
     } while (0)
 
-#define TRY_CTX(func_call, ctxBits)                 \
+#define TRY64_CTX(func_call, ctxBits)               \
     do {                                            \
         Error64 __temp_err = (func_call);           \
         if (!err_isOk(__temp_err)) {                \
@@ -26,13 +26,13 @@ typedef uint64_t Error64;
 
 // will be cast to u16
 typedef enum {
-    NoError = 0,
-    E_Read,
-    E_Option,
-    E_Codec,
-    E_Wav,
-    E_System,     // e.g. oom
-    E_Portaudio,  // later
+    E64_NoError = 0,
+    E64_Read,
+    E64_Option,
+    E64_Codec,
+    E64_Wav,
+    E64_System,     // e.g. oom
+    E64_Portaudio,  // later
 } ErrorCategory;
 
 // those enums will probably move to their respective modules
