@@ -1,5 +1,8 @@
 #pragma once
 
+#include <stddef.h>
+#include <stdint.h>
+
 #define TRY(func_call)                  \
     do {                                \
         Error __temp_err = (func_call); \
@@ -36,3 +39,14 @@ typedef enum {
 } Error;
 
 const char* errorRepr(Error e);
+
+typedef struct {
+    Error err;
+    const char* fault;
+    uint32_t context;
+} ErrorCtx;
+
+static inline ErrorCtx error_NoError(void)
+{
+    return (ErrorCtx){.err = NoError, .fault = NULL, .context = 0};
+}
