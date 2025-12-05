@@ -25,7 +25,7 @@ Error64 err_Ok(void)
 
 Error64 err_Err(ErrorCategory category, uint16_t subCategory)
 {
-    return (uint64_t)category | ((uint64_t)subCategory << 8);
+    return (uint64_t)category | ((uint64_t)subCategory << 16);
 }
 
 Error64 err_addCtx(Error64 err, uint32_t context)
