@@ -77,7 +77,7 @@ Error readFormatChunk(Reader* reader, WavFormatChunk* out)
     logFn(LogLevel_Debug, "bit depth:\t\t%u bits\n", bitDepth);
 
     uint16_t formatChunkExtensionSize = fmtChunkSize - 16;
-    logFn(LogLevel_Debug, "fmt extension:\t\t%u bytes\n",
+    logFn(LogLevel_Debug, "fmt extension:\t%u bytes\n",
           formatChunkExtensionSize);
 
     memset(out, 0, sizeof(*out));
