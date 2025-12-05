@@ -1,3 +1,4 @@
+#include "Error64.h"
 #include "gtest/gtest.h"
 
 extern "C" {
@@ -10,7 +11,7 @@ TEST(ParseOptions, HeadlessFlag)
     const size_t sz = sizeof(args) / sizeof(*args);
     OptionsResult res = parseOptions(args, sz);
 
-    ASSERT_EQ(res.err, NoError);
+    ASSERT_TRUE(err_isOk(res.err));
     EXPECT_TRUE(res.options.headless);
     EXPECT_STREQ(res.options.input, "file.wav");
 }
@@ -21,7 +22,7 @@ TEST(ParseOptions, InputFlagLong)
     const size_t sz = sizeof(args) / sizeof(*args);
     OptionsResult res = parseOptions(args, sz);
 
-    ASSERT_EQ(res.err, NoError);
+    ASSERT_TRUE(err_isOk(res.err));
     EXPECT_FALSE(res.options.headless);
     EXPECT_STREQ(res.options.input, "file.wav");
 }
@@ -32,7 +33,7 @@ TEST(ParseOptions, InputFlagShort)
     const size_t sz = sizeof(args) / sizeof(*args);
     OptionsResult res = parseOptions(args, sz);
 
-    ASSERT_EQ(res.err, NoError);
+    ASSERT_TRUE(err_isOk(res.err));
     EXPECT_FALSE(res.options.headless);
     EXPECT_STREQ(res.options.input, "file.wav");
 }
@@ -43,7 +44,7 @@ TEST(ParseOptions, PositionalInput)
     const size_t sz = sizeof(args) / sizeof(*args);
     OptionsResult res = parseOptions(args, sz);
 
-    ASSERT_EQ(res.err, NoError);
+    ASSERT_TRUE(err_isOk(res.err));
     EXPECT_FALSE(res.options.headless);
     EXPECT_STREQ(res.options.input, "file.wav");
 }
@@ -54,7 +55,7 @@ TEST(ParseOptions, FlagBeforePositional)
     const size_t sz = sizeof(args) / sizeof(*args);
     OptionsResult res = parseOptions(args, sz);
 
-    ASSERT_EQ(res.err, NoError);
+    ASSERT_TRUE(err_isOk(res.err));
     EXPECT_TRUE(res.options.headless);
     EXPECT_STREQ(res.options.input, "file.wav");
 }
@@ -65,8 +66,9 @@ TEST(ParseOptions, UnknownFlag)
     const size_t sz = sizeof(args) / sizeof(*args);
     OptionsResult res = parseOptions(args, sz);
 
-    EXPECT_EQ(res.err, E_Unknown_Flag);
-    EXPECT_STREQ(res.fault, "--foo");
+    EXPECT_EQ(err_category(res.err), E64_Option);
+    EXPECT_EQ(err_subCategory(res.err), EOpt_UnknownFlag);
+    EXPECT_EQ(err_context(res.err), 0);  // args[0]
 }
 
 TEST(ParseOptions, MissingInputForFlag)
@@ -75,8 +77,9 @@ TEST(ParseOptions, MissingInputForFlag)
     const size_t sz = sizeof(args) / sizeof(*args);
     OptionsResult res = parseOptions(args, sz);
 
-    EXPECT_EQ(res.err, E_Bad_Usage);
-    EXPECT_STREQ(res.fault, "--input");
+    EXPECT_EQ(err_category(res.err), E64_Option);
+    EXPECT_EQ(err_subCategory(res.err), EOpt_BadUsage);
+    // EXPECT_EQ(err_context(res.err), 0); no context
 }
 
 TEST(ParseOptions, ManyPositionals)
@@ -85,7 +88,7 @@ TEST(ParseOptions, ManyPositionals)
     const size_t sz = sizeof(args) / sizeof(*args);
     OptionsResult res = parseOptions(args, sz);
 
-    EXPECT_EQ(res.err, NoError);
+    ASSERT_TRUE(err_isOk(res.err));
     EXPECT_STREQ(res.options.input, "file2.wav");
 }
 
@@ -95,7 +98,8 @@ TEST(ParseOptions, NoInputProvided)
     const size_t sz = sizeof(args) / sizeof(*args);
     OptionsResult res = parseOptions(args, sz);
 
-    EXPECT_EQ(res.err, E_Bad_Usage);
+    EXPECT_EQ(err_category(res.err), E64_Option);
+    EXPECT_EQ(err_subCategory(res.err), EOpt_BadUsage);
 }
 
 TEST(ParseOptions, MixedFlagsAndPositionals)
@@ -104,7 +108,7 @@ TEST(ParseOptions, MixedFlagsAndPositionals)
     const size_t sz = sizeof(args) / sizeof(*args);
     OptionsResult res = parseOptions(args, sz);
 
-    ASSERT_EQ(res.err, NoError);
+    ASSERT_TRUE(err_isOk(res.err));
     EXPECT_TRUE(res.options.headless);
     EXPECT_STREQ(res.options.input, "file.wav");
 }
