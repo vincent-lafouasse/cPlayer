@@ -161,6 +161,6 @@ static inline Error64 err_fromLegacy(Error legacy)
         case E_Wav_UnknownSampleFormat:
             return err_Err(E64_Wav, EWav_UnknownSampleFormat);
         case E_Unimplemented:
-            return err_Err(420, 67);
+            return err_Err((ErrorCategory)420u, 67u);
     }
 }
