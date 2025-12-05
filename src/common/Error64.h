@@ -3,6 +3,22 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define TRY(func_call)                    \
+    do {                                  \
+        Error64 __temp_err = (func_call); \
+        if (!err_isOk(__temp_err)) {      \
+            return __temp_err;            \
+        }                                 \
+    } while (0)
+
+#define TRY_CTX(func_call, ctxBits)                 \
+    do {                                            \
+        Error64 __temp_err = (func_call);           \
+        if (!err_isOk(__temp_err)) {                \
+            return err_addCtx(__temp_err, ctxBits); \
+        }                                           \
+    } while (0)
+
 // u32 error context      most significant digits
 // u16 error subcategory
 // u16 error category     least significant digits
@@ -12,10 +28,47 @@ typedef uint64_t Error64;
 typedef enum {
     NoError = 0,
     E_Read,
+    E_Option,
     E_Codec,
-    E_System,  // e.g. oom
-    E_Portaudio,
+    E_Wav,
+    E_System,     // e.g. oom
+    E_Portaudio,  // later
 } ErrorCategory;
+
+// those enums will probably move to their respective modules
+// or not
+typedef enum {
+    ERd_OpenFailed,
+    ERd_ReadFailed,
+    ERd_UnexpectedEOF,
+} ReadError;
+
+typedef enum {
+    EOpt_BadUsage,
+    EOpt_UnknownFlag,
+    EOpt_HelpRequested,
+} OptionError;
+
+typedef enum {
+    ESys_OutOfMemory,
+} SystemError;
+
+typedef enum {
+    ECdc_UnsupportedCodec,
+    ECdc_UnsupportedChannelLayout,
+    ECdc_AbsurdSampleRate,
+} CodecError;
+
+typedef enum {
+    EWav_UnknownFourCC,
+    EWav_UnsupportedSampleFormat,
+    EWav_InvalidBitDepth,
+    EWav_BlockAlignMismatch,
+    EWav_FormatChunkTooSmall,
+    EWav_ExtensionSizeMismatch,
+    EWav_UnsupportedBitDepth,
+    EWav_UnknownSampleFormat,
+} WavError;
 
 // constructors
 static inline Error64 err_Ok(void)
