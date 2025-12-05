@@ -39,7 +39,7 @@ static void logOptionError(Error64 err, const ErrorLogCtx* ctx)
                   ctx->argv[0]);
             break;
         case EOpt_UnknownFlag:
-            logFn(LogLevel_Error, "Unknown flag %s\n", ctx->argv[context]);
+            logFn(LogLevel_Error, "Unknown flag %s\n", ctx->argv[context + 1]);
             break;
         case EOpt_HelpRequested:
             logFn(LogLevel_Info,
