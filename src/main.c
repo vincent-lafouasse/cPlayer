@@ -1,6 +1,5 @@
 #include <stdlib.h>
 
-#include "Error.h"
 #include "Error64.h"
 #include "FileReader.h"
 #include "Reader/ReaderAdapters.h"
@@ -12,7 +11,7 @@
 
 #define STREAM_BUFFER_SIZE 256
 
-static Options parseFlagsOrExit(int ac, char** av)
+Error64 parseFlags(int ac, char** av, Options* out)
 {
     const OptionsResult maybeOptions =
         parseOptions((const char**)av + 1, ac - 1);
@@ -21,24 +20,20 @@ static Options parseFlagsOrExit(int ac, char** av)
         exit(0);
     }
     if (!err_isOk(maybeOptions.err)) {
-        logError(
-            maybeOptions.err,
-            &(ErrorLogCtx){
-                .argc = ac, .argv = (const char* const*)av, .options = NULL});
-        exit(1);
+        return maybeOptions.err;
     }
 
     logOptions(&maybeOptions.options);
-    return maybeOptions.options;
+    *out = maybeOptions.options;
+    return err_Ok();
 }
 
-static AudioData loadAudioOrExit(const char* path)
+static Error64 loadAudioOrExit(const char* path, AudioData* out)
 {
     logFn(LogLevel_Debug, "-----Reading file\t%s-----\n", path);
     FileReader fileReader = fr_open(path);
     if (!fr_isOpened(&fileReader)) {
-        logFn(LogLevel_Error, "Failed to open file %s\n", path);
-        exit(1);
+        return err_Err(E64_Read, (uint16_t)ERd_OpenFailed);
     }
     logFn(LogLevel_Debug, "FileReader buffer size: %zu\n",
           FILE_READER_BUFFER_SIZE);
@@ -48,18 +43,39 @@ static AudioData loadAudioOrExit(const char* path)
     AudioDataResult maybeTrack = decodeAudio(&reader);
     fr_close(&fileReader);  // this isn't needed anymore
     if (maybeTrack.err != NoError) {
-        logFn(LogLevel_Error, "%s\n", errorRepr(maybeTrack.err));
-        exit(1);
+        return maybeTrack.err;
     }
 
-    return maybeTrack.track;
+    *out = maybeTrack.track;
+    return err_Ok();
+}
+
+ErrorLogCtx makeLogCtx(int ac, char** av, const Options* opts)
+{
+    return (ErrorLogCtx){
+        .argc = ac, .argv = (const char* const*)av, .options = opts};
 }
 
 int main(int ac, char** av)
 {
-    const Options options = parseFlagsOrExit(ac, av);
+    Error64 err;
 
-    const AudioData track = loadAudioOrExit(options.input);
+    Options options;
+    err = parseFlags(ac, av, &options);
+    if (!err_isOk(err)) {
+        ErrorLogCtx ctx = makeLogCtx(ac, av, NULL);
+        logError(err, &ctx);
+        return 1;
+    }
+
+    AudioData track;
+    err = loadAudioOrExit(options.input, &track);
+    if (!err_isOk(err)) {
+        ErrorLogCtx ctx = makeLogCtx(ac, av, &options);
+        logError(err, &ctx);
+        return 1;
+    }
+
     AudioPlayer player = (AudioPlayer){
         .left = track.left, .right = track.right, .head = 0, .len = track.size};
 
