@@ -289,19 +289,19 @@ TEST(WavReader, ReadFormatChunk_PCM16)
     WavFormatChunk fmt;
     ASSERT_EQ(readFormatChunk(&r, &fmt), NoError);
 
-    EXPECT_EQ(fmt.formatTag, 1);
-    EXPECT_EQ(fmt.nChannels, 2);
-    EXPECT_EQ(fmt.sampleRate, 44100);
-    EXPECT_EQ(fmt.bytesPerSecond, 44100 * 2 * 16 / 8);
-    EXPECT_EQ(fmt.blockAlign, 4);
-    EXPECT_EQ(fmt.bitDepth, 16);
+    EXPECT_EQ(fmt.formatTag, 1u);
+    EXPECT_EQ(fmt.nChannels, 2u);
+    EXPECT_EQ(fmt.sampleRate, 44100u);
+    EXPECT_EQ(fmt.bytesPerSecond, 44100u * 2 * 16 / 8);
+    EXPECT_EQ(fmt.blockAlign, 4u);
+    EXPECT_EQ(fmt.bitDepth, 16u);
 
     // verify zeroed fields
-    EXPECT_EQ(fmt.extensionSize, 0);
-    EXPECT_EQ(fmt.validBitsPerSample, 0);
-    EXPECT_EQ(fmt.channelMask, 0);
+    EXPECT_EQ(fmt.extensionSize, 0u);
+    EXPECT_EQ(fmt.validBitsPerSample, 0u);
+    EXPECT_EQ(fmt.channelMask, 0u);
     for (int i = 0; i < 16; i++) {
-        EXPECT_EQ(fmt.subFormat[i], 0);
+        EXPECT_EQ(fmt.subFormat[i], 0u);
     }
 }
 TEST(WavReader, ReadFormatChunk_PCM24_Extended)
@@ -316,16 +316,16 @@ TEST(WavReader, ReadFormatChunk_PCM24_Extended)
     WavFormatChunk fmt;
     ASSERT_EQ(readFormatChunk(&r, &fmt), NoError);
 
-    EXPECT_EQ(fmt.formatTag, 1);
-    EXPECT_EQ(fmt.nChannels, 1);
-    EXPECT_EQ(fmt.sampleRate, 48000);
-    EXPECT_EQ(fmt.bytesPerSecond, 48000 * 1 * 24 / 8);
-    EXPECT_EQ(fmt.blockAlign, 3);
-    EXPECT_EQ(fmt.bitDepth, 24);
+    EXPECT_EQ(fmt.formatTag, 1u);
+    EXPECT_EQ(fmt.nChannels, 1u);
+    EXPECT_EQ(fmt.sampleRate, 48000u);
+    EXPECT_EQ(fmt.bytesPerSecond, 48000u * 1 * 24 / 8);
+    EXPECT_EQ(fmt.blockAlign, 3u);
+    EXPECT_EQ(fmt.bitDepth, 24u);
 
-    EXPECT_EQ(fmt.extensionSize, 16);
-    EXPECT_EQ(fmt.validBitsPerSample, 24);
-    EXPECT_EQ(fmt.channelMask, 0x03);
+    EXPECT_EQ(fmt.extensionSize, 16u);
+    EXPECT_EQ(fmt.validBitsPerSample, 24u);
+    EXPECT_EQ(fmt.channelMask, 0x03u);
     for (int i = 0; i < 16; i++)
         EXPECT_EQ(fmt.subFormat[i], subFmt[i]);
 }
@@ -367,11 +367,11 @@ TEST(WavReader, ReadFormatChunk_CheckZeroingBeyondChunk)
     ASSERT_EQ(readFormatChunk(&r, &fmt), NoError);
 
     // fields beyond 16 bytes should be zero
-    EXPECT_EQ(fmt.extensionSize, 0);
-    EXPECT_EQ(fmt.validBitsPerSample, 0);
-    EXPECT_EQ(fmt.channelMask, 0);
+    EXPECT_EQ(fmt.extensionSize, 0u);
+    EXPECT_EQ(fmt.validBitsPerSample, 0u);
+    EXPECT_EQ(fmt.channelMask, 0u);
     for (int i = 0; i < 16; i++)
-        EXPECT_EQ(fmt.subFormat[i], 0);
+        EXPECT_EQ(fmt.subFormat[i], 0u);
 }
 
 TEST(WavReader, ReadFormatChunk_PCM16Stereo)
@@ -384,11 +384,11 @@ TEST(WavReader, ReadFormatChunk_PCM16Stereo)
     WavFormatChunk fmt{};
     ASSERT_EQ(readFormatChunk(&r, &fmt), NoError);
     EXPECT_EQ(fmt.formatTag, WAVE_FORMAT_PCM);
-    EXPECT_EQ(fmt.nChannels, 2);
-    EXPECT_EQ(fmt.sampleRate, 44100);
-    EXPECT_EQ(fmt.bytesPerSecond, 44100 * 2 * 16 / 8);
-    EXPECT_EQ(fmt.blockAlign, 4);
-    EXPECT_EQ(fmt.bitDepth, 16);
+    EXPECT_EQ(fmt.nChannels, 2u);
+    EXPECT_EQ(fmt.sampleRate, 44100u);
+    EXPECT_EQ(fmt.bytesPerSecond, 44100u * 2 * 16 / 8);
+    EXPECT_EQ(fmt.blockAlign, 4u);
+    EXPECT_EQ(fmt.bitDepth, 16u);
 }
 
 TEST(WavReader, ReadFormatChunk_IEEEFloatStereo)
@@ -401,11 +401,11 @@ TEST(WavReader, ReadFormatChunk_IEEEFloatStereo)
     WavFormatChunk fmt{};
     ASSERT_EQ(readFormatChunk(&r, &fmt), NoError);
     EXPECT_EQ(fmt.formatTag, WAVE_FORMAT_IEEE_FLOAT);
-    EXPECT_EQ(fmt.nChannels, 2);
-    EXPECT_EQ(fmt.sampleRate, 48000);
-    EXPECT_EQ(fmt.bytesPerSecond, 48000 * 2 * 32 / 8);
-    EXPECT_EQ(fmt.blockAlign, 8);
-    EXPECT_EQ(fmt.bitDepth, 32);
+    EXPECT_EQ(fmt.nChannels, 2u);
+    EXPECT_EQ(fmt.sampleRate, 48000u);
+    EXPECT_EQ(fmt.bytesPerSecond, 48000u * 2 * 32 / 8);
+    EXPECT_EQ(fmt.blockAlign, 8u);
+    EXPECT_EQ(fmt.bitDepth, 32u);
 }
 
 TEST(WavReader, ReadFormatChunk_ALAWMono)
@@ -418,11 +418,11 @@ TEST(WavReader, ReadFormatChunk_ALAWMono)
     WavFormatChunk fmt{};
     ASSERT_EQ(readFormatChunk(&r, &fmt), NoError);
     EXPECT_EQ(fmt.formatTag, WAVE_FORMAT_ALAW);
-    EXPECT_EQ(fmt.nChannels, 1);
-    EXPECT_EQ(fmt.sampleRate, 44100);
-    EXPECT_EQ(fmt.bytesPerSecond, 44100 * 1 * 8 / 8);
-    EXPECT_EQ(fmt.blockAlign, 1);
-    EXPECT_EQ(fmt.bitDepth, 8);
+    EXPECT_EQ(fmt.nChannels, 1u);
+    EXPECT_EQ(fmt.sampleRate, 44100u);
+    EXPECT_EQ(fmt.bytesPerSecond, 44100u * 1 * 8 / 8);
+    EXPECT_EQ(fmt.blockAlign, 1u);
+    EXPECT_EQ(fmt.bitDepth, 8u);
 }
 
 TEST(WavReader, ReadFormatChunk_MULAWMono)
@@ -435,11 +435,11 @@ TEST(WavReader, ReadFormatChunk_MULAWMono)
     WavFormatChunk fmt{};
     ASSERT_EQ(readFormatChunk(&r, &fmt), NoError);
     EXPECT_EQ(fmt.formatTag, WAVE_FORMAT_MULAW);
-    EXPECT_EQ(fmt.nChannels, 1);
-    EXPECT_EQ(fmt.sampleRate, 44100);
-    EXPECT_EQ(fmt.bytesPerSecond, 44100 * 1 * 8 / 8);
-    EXPECT_EQ(fmt.blockAlign, 1);
-    EXPECT_EQ(fmt.bitDepth, 8);
+    EXPECT_EQ(fmt.nChannels, 1u);
+    EXPECT_EQ(fmt.sampleRate, 44100u);
+    EXPECT_EQ(fmt.bytesPerSecond, 44100u * 1 * 8 / 8);
+    EXPECT_EQ(fmt.blockAlign, 1u);
+    EXPECT_EQ(fmt.bitDepth, 8u);
 }
 
 TEST(WavReader, ReadFormatChunk_ExtensibleStereo)
@@ -455,14 +455,14 @@ TEST(WavReader, ReadFormatChunk_ExtensibleStereo)
     WavFormatChunk fmt{};
     ASSERT_EQ(readFormatChunk(&r, &fmt), NoError);
     EXPECT_EQ(fmt.formatTag, WAVE_FORMAT_EXTENSIBLE);
-    EXPECT_EQ(fmt.nChannels, 2);
-    EXPECT_EQ(fmt.sampleRate, 44100);
-    EXPECT_EQ(fmt.bytesPerSecond, 44100 * 2 * 16 / 8);
-    EXPECT_EQ(fmt.blockAlign, 4);
-    EXPECT_EQ(fmt.bitDepth, 16);
-    EXPECT_EQ(fmt.extensionSize, 22);
-    EXPECT_EQ(fmt.validBitsPerSample, 16);
-    EXPECT_EQ(fmt.channelMask, 3);
+    EXPECT_EQ(fmt.nChannels, 2u);
+    EXPECT_EQ(fmt.sampleRate, 44100u);
+    EXPECT_EQ(fmt.bytesPerSecond, 44100u * 2 * 16 / 8);
+    EXPECT_EQ(fmt.blockAlign, 4u);
+    EXPECT_EQ(fmt.bitDepth, 16u);
+    EXPECT_EQ(fmt.extensionSize, 22u);
+    EXPECT_EQ(fmt.validBitsPerSample, 16u);
+    EXPECT_EQ(fmt.channelMask, 3u);
     for (int i = 0; i < 16; i++)
         EXPECT_EQ(fmt.subFormat[i], subFmt[i]);
 }
