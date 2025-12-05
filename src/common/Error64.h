@@ -18,22 +18,22 @@ typedef enum {
 } ErrorCategory;
 
 // constructors
-Error64 err_Ok(void)
+static inline Error64 err_Ok(void)
 {
     return 0ull;
 }
 
-Error64 err_Err(ErrorCategory category, uint16_t subCategory)
+static inline Error64 err_Err(ErrorCategory category, uint16_t subCategory)
 {
     return (uint64_t)category | ((uint64_t)subCategory << 16);
 }
 
-Error64 err_addCtx(Error64 err, uint32_t context)
+static inline Error64 err_addCtx(Error64 err, uint32_t context)
 {
     return err | ((uint64_t)context << 32);
 }
 
-Error64 err_withCtx(ErrorCategory category,
+static inline Error64 err_withCtx(ErrorCategory category,
                     uint16_t subCategory,
                     uint32_t context)
 {
@@ -41,22 +41,22 @@ Error64 err_withCtx(ErrorCategory category,
 }
 
 // accessors
-uint16_t err_category(Error64 err)
+static inline uint16_t err_category(Error64 err)
 {
     return err & 0xffff;
 }
 
-bool err_isOk(Error64 err)
+static inline bool err_isOk(Error64 err)
 {
     return err_category(err) == 0;
 }
 
-uint16_t err_subCategory(Error64 err)
+static inline uint16_t err_subCategory(Error64 err)
 {
     return (err >> 16) & 0xffff;
 }
 
-uint32_t err_context(Error64 err)
+static inline uint32_t err_context(Error64 err)
 {
     return (err >> 32) & 0xffffffff;
 }
