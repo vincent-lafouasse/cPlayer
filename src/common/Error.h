@@ -11,6 +11,22 @@
         }                               \
     } while (0)
 
+#define TRY_CTX(func_call)                 \
+    do {                                   \
+        ErrorCtx __temp_err = (func_call); \
+        if (__temp_err.err != NoError) {   \
+            return __temp_err;             \
+        }                                  \
+    } while (0)
+
+#define TRY_CTX_ADD(func_call, contextBits)               \
+    do {                                                  \
+        Error __temp_err = (func_call);                   \
+        if (__temp_err != NoError) {                      \
+            return ErrorCtx_Err(__temp_err, contextBits); \
+        }                                                 \
+    } while (0)
+
 typedef enum {
     NoError = 0,
     E_OOM,
@@ -42,11 +58,15 @@ const char* errorRepr(Error e);
 
 typedef struct {
     Error err;
-    const char* fault;
     uint32_t context;
 } ErrorCtx;
 
-static inline ErrorCtx error_NoError(void)
+static inline ErrorCtx ErrorCtx_Ok(void)
 {
-    return (ErrorCtx){.err = NoError, .fault = NULL, .context = 0};
+    return (ErrorCtx){.err = NoError, .context = 0};
+}
+
+static inline ErrorCtx ErrorCtx_Err(Error err, uint32_t ctx)
+{
+    return (ErrorCtx){.err = err, .context = ctx};
 }
