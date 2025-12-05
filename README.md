@@ -20,5 +20,6 @@ the big maybes
 - `portaudio` is pulled by cmake but you may need to install its dependencies, e.g. `libasound2-dev`
 
 ### References
+- [Multimedia Programming Interface and Data Specifications 1.0](https://www.mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/Docs/riffmci.pdf)
 - [wav format specification](https://www.mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html)
 - [how wave files work - WaveFileGem](https://wavefilegem.com/how_wave_files_work.html)
