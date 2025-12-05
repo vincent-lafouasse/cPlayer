@@ -32,5 +32,7 @@ Error reader_peekFourCC(Reader* reader, uint8_t* out);
 Error reader_takeFourCC(Reader* reader, uint8_t* out);
 
 Error reader_takeU16_LE(Reader* reader, uint16_t* out);
+Error reader_takeI16_LE(Reader* reader, int16_t* out);
 Error reader_takeU32_LE(Reader* reader, uint32_t* out);
+Error reader_takeI32_LE(Reader* reader, int32_t* out);
 Error reader_takeI24_LE(Reader* reader, Int24* out);
