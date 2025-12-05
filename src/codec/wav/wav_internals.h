@@ -55,6 +55,7 @@ typedef struct {
     uint16_t adpcmBlockSize;  // only for ADPCM, else 0
 } WavFormatInfo;
 
+Error validateWavFormatChunk(const WavFormatChunk* format, SampleFormat* out);
 Error readWavFormatInfo(Reader* reader, WavFormatInfo* out);
 void logWavFormatInfo(const WavFormatInfo* format);
 
