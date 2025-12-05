@@ -21,3 +21,4 @@ the big maybes
 
 ### References
 - [wav format specification](https://www.mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html)
+- [how wave files work - WaveFileGem](https://wavefilegem.com/how_wave_files_work.html)
