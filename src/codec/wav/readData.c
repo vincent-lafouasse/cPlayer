@@ -1,3 +1,4 @@
+#include "Error.h"
 #include "wav_internals.h"
 
 #include <stdlib.h>
@@ -8,6 +9,10 @@ static AudioDataResult readStereoPCM(Reader* reader,
 
 AudioDataResult readWavData(Reader* reader, const WavFormatInfo* format)
 {
+    if (format->formatTag != WAVE_FORMAT_PCM) {
+        return AudioDataResult_Err(E_Wav_UnsupportedSampleFormat);
+    }
+
     if (format->nChannels == 1) {
         return readMonoPCM(reader, format);
     } else if (format->nChannels == 2) {
