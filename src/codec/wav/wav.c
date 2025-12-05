@@ -1,9 +1,7 @@
-#include "Error.h"
-#include "audio.h"
-#include "int24.h"
 #include "wav_internals.h"
 
-#include <stdlib.h>
+#include "Error.h"
+#include "audio.h"
 
 AudioDataResult decodeWav(Reader* reader)
 {
