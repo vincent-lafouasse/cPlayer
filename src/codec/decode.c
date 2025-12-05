@@ -1,6 +1,5 @@
 #include "decode.h"
 
-#include "audio.h"
 #include "wav/wav.h"
 
 AudioDataResult decodeAudio(Reader* reader)
