@@ -3,6 +3,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#include "Error64.h"
+
 #define Ansi_Black "\x1b[0;30m"
 #define Ansi_Red "\x1b[0;31m"
 #define Ansi_Green "\x1b[0;32m"
@@ -15,6 +17,16 @@
 
 #define LOGGING 1
 #define GLOBAL_LOG_LEVEL_THRESHOLD LogLevel_Debug
+
+struct Options;
+
+typedef struct {
+    const int argc;
+    const char* const* argv;
+    const struct Options* options;
+} ErrorLogCtx;
+
+void logError(Error64 err, const ErrorLogCtx* ctx);
 
 typedef enum {
     LogLevel_Error = 0,
