@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 typedef uint8_t Byte;
@@ -16,3 +20,7 @@ uint32_t	bitcastU32_LE(const Byte* bytes);
 uint32_t	bitcastU32_BE(const Byte* bytes);
 int32_t		bitcastI32_LE(const Byte* bytes);
 int32_t		bitcastI32_BE(const Byte* bytes);
+
+#ifdef __cplusplus
+}
+#endif
