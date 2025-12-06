@@ -10,29 +10,24 @@ Error reader_peekSlice(Reader* reader, size_t n, Slice* out)
     return reader->peekSlice(reader, n, out);
 }
 
-Error reader_peekInto(Reader* reader, size_t n, uint8_t* out)
-{
-    Slice slice;
-    Error err = reader_peekSlice(reader, n, &slice);
-    if (err_isOk(err)) {
-        memcpy(out, slice.slice, n);
-    }
-    return err;
-}
-
 Error reader_skip(Reader* reader, size_t n)
 {
     return reader->skip(reader, n);
 }
 
+Error reader_peekInto(Reader* reader, size_t n, uint8_t* out)
+{
+    Slice slice;
+    TRY(reader_peekSlice(reader, n, &slice));
+    memcpy(out, slice.slice, n);
+    return err_Ok();
+}
+
 Error reader_takeSlice(Reader* reader, size_t n, Slice* out)
 {
-    Error err = reader_peekSlice(reader, n, out);
-
-    if (err_isOk(err)) {
-        TRY(reader_skip(reader, n));
-    }
-    return err;
+    TRY(reader_peekSlice(reader, n, out));
+    TRY(reader_skip(reader, n));
+    return err_Ok();
 }
 
 Error reader_peekFourCC(Reader* reader, uint8_t* out)
