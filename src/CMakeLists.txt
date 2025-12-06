@@ -5,10 +5,11 @@ PRIVATE
 	main.c
 
 	codec/decode.c
+
 	codec/wav/wav.c
-	codec/wav/read.c
 	codec/wav/formatInfo.c
 	codec/wav/validateFormatChunk.c
+	codec/wav/readSample.c
 	codec/wav/readData.c
 	codec/wav/dump.c
 	codec/wav/sampleFormat.c
