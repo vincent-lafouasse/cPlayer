@@ -68,7 +68,7 @@ TEST(ParseOptions, UnknownFlag)
 
     EXPECT_EQ(err_category(res.err), E_Option);
     EXPECT_EQ(err_subCategory(res.err), EOpt_UnknownFlag);
-    EXPECT_EQ(err_context(res.err), 0);  // args[0]
+    EXPECT_EQ(err_context(res.err), 0u);  // args[0]
 }
 
 TEST(ParseOptions, MissingInputForFlag)
