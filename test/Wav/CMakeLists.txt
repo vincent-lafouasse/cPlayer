@@ -10,6 +10,7 @@ PRIVATE
 
 	${testedSourceDir}/codec/wav/formatInfo.c
 	${testedSourceDir}/codec/wav/sampleFormat.c
+	${testedSourceDir}/codec/wav/validateFormatChunk.c
 
 	${testedSourceDir}/Reader/read.c
 
