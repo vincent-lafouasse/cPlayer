@@ -19,7 +19,7 @@ typedef struct {
 
 static inline AudioDataResult AudioDataResult_Ok(AudioData track)
 {
-    return (AudioDataResult){.track = track, .err = NoError};
+    return (AudioDataResult){.track = track, .err = err_Ok()};
 }
 
 static inline AudioDataResult AudioDataResult_Err(Error err)

@@ -7,14 +7,14 @@
 #include "Flag.h"
 #include "log.h"
 
-static OptionsResult Ok(Options opt)
+static OptionsResult Options_Ok(Options opt)
 {
-    return (OptionsResult){.options = opt, .err = NoError};
+    return (OptionsResult){.options = opt, .err = err_Ok()};
 }
 
-static OptionsResult Err(Error err, const char* fault)
+static OptionsResult Options_Err(OptionError subError, uint32_t ctx)
 {
-    return (OptionsResult){.err = err, .fault = fault};
+    return (OptionsResult){.err = err_withCtx(E_Option, subError, ctx)};
 }
 
 static bool strEq(const char* a, const char* b)
@@ -64,10 +64,10 @@ OptionsResult parseOptions(const char** args, size_t sz)
             // flag arguments
             const Flag* flag = matchFlag(token);
             if (flag == NULL) {
-                return Err(E_Unknown_Flag, token);
+                return Options_Err(EOpt_UnknownFlag, parser.i - 1);
             }
             if (strEq(flag->id, "help")) {
-                return Err(E_HelpRequested, NULL);
+                return Options_Err(EOpt_HelpRequested, 0);
             }
 
             void* dest = bindFlagDestination(flag, &out);
@@ -75,13 +75,13 @@ OptionsResult parseOptions(const char** args, size_t sz)
                 *(bool*)dest = true;
             } else if (flag->type == Flag_String) {
                 if (parserEof(&parser)) {
-                    return Err(E_Bad_Usage, token);
+                    return Options_Err(EOpt_BadUsage, 0);
                 }
 
                 *(const char**)dest = parserTake(&parser);
             } else {
-                logFn(LogLevel_Error, "Unimplemented flag\n");
-                return Err(E_Unimplemented, token);
+                logFn(LogLevel_Error, "Unimplemented\n");
+                return Options_Err(EOpt_UnimplementedFlag, parser.i - 1);
             }
         } else {
             // positional arguments
@@ -90,9 +90,9 @@ OptionsResult parseOptions(const char** args, size_t sz)
     }
 
     if (out.input == NULL) {
-        return Err(E_Bad_Usage, NULL);
+        return Options_Err(EOpt_BadUsage, 0);
     } else {
-        return Ok(out);
+        return Options_Ok(out);
     }
 }
 

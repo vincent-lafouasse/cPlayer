@@ -1,12 +1,11 @@
 #include "decode.h"
 
-#include "audio.h"
 #include "wav/wav.h"
 
 AudioDataResult decodeAudio(Reader* reader)
 {
     const AudioDataResult maybeTrack = decodeWav(reader);
-    if (maybeTrack.err != NoError) {
+    if (!err_isOk(maybeTrack.err)) {
         return maybeTrack;
     }
 

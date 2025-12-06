@@ -1,72 +1,118 @@
 #pragma once
 
-#include <stddef.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 #define TRY(func_call)                  \
     do {                                \
         Error __temp_err = (func_call); \
-        if (__temp_err != NoError) {    \
+        if (!err_isOk(__temp_err)) {    \
             return __temp_err;          \
         }                               \
     } while (0)
 
-#define TRY_CTX(func_call)                 \
-    do {                                   \
-        ErrorCtx __temp_err = (func_call); \
-        if (__temp_err.err != NoError) {   \
-            return __temp_err;             \
-        }                                  \
+#define TRY_CTX(func_call, ctxBits)                 \
+    do {                                            \
+        Error __temp_err = (func_call);             \
+        if (!err_isOk(__temp_err)) {                \
+            return err_addCtx(__temp_err, ctxBits); \
+        }                                           \
     } while (0)
 
-#define TRY_CTX_ADD(func_call, contextBits)               \
-    do {                                                  \
-        Error __temp_err = (func_call);                   \
-        if (__temp_err != NoError) {                      \
-            return ErrorCtx_Err(__temp_err, contextBits); \
-        }                                                 \
-    } while (0)
-
-typedef enum {
-    NoError = 0,
-    E_OOM,
-
-    E_Bad_Usage,
-    E_Unknown_Flag,
-    E_HelpRequested,
-
-    E_FailedRead,
-    E_UnexpectedEOF,
-
-    E_Codec_UnsupportedCodec,
-    E_Codec_UnsupportedChannelLayout,
-    E_Codec_AbsurdSampleRate,
-
-    E_Wav_UnknownFourCC,
-    E_Wav_UnsupportedSampleFormat,
-    E_Wav_InvalidBitDepth,
-    E_Wav_BlockAlignMismatch,
-    E_Wav_FormatChunkTooSmall,
-    E_Wav_ExtensionSizeMismatch,
-    E_Wav_UnsupportedBitDepth,
-    E_Wav_UnknownSampleFormat,
-
-    E_Unimplemented,
+// u32 error context      most significant digits
+// u16 error subcategory
+// u16 error category     least significant digits
+typedef struct {
+    uint64_t bits;
 } Error;
 
-const char* errorRepr(Error e);
+// will be cast to u16
+typedef enum {
+    E_NoError = 0,
+    E_Read,
+    E_Option,
+    E_Codec,
+    E_Wav,
+    E_System,     // e.g. oom
+    E_Portaudio,  // later
+} ErrorCategory;
 
-typedef struct {
-    Error err;
-    uint32_t context;
-} ErrorCtx;
+// those enums will probably move to their respective modules
+// or not
+typedef enum {
+    ERd_OpenFailed,
+    ERd_ReadFailed,
+    ERd_UnexpectedEOF,
+} ReadError;
 
-static inline ErrorCtx ErrorCtx_Ok(void)
+typedef enum {
+    EOpt_BadUsage,
+    EOpt_UnknownFlag,
+    EOpt_UnimplementedFlag,  // should not see prod
+    EOpt_HelpRequested,
+} OptionError;
+
+typedef enum {
+    ESys_OutOfMemory,
+} SystemError;
+
+typedef enum {
+    ECdc_UnsupportedCodec,
+    ECdc_UnsupportedChannelLayout,
+    ECdc_AbsurdSampleRate,
+} CodecError;
+
+typedef enum {
+    EWav_UnknownFourCC,
+    EWav_UnsupportedSampleFormat,
+    EWav_InvalidBitDepth,
+    EWav_BlockAlignMismatch,
+    EWav_FormatChunkTooSmall,
+    EWav_ExtensionSizeMismatch,
+    EWav_UnsupportedBitDepth,
+    EWav_UnknownSampleFormat,
+} WavError;
+
+// constructors
+static inline Error err_Ok(void)
 {
-    return (ErrorCtx){.err = NoError, .context = 0};
+    return (Error){.bits = 0ull};
 }
 
-static inline ErrorCtx ErrorCtx_Err(Error err, uint32_t ctx)
+static inline Error err_Err(ErrorCategory category, uint16_t subCategory)
 {
-    return (ErrorCtx){.err = err, .context = ctx};
+    return (Error){.bits = (uint64_t)category | ((uint64_t)subCategory << 16)};
+}
+
+static inline Error err_addCtx(Error err, uint32_t context)
+{
+    return (Error){.bits = err.bits | ((uint64_t)context << 32)};
+}
+
+static inline Error err_withCtx(ErrorCategory category,
+                                uint16_t subCategory,
+                                uint32_t context)
+{
+    return err_addCtx(err_Err(category, subCategory), context);
+}
+
+// accessors
+static inline uint16_t err_category(Error err)
+{
+    return err.bits & 0xffff;
+}
+
+static inline bool err_isOk(Error err)
+{
+    return err_category(err) == 0;
+}
+
+static inline uint16_t err_subCategory(Error err)
+{
+    return (err.bits >> 16) & 0xffff;
+}
+
+static inline uint32_t err_context(Error err)
+{
+    return (err.bits >> 32) & 0xffffffff;
 }

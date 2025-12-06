@@ -9,8 +9,8 @@ Error reader_takeSlice(Reader* reader, size_t n, Slice* out)
 {
     Error err = reader->peekSlice(reader, n, out);
 
-    if (err == NoError) {
-        reader->skip(reader, n);
+    if (err_isOk(err)) {
+        TRY(reader->skip(reader, n));
     }
     return err;
 }
@@ -21,7 +21,7 @@ Error reader_peekFourCC(Reader* reader, uint8_t* out)
     TRY(reader->peekSlice(reader, 4, &slice));
 
     memcpy(out, slice.slice, 4);
-    return NoError;
+    return err_Ok();
 }
 
 Error reader_takeFourCC(Reader* reader, uint8_t* out)

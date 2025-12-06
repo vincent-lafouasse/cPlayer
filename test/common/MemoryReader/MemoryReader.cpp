@@ -1,6 +1,7 @@
 #include "MemoryReader.hpp"
 
 #include <cstring>
+#include "Error.h"
 
 MemoryReader::MemoryReader(const std::vector<Byte>& v) : data(v), pos(0) {}
 
@@ -14,32 +15,32 @@ MemoryReader::MemoryReader(const std::string& s) : data(), pos(0)
 Error MemoryReader::peekSlice(size_t size, Slice* out) const
 {
     if (this->pos + size > this->data.size()) {
-        return E_UnexpectedEOF;
+        return err_Err(E_Read, ERd_UnexpectedEOF);
     }
 
     *out = {.slice = this->data.data() + this->pos, .len = size};
-    return NoError;
+    return err_Ok();
 }
 
 Error MemoryReader::peekInto(size_t size, Byte* out) const
 {
     Slice slice;
     Error err = this->peekSlice(size, &slice);
-    if (err != NoError) {
+    if (!err_isOk(err)) {
         return err;
     }
 
     memcpy(out, slice.slice, slice.len);
-    return NoError;
+    return err_Ok();
 }
 
 Error MemoryReader::skip(size_t size)
 {
     if (this->pos + size > this->data.size()) {
-        return E_UnexpectedEOF;
+        return err_Err(E_Read, ERd_UnexpectedEOF);
     } else {
         this->pos += size;
-        return NoError;
+        return err_Ok();
     }
 }
 
@@ -62,11 +63,11 @@ Error memoryReaderSkip(Reader* reader, size_t n)
     MemoryReader* memoryReader = static_cast<MemoryReader*>(reader->ctx);
 
     Error err = memoryReader->skip(n);
-    if (err != NoError) {
+    if (!err_isOk(err)) {
         return err;
     } else {
         reader->offset += n;
-        return NoError;
+        return err_Ok();
     }
 }
 

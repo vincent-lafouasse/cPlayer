@@ -1,6 +1,5 @@
 #include "wav_internals.h"
 
-#include "../codec_internals.h"
 #include "Error.h"
 #include "int24.h"
 
@@ -13,7 +12,7 @@ Error readI24(Reader* reader, float* out)
     TRY(reader_takeI24_LE(reader, &i24));
 
     *out = (float)i24_asI32(i24) / (float)INT24_MAX_ABS;
-    return NoError;
+    return err_Ok();
 }
 
 Error readI16(Reader* reader, float* out)
@@ -22,7 +21,7 @@ Error readI16(Reader* reader, float* out)
     TRY(reader_takeI16_LE(reader, &i16));
 
     *out = (float)i16 / (float)INT16_MAX_ABS;
-    return NoError;
+    return err_Ok();
 }
 
 Error readSample(Reader* reader, const WavFormatInfo* format, float* out)
@@ -37,6 +36,7 @@ Error readSample(Reader* reader, const WavFormatInfo* format, float* out)
             TRY(readI16(reader, out));
             return reader->skip(reader, sampleBlockSize - 2);
         default:
-            return E_Wav_UnsupportedSampleFormat;
+            return err_withCtx(E_Wav, EWav_UnsupportedSampleFormat,
+                               format->sampleFormat);
     }
 }
