@@ -20,7 +20,7 @@ typedef struct {
 
 typedef Error (*PeekSliceFn)(Reader* reader, size_t n, Slice* out);
 typedef Error (*PeekIntoFn)(Reader* reader, size_t n, uint8_t* out);
-typedef Error (*SkipFn)(Reader*, size_t);
+typedef Error (*SkipFn)(Reader* reader, size_t n);
 
 struct Reader {
     void* ctx;
@@ -29,6 +29,10 @@ struct Reader {
     SkipFn skip;
     size_t offset;
 };
+
+Error reader_peekSlice(Reader* reader, size_t n, Slice* out);
+Error reader_peekInto(Reader* reader, size_t n, uint8_t* out);
+Error reader_skip(Reader* reader, size_t n);
 
 Error reader_takeSlice(Reader* reader, size_t n, Slice* out);
 

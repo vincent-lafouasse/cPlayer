@@ -14,12 +14,12 @@ Error skipChunkUntil(Reader* reader, const char* expectedId)
     TRY(reader_peekFourCC(reader, id));
     while (memcmp(id, expectedId, 4) != 0) {
         // skip the fourCC we just peeked
-        TRY(reader->skip(reader, 4));
+        TRY(reader_skip(reader, 4));
 
         uint32_t chunkSize = 0;
         TRY(reader_takeU32_LE(reader, &chunkSize));
         logFn(LogLevel_Debug, "Skipping chunk %s of size %u\n", id, chunkSize);
-        TRY(reader->skip(reader, chunkSize));
+        TRY(reader_skip(reader, chunkSize));
         TRY(reader_peekFourCC(reader, id));
     }
     return err_Ok();

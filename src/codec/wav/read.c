@@ -31,10 +31,10 @@ Error readSample(Reader* reader, const WavFormatInfo* format, float* out)
     switch (format->sampleFormat) {
         case SampleFormat_Signed24:
             TRY(readI24(reader, out));
-            return reader->skip(reader, sampleBlockSize - 3);
+            return reader_skip(reader, sampleBlockSize - 3);
         case SampleFormat_Signed16:
             TRY(readI16(reader, out));
-            return reader->skip(reader, sampleBlockSize - 2);
+            return reader_skip(reader, sampleBlockSize - 2);
         default:
             return err_withCtx(E_Wav, EWav_UnsupportedSampleFormat,
                                format->sampleFormat);
