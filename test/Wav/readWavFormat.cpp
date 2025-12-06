@@ -649,5 +649,5 @@ TEST(WavValidator, UnknownFormatTag)
     SampleFormat out;
     Error64 err = validateWavFormatChunk(&fmt, &out);
     ASSERT_EQ(err_category(err), E64_Wav);
-    ASSERT_EQ(err_subCategory(err), EWav_UnsupportedSampleFormat);
+    ASSERT_EQ(err_subCategory(err), EWav_UnknownSampleFormat);
 }
