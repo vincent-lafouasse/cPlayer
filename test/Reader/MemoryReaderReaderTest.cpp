@@ -45,42 +45,6 @@ TEST(MemoryReaderReader, PeekSlice_Basic)
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 
-TEST(MemoryReaderReader, PeekInto_Basic)
-{
-    MemoryReader memoryReader("abcdefg");
-    Reader reader = memoryReaderInterface(&memoryReader);
-
-    uint8_t buf[16] = {};
-
-    ASSERT_TRUE(err_isOk(reader.peekInto(&reader, 3, buf)));
-    ASSERT_EQ(memcmp(buf, "abc", 3), 0);
-
-    ASSERT_TRUE(err_isOk(reader.peekInto(&reader, 7, buf)));
-    ASSERT_EQ(memcmp(buf, "abcdefg", 7), 0);
-
-    Error err = reader.peekInto(&reader, 8, buf);
-    ASSERT_EQ(err_category(err), E_Read);
-    ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
-}
-
-TEST(MemoryReaderReader, PeekInto_DoesNotAdvance)
-{
-    MemoryReader memoryReader("hello");
-    Reader reader = memoryReaderInterface(&memoryReader);
-
-    uint8_t buf[8] = {};
-    ASSERT_TRUE(err_isOk(reader.peekInto(&reader, 5, buf)));
-    ASSERT_EQ(memcmp(buf, "hello", 5), 0);
-
-    // peek again, expecting same
-    memset(buf, 0, sizeof(buf));
-    ASSERT_TRUE(err_isOk(reader.peekInto(&reader, 5, buf)));
-    ASSERT_EQ(memcmp(buf, "hello", 5), 0);
-
-    // offset must not have changed
-    ASSERT_EQ(reader.offset, 0u);
-}
-
 TEST(MemoryReaderReader, Skip_Basic)
 {
     MemoryReader memoryReader("ABCDEFG");
@@ -134,9 +98,6 @@ TEST(MemoryReaderReader, ZeroLength_Peeks)
     Slice slice;
     ASSERT_TRUE(err_isOk(reader.peekSlice(&reader, 0, &slice)));
     ASSERT_EQ(slice.len, 0u);
-
-    uint8_t buf[1];
-    ASSERT_TRUE(err_isOk(reader.peekInto(&reader, 0, buf)));
 }
 
 TEST(MemoryReaderReader, EOF_PeekSlice_Exact)
@@ -149,21 +110,6 @@ TEST(MemoryReaderReader, EOF_PeekSlice_Exact)
     assertSliceEq(slice, "hi");
 
     Error err = reader.peekSlice(&reader, 3, &slice);
-    ASSERT_EQ(err_category(err), E_Read);
-    ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
-}
-
-TEST(MemoryReaderReader, EOF_PeekInto_Exact)
-{
-    MemoryReader memoryReader("xy");
-    Reader reader = memoryReaderInterface(&memoryReader);
-
-    uint8_t buf[4];
-
-    ASSERT_TRUE(err_isOk(reader.peekInto(&reader, 2, buf)));
-    ASSERT_EQ(memcmp(buf, "xy", 2), 0);
-
-    Error err = reader.peekInto(&reader, 3, buf);
     ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
@@ -283,12 +229,12 @@ TEST(MemoryReaderReader, ExhaustiveByteWalk)
     MemoryReader mem(data);
     Reader r = memoryReaderInterface(&mem);
 
-    uint8_t buf[32];
+    Slice slice;
 
     for (size_t i = 0; i < strlen(data); i++) {
         // peek next byte
-        ASSERT_TRUE(err_isOk(r.peekInto(&r, 1, buf)));
-        ASSERT_EQ(buf[0], (uint8_t)data[i]);
+        ASSERT_TRUE(err_isOk(r.peekSlice(&r, 1, &slice)));
+        ASSERT_EQ(slice.slice[0], (uint8_t)data[i]);
 
         // now skip it
         ASSERT_TRUE(err_isOk(r.skip(&r, 1)));
@@ -296,7 +242,7 @@ TEST(MemoryReaderReader, ExhaustiveByteWalk)
     }
 
     // exhausted
-    Error err = r.peekInto(&r, 1, buf);
+    Error err = r.peekSlice(&r, 1, &slice);
     ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
@@ -391,24 +337,6 @@ TEST(MemoryReaderReader, SkipExhaustively)
         ASSERT_EQ(err_category(err), E_Read);
         ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
     }
-}
-
-TEST(MemoryReaderReader, PeekInto_Substrings)
-{
-    const char* data = "HelloWorld";
-    MemoryReader mem(data);
-    Reader r = memoryReaderInterface(&mem);
-
-    uint8_t buf[64];
-
-    for (size_t n = 0; n <= strlen(data); n++) {
-        ASSERT_TRUE(err_isOk(r.peekInto(&r, n, buf)));
-        ASSERT_EQ(memcmp(buf, data, n), 0);
-    }
-
-    Error err = r.peekInto(&r, strlen(data) + 1, buf);
-    ASSERT_EQ(err_category(err), E_Read);
-    ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 
 TEST(MemoryReaderReader, ComplexSkipPattern)

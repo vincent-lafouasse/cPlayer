@@ -22,18 +22,6 @@ Error MemoryReader::peekSlice(size_t size, Slice* out) const
     return err_Ok();
 }
 
-Error MemoryReader::peekInto(size_t size, Byte* out) const
-{
-    Slice slice;
-    Error err = this->peekSlice(size, &slice);
-    if (!err_isOk(err)) {
-        return err;
-    }
-
-    memcpy(out, slice.slice, slice.len);
-    return err_Ok();
-}
-
 Error MemoryReader::skip(size_t size)
 {
     if (this->pos + size > this->data.size()) {
@@ -49,13 +37,6 @@ Error memoryReaderPeekSlice(Reader* reader, size_t n, Slice* out)
     MemoryReader* memoryReader = static_cast<MemoryReader*>(reader->ctx);
 
     return memoryReader->peekSlice(n, out);
-}
-
-Error memoryReaderPeekInto(Reader* reader, size_t n, uint8_t* out)
-{
-    MemoryReader* memoryReader = static_cast<MemoryReader*>(reader->ctx);
-
-    return memoryReader->peekInto(n, out);
 }
 
 Error memoryReaderSkip(Reader* reader, size_t n)
@@ -76,7 +57,6 @@ Reader memoryReaderInterface(MemoryReader* memoryReader)
     return {
         .ctx = static_cast<void*>(memoryReader),
         .peekSlice = memoryReaderPeekSlice,
-        .peekInto = memoryReaderPeekInto,
         .skip = memoryReaderSkip,
         .offset = 0,
     };
