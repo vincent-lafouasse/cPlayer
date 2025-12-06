@@ -8,9 +8,11 @@ PRIVATE
 	./main.cpp
 	./readWavFormat.cpp
 
+	${testedSourceDir}/codec/wav/navigateRiff.c
+	${testedSourceDir}/codec/wav/readFormatChunk.c
+	${testedSourceDir}/codec/wav/validateFormatChunk.c
 	${testedSourceDir}/codec/wav/formatInfo.c
 	${testedSourceDir}/codec/wav/sampleFormat.c
-	${testedSourceDir}/codec/wav/validateFormatChunk.c
 
 	${testedSourceDir}/Reader/read.c
 

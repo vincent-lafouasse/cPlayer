@@ -5,15 +5,17 @@ PRIVATE
 	main.c
 
 	codec/decode.c
+	codec/codec_internals.c
 
 	codec/wav/wav.c
-	codec/wav/formatInfo.c
+	codec/wav/navigateRiff.c
+	codec/wav/readFormatChunk.c
 	codec/wav/validateFormatChunk.c
+	codec/wav/formatInfo.c
+	codec/wav/sampleFormat.c
 	codec/wav/readSample.c
 	codec/wav/readData.c
 	codec/wav/dump.c
-	codec/wav/sampleFormat.c
-	codec/codec_internals.c
 
 	play/callback.c
 
