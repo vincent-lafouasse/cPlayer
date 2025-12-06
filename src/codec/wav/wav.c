@@ -1,14 +1,13 @@
 #include "wav_internals.h"
 
-#include "Error.h"
 #include "audio.h"
 
 AudioDataResult decodeWav(Reader* reader)
 {
     WavFormatInfo format;
-    const Error err = readWavFormatInfo(reader, &format);
-    if (err != NoError) {
-        return AudioDataResult_Err(err_fromLegacy(err));
+    const Error64 err = readWavFormatInfo(reader, &format);
+    if (!err_isOk(err)) {
+        return AudioDataResult_Err(err);
     }
     logWavFormatInfo(&format);
 

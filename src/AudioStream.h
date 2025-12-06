@@ -4,8 +4,8 @@
 
 #include <portaudio.h>
 
-#include "Error.h"
 #include "log.h"  // TODO: this should not be here
+/*
 
 typedef struct {
     uint32_t nChannels;
@@ -29,6 +29,7 @@ void stream_deinitBackend(void)
     Pa_Terminate();
 }
 
+
 AudioStream stream_loadStereo(StreamConfig cfg)
 {
     // TODO: return a Result instead
@@ -47,6 +48,7 @@ AudioStream stream_loadStereo(StreamConfig cfg)
     };
 }
 
+
 void stream_close(AudioStream* stream)
 {
     // TODO: return Error
@@ -62,3 +64,4 @@ void stream_stop(AudioStream* stream)
 {
     Pa_CloseStream(stream->stream);
 }
+*/

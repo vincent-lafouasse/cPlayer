@@ -1,8 +1,8 @@
-#include "Error.h"
-#include "Error64.h"
 #include "wav_internals.h"
 
 #include <stdlib.h>
+
+#include "Error64.h"
 
 static AudioDataResult readMonoPCM(Reader* reader, const WavFormatInfo* format);
 static AudioDataResult readStereoPCM(Reader* reader,
@@ -27,24 +27,24 @@ AudioDataResult readWavData(Reader* reader, const WavFormatInfo* format)
 
 static AudioDataResult readMonoPCM(Reader* reader, const WavFormatInfo* format)
 {
-    Error err = NoError;
+    Error64 err = err_Ok();
 
     float* left = calloc(format->nFrames, sizeof(float));
     if (left == NULL) {
-        err = E_OOM;
+        err = err_Err(E64_System, ESys_OutOfMemory);
         goto out;
     }
 
     for (uint32_t i = 0; i < format->nFrames; ++i) {
         err = readSample(reader, format, left + i);
-        if (err != NoError) {
+        if (!err_isOk(err)) {
             goto out;
         }
     }
     dumpFloatCsv(left, format->nFrames, DUMP_PREFIX "float" DUMP_SUFFIX);
 
 out:
-    if (err == NoError) {
+    if (!err_isOk(err)) {
         const AudioData track = (AudioData){.left = left,
                                             .right = left,
                                             .size = format->nFrames,
@@ -52,44 +52,44 @@ out:
         return AudioDataResult_Ok(track);
     } else {
         free(left);
-        return AudioDataResult_Err(err_fromLegacy(err));
+        return AudioDataResult_Err(err);
     }
 }
 
-static Error readStereoFrame(Reader* reader,
-                             const WavFormatInfo* format,
-                             float* left,
-                             float* right)
+static Error64 readStereoFrame(Reader* reader,
+                               const WavFormatInfo* format,
+                               float* left,
+                               float* right)
 {
-    TRY(readSample(reader, format, left));
-    TRY(readSample(reader, format, right));
-    return NoError;
+    TRY64(readSample(reader, format, left));
+    TRY64(readSample(reader, format, right));
+    return err_Ok();
 }
 
 static AudioDataResult readStereoPCM(Reader* reader,
                                      const WavFormatInfo* format)
 {
-    Error err = NoError;
+    Error64 err = err_Ok();
 
     float* left = calloc(format->nFrames, sizeof(float));
     float* right = calloc(format->nFrames, sizeof(float));
     if (left == NULL || right == NULL) {
-        err = E_OOM;
+        err = err_Err(E64_System, ESys_OutOfMemory);
         goto out;
     }
 
     for (uint32_t i = 0; i < format->nFrames; ++i) {
         err = readStereoFrame(reader, format, left + i, right + i);
-        if (err != NoError) {
+        if (!err_isOk(err)) {
             goto out;
         }
     }
 
 out:
-    if (err != NoError) {
+    if (!err_isOk(err)) {
         free(left);
         free(right);
-        return AudioDataResult_Err(err_fromLegacy(err));
+        return AudioDataResult_Err(err);
     } else {
         const AudioData track = (AudioData){.left = left,
                                             .right = right,
