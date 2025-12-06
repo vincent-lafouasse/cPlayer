@@ -17,7 +17,7 @@ typedef struct {
 } Int24;
 
 // you better give me 3 bytes or else
-Int24 bitcastI24_LE(const uint8_t* bytes);
+Int24 bitcastI24_LE(const uint8_t bytes[3]);
 int32_t i24_asI32(Int24 i);
 
 #ifdef __cplusplus
