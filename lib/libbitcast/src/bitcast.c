@@ -34,24 +34,20 @@ uint32_t bitcastU32_BE(const Byte bytes[4])
 
 int16_t bitcastI16_LE(const Byte bytes[2])
 {
-	uint16_t value = bitcastU16_LE(bytes);
-	return (int16_t)value;
+	return  (int16_t)bitcastU16_LE(bytes);
 }
 
 int16_t bitcastI16_BE(const Byte bytes[2])
 {
-	uint16_t value = bitcastU16_BE(bytes);
-	return (int16_t)value;
+	return  (int16_t)bitcastU16_BE(bytes);
 }
 
 int32_t bitcastI32_LE(const Byte bytes[4])
 {
-	uint32_t value = bitcastU32_LE(bytes);
-	return (int32_t)value;
+	return  (int32_t)bitcastU32_LE(bytes);
 }
 
 int32_t bitcastI32_BE(const Byte bytes[4])
 {
-	uint32_t value = bitcastU32_BE(bytes);
-	return (int32_t)value;
+	return  (int32_t)bitcastU32_BE(bytes);
 }
