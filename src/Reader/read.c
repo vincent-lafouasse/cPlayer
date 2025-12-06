@@ -9,7 +9,7 @@ Error64 reader_takeSlice(Reader* reader, size_t n, Slice* out)
 {
     Error64 err = reader->peekSlice(reader, n, out);
 
-    if (!err_isOk(err)) {
+    if (err_isOk(err)) {
         TRY64(reader->skip(reader, n));
     }
     return err;
