@@ -4,10 +4,7 @@
 #include "gtest/gtest.h"
 
 #include "MemoryReader.hpp"
-
-extern "C" {
 #include "Reader.h"
-}
 
 static void assertSliceEq(const Slice& slice, const std::string& expected)
 {

@@ -1,9 +1,7 @@
-#include "Error.h"
 #include "gtest/gtest.h"
 
-extern "C" {
+#include "Error.h"
 #include "options/Options.h"
-}
 
 TEST(ParseOptions, HeadlessFlag)
 {

@@ -1,8 +1,6 @@
 #include "gtest/gtest.h"
 
-extern "C" {
 #include "int24.h"
-}
 
 // for convenience
 int32_t i24(uint8_t high, uint8_t mid, uint8_t low)

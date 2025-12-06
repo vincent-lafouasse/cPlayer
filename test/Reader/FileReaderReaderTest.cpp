@@ -4,11 +4,9 @@
 #include "Error.h"
 #include "gtest/gtest.h"
 
-extern "C" {
 #include "FileReader.h"
 #include "Reader.h"
 #include "ReaderAdapters.h"
-}
 
 struct TmpFileReader {
     FileReader reader;

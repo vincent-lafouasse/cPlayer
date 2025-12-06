@@ -2,14 +2,12 @@
 #include <string>
 #include <vector>
 
-#include "Error.h"
 #include "gtest/gtest.h"
 
 #include "MemoryReader.hpp"
 
-extern "C" {
+#include "Error.h"
 #include "wav_internals.h"
-}
 
 // Helper to write u32 little-endian
 std::vector<Byte> le32(uint32_t x)

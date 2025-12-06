@@ -3,9 +3,7 @@
 #include <string>
 #include <vector>
 
-extern "C" {
 #include "Reader.h"
-}
 
 using Byte = uint8_t;
 
