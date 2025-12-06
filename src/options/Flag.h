@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stddef.h>
 
 typedef enum {
@@ -42,3 +46,7 @@ static const Flag flags[] = {
 static const size_t nFlags = sizeof(flags) / sizeof(*flags);
 
 const Flag* matchFlag(const char* s);
+
+#ifdef __cplusplus
+}
+#endif

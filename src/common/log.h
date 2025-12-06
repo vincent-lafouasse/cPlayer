@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -67,3 +71,7 @@ static inline void logFn(LogLevel level, const char* fmt, ...)
     (void)level;
 #endif
 }
+
+#ifdef __cplusplus
+}
+#endif

@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -36,3 +40,7 @@ Error reader_takeI16_LE(Reader* reader, int16_t* out);
 Error reader_takeU32_LE(Reader* reader, uint32_t* out);
 Error reader_takeI32_LE(Reader* reader, int32_t* out);
 Error reader_takeI24_LE(Reader* reader, Int24* out);
+
+#ifdef __cplusplus
+}
+#endif

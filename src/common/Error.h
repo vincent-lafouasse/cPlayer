@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -116,3 +120,7 @@ static inline uint32_t err_context(Error err)
 {
     return (err.bits >> 32) & 0xffffffff;
 }
+
+#ifdef __cplusplus
+}
+#endif

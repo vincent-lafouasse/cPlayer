@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "Reader/Reader.h"
 #include "audio.h"
 
@@ -8,3 +12,7 @@ typedef enum {
 } Codec;
 
 AudioDataResult decodeAudio(Reader* reader);
+
+#ifdef __cplusplus
+}
+#endif

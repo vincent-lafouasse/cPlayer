@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stddef.h>
 
 #include <portaudio.h>
@@ -35,3 +39,7 @@ int monoOutputCallback(const void* input,
                        const PaStreamCallbackTimeInfo* timeInfo,
                        PaStreamCallbackFlags statusFlags,
                        void* userData);
+
+#ifdef __cplusplus
+}
+#endif

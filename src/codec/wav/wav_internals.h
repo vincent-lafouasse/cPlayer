@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "Error.h"
 #include "wav.h"
 
@@ -67,3 +71,7 @@ AudioDataResult readWavData(Reader* reader, const WavFormatInfo* format);
 
 void dumpIntCsv(const int* data, unsigned sz, const char* path);
 void dumpFloatCsv(const float* data, unsigned sz, const char* path);
+
+#ifdef __cplusplus
+}
+#endif

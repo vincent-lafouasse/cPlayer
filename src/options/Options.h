@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -18,3 +22,7 @@ typedef struct {
 OptionsResult parseOptions(const char** args, size_t sz);
 void logOptions(const Options* opts);
 void printHelp(const char* programName);
+
+#ifdef __cplusplus
+}
+#endif

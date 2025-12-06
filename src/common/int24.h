@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 #define INT32_UNIT ((int32_t)1)
@@ -15,3 +19,7 @@ typedef struct {
 // you better give me 3 bytes or else
 Int24 bitcastI24_LE(const uint8_t* bytes);
 int32_t i24_asI32(Int24 i);
+
+#ifdef __cplusplus
+}
+#endif

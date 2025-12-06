@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 #include "Error.h"
@@ -26,3 +30,7 @@ static inline AudioDataResult AudioDataResult_Err(Error err)
 {
     return (AudioDataResult){.err = err};
 }
+
+#ifdef __cplusplus
+}
+#endif

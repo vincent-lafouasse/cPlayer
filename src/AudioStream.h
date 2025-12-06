@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 #include <portaudio.h>
@@ -65,3 +69,7 @@ void stream_stop(AudioStream* stream)
     Pa_CloseStream(stream->stream);
 }
 */
+
+#ifdef __cplusplus
+}
+#endif
