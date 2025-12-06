@@ -1,6 +1,7 @@
 #include "MemoryReader.hpp"
 
 #include <cstring>
+#include "Error64.h"
 
 MemoryReader::MemoryReader(const std::vector<Byte>& v) : data(v), pos(0) {}
 
@@ -11,62 +12,62 @@ MemoryReader::MemoryReader(const std::string& s) : data(), pos(0)
     }
 }
 
-Error MemoryReader::peekSlice(size_t size, Slice* out) const
+Error64 MemoryReader::peekSlice(size_t size, Slice* out) const
 {
     if (this->pos + size > this->data.size()) {
-        return E_UnexpectedEOF;
+        return err_Err(E64_Read, ERd_UnexpectedEOF);
     }
 
     *out = {.slice = this->data.data() + this->pos, .len = size};
-    return NoError;
+    return err_Ok();
 }
 
-Error MemoryReader::peekInto(size_t size, Byte* out) const
+Error64 MemoryReader::peekInto(size_t size, Byte* out) const
 {
     Slice slice;
-    Error err = this->peekSlice(size, &slice);
-    if (err != NoError) {
+    Error64 err = this->peekSlice(size, &slice);
+    if (!err_isOk(err)) {
         return err;
     }
 
     memcpy(out, slice.slice, slice.len);
-    return NoError;
+    return err_Ok();
 }
 
-Error MemoryReader::skip(size_t size)
+Error64 MemoryReader::skip(size_t size)
 {
     if (this->pos + size > this->data.size()) {
-        return E_UnexpectedEOF;
+        return err_Err(E64_Read, ERd_UnexpectedEOF);
     } else {
         this->pos += size;
-        return NoError;
+        return err_Ok();
     }
 }
 
-Error memoryReaderPeekSlice(Reader* reader, size_t n, Slice* out)
+Error64 memoryReaderPeekSlice(Reader* reader, size_t n, Slice* out)
 {
     MemoryReader* memoryReader = static_cast<MemoryReader*>(reader->ctx);
 
     return memoryReader->peekSlice(n, out);
 }
 
-Error memoryReaderPeekInto(Reader* reader, size_t n, uint8_t* out)
+Error64 memoryReaderPeekInto(Reader* reader, size_t n, uint8_t* out)
 {
     MemoryReader* memoryReader = static_cast<MemoryReader*>(reader->ctx);
 
     return memoryReader->peekInto(n, out);
 }
 
-Error memoryReaderSkip(Reader* reader, size_t n)
+Error64 memoryReaderSkip(Reader* reader, size_t n)
 {
     MemoryReader* memoryReader = static_cast<MemoryReader*>(reader->ctx);
 
-    Error err = memoryReader->skip(n);
-    if (err != NoError) {
+    Error64 err = memoryReader->skip(n);
+    if (!err_isOk(err)) {
         return err;
     } else {
         reader->offset += n;
-        return NoError;
+        return err_Ok();
     }
 }
 
