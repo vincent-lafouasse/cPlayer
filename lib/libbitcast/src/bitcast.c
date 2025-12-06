@@ -2,34 +2,22 @@
 
 uint16_t bitcastU16_LE(const Byte bytes[2])
 {
-	const uint16_t low = bytes[0];
-	const uint16_t high = bytes[1];
-	return (high << 8) | low;
+	return ((uint16_t)bytes[1] << 8) | (uint16_t)bytes[0];
 }
 
 uint16_t bitcastU16_BE(const Byte bytes[2])
 {
-	const uint16_t high = bytes[0];
-	const uint16_t low = bytes[1];
-	return (high << 8) | low;
+	return ((uint16_t)bytes[0] << 8) | (uint16_t)bytes[1];
 }
 
 uint32_t bitcastU32_LE(const Byte bytes[4])
 {
-	const uint32_t low = bytes[0];
-	const uint32_t lowish = bytes[1];
-	const uint32_t highish = bytes[2];
-	const uint32_t high = bytes[3];
-	return (high << 24) | (highish << 16) | (lowish << 8) | low;
+	return ((uint32_t)bytes[3] << 24) | ((uint32_t)bytes[2] << 16) | ((uint32_t)bytes[1] << 8) | (uint32_t)bytes[0];
 }
 
 uint32_t bitcastU32_BE(const Byte bytes[4])
 {
-	const uint32_t high = bytes[0];
-	const uint32_t highish = bytes[1];
-	const uint32_t lowish = bytes[2];
-	const uint32_t low = bytes[3];
-	return (high << 24) | (highish << 16) | (lowish << 8) | low;
+	return ((uint32_t)bytes[0] << 24) | ((uint32_t)bytes[1] << 16) | ((uint32_t)bytes[2] << 8) | (uint32_t)bytes[3];
 }
 
 int16_t bitcastI16_LE(const Byte bytes[2])
