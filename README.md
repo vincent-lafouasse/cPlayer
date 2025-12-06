@@ -21,5 +21,4 @@ the big maybes
 
 ### References
 - [Multimedia Programming Interface and Data Specifications 1.0](https://www.mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/Docs/riffmci.pdf)
-- [wav format specification](https://www.mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html)
-- [how wave files work - WaveFileGem](https://wavefilegem.com/how_wave_files_work.html)
+- [ISO/IEC 11172-3:1993 - MPEG-1 Audio (Layer I, II, III) (Committee Draft)](https://csclub.uwaterloo.ca/~pbarfuss/ISO11172-3.pdf)
