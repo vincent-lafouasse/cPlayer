@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-#include "Error64.h"
+#include "Error.h"
 
 static AudioDataResult readMonoPCM(Reader* reader, const WavFormatInfo* format);
 static AudioDataResult readStereoPCM(Reader* reader,
@@ -12,7 +12,7 @@ AudioDataResult readWavData(Reader* reader, const WavFormatInfo* format)
 {
     if (format->formatTag != WAVE_FORMAT_PCM) {
         return AudioDataResult_Err(err_withCtx(
-            E64_Wav, EWav_UnsupportedSampleFormat, format->formatTag));
+            E_Wav, EWav_UnsupportedSampleFormat, format->formatTag));
     }
 
     if (format->nChannels == 1) {
@@ -21,17 +21,17 @@ AudioDataResult readWavData(Reader* reader, const WavFormatInfo* format)
         return readStereoPCM(reader, format);
     } else {
         return AudioDataResult_Err(err_withCtx(
-            E64_Codec, ECdc_UnsupportedChannelLayout, format->nChannels));
+            E_Codec, ECdc_UnsupportedChannelLayout, format->nChannels));
     }
 }
 
 static AudioDataResult readMonoPCM(Reader* reader, const WavFormatInfo* format)
 {
-    Error64 err = err_Ok();
+    Error err = err_Ok();
 
     float* left = calloc(format->nFrames, sizeof(float));
     if (left == NULL) {
-        err = err_Err(E64_System, ESys_OutOfMemory);
+        err = err_Err(E_System, ESys_OutOfMemory);
         goto out;
     }
 
@@ -56,25 +56,25 @@ out:
     }
 }
 
-static Error64 readStereoFrame(Reader* reader,
-                               const WavFormatInfo* format,
-                               float* left,
-                               float* right)
+static Error readStereoFrame(Reader* reader,
+                             const WavFormatInfo* format,
+                             float* left,
+                             float* right)
 {
-    TRY64(readSample(reader, format, left));
-    TRY64(readSample(reader, format, right));
+    TRY(readSample(reader, format, left));
+    TRY(readSample(reader, format, right));
     return err_Ok();
 }
 
 static AudioDataResult readStereoPCM(Reader* reader,
                                      const WavFormatInfo* format)
 {
-    Error64 err = err_Ok();
+    Error err = err_Ok();
 
     float* left = calloc(format->nFrames, sizeof(float));
     float* right = calloc(format->nFrames, sizeof(float));
     if (left == NULL || right == NULL) {
-        err = err_Err(E64_System, ESys_OutOfMemory);
+        err = err_Err(E_System, ESys_OutOfMemory);
         goto out;
     }
 

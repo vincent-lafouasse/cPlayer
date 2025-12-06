@@ -3,17 +3,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define TRY64(func_call)                  \
-    do {                                  \
-        Error64 __temp_err = (func_call); \
-        if (!err_isOk(__temp_err)) {      \
-            return __temp_err;            \
-        }                                 \
+#define TRY(func_call)                  \
+    do {                                \
+        Error __temp_err = (func_call); \
+        if (!err_isOk(__temp_err)) {    \
+            return __temp_err;          \
+        }                               \
     } while (0)
 
-#define TRY64_CTX(func_call, ctxBits)               \
+#define TRY_CTX(func_call, ctxBits)                 \
     do {                                            \
-        Error64 __temp_err = (func_call);           \
+        Error __temp_err = (func_call);             \
         if (!err_isOk(__temp_err)) {                \
             return err_addCtx(__temp_err, ctxBits); \
         }                                           \
@@ -24,17 +24,17 @@
 // u16 error category     least significant digits
 typedef struct {
     uint64_t bits;
-} Error64;
+} Error;
 
 // will be cast to u16
 typedef enum {
-    E64_NoError = 0,
-    E64_Read,
-    E64_Option,
-    E64_Codec,
-    E64_Wav,
-    E64_System,     // e.g. oom
-    E64_Portaudio,  // later
+    E_NoError = 0,
+    E_Read,
+    E_Option,
+    E_Codec,
+    E_Wav,
+    E_System,     // e.g. oom
+    E_Portaudio,  // later
 } ErrorCategory;
 
 // those enums will probably move to their respective modules
@@ -74,46 +74,45 @@ typedef enum {
 } WavError;
 
 // constructors
-static inline Error64 err_Ok(void)
+static inline Error err_Ok(void)
 {
-    return (Error64){.bits = 0ull};
+    return (Error){.bits = 0ull};
 }
 
-static inline Error64 err_Err(ErrorCategory category, uint16_t subCategory)
+static inline Error err_Err(ErrorCategory category, uint16_t subCategory)
 {
-    return (Error64){.bits =
-                         (uint64_t)category | ((uint64_t)subCategory << 16)};
+    return (Error){.bits = (uint64_t)category | ((uint64_t)subCategory << 16)};
 }
 
-static inline Error64 err_addCtx(Error64 err, uint32_t context)
+static inline Error err_addCtx(Error err, uint32_t context)
 {
-    return (Error64){.bits = err.bits | ((uint64_t)context << 32)};
+    return (Error){.bits = err.bits | ((uint64_t)context << 32)};
 }
 
-static inline Error64 err_withCtx(ErrorCategory category,
-                                  uint16_t subCategory,
-                                  uint32_t context)
+static inline Error err_withCtx(ErrorCategory category,
+                                uint16_t subCategory,
+                                uint32_t context)
 {
     return err_addCtx(err_Err(category, subCategory), context);
 }
 
 // accessors
-static inline uint16_t err_category(Error64 err)
+static inline uint16_t err_category(Error err)
 {
     return err.bits & 0xffff;
 }
 
-static inline bool err_isOk(Error64 err)
+static inline bool err_isOk(Error err)
 {
     return err_category(err) == 0;
 }
 
-static inline uint16_t err_subCategory(Error64 err)
+static inline uint16_t err_subCategory(Error err)
 {
     return (err.bits >> 16) & 0xffff;
 }
 
-static inline uint32_t err_context(Error64 err)
+static inline uint32_t err_context(Error err)
 {
     return (err.bits >> 32) & 0xffffffff;
 }

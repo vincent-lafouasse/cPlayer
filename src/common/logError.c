@@ -1,13 +1,13 @@
-#include "Error64.h"
+#include "Error.h"
 #include "log.h"
 
 #include <assert.h>
 
 #include "options/Options.h"
 
-static void logReadError(Error64 err, const ErrorLogCtx* ctx)
+static void logReadError(Error err, const ErrorLogCtx* ctx)
 {
-    assert(err_category(err) == E64_Read);
+    assert(err_category(err) == E_Read);
 
     const ReadError sub = err_subCategory(err);
     const uint32_t context = err_context(err);
@@ -22,9 +22,9 @@ static void logReadError(Error64 err, const ErrorLogCtx* ctx)
     }
 }
 
-static void logOptionError(Error64 err, const ErrorLogCtx* ctx)
+static void logOptionError(Error err, const ErrorLogCtx* ctx)
 {
-    assert(err_category(err) == E64_Option);
+    assert(err_category(err) == E_Option);
 
     const OptionError sub = err_subCategory(err);
     const uint32_t context = err_context(err);
@@ -51,9 +51,9 @@ static void logOptionError(Error64 err, const ErrorLogCtx* ctx)
     }
 }
 
-static void logSystemError(Error64 err, const ErrorLogCtx* ctx)
+static void logSystemError(Error err, const ErrorLogCtx* ctx)
 {
-    assert(err_category(err) == E64_System);
+    assert(err_category(err) == E_System);
 
     const SystemError sub = err_subCategory(err);
     const uint32_t context = err_context(err);
@@ -71,9 +71,9 @@ static void logSystemError(Error64 err, const ErrorLogCtx* ctx)
     }
 }
 
-static void logCodecError(Error64 err, const ErrorLogCtx* ctx)
+static void logCodecError(Error err, const ErrorLogCtx* ctx)
 {
-    assert(err_category(err) == E64_Codec);
+    assert(err_category(err) == E_Codec);
 
     const CodecError sub = err_subCategory(err);
     const uint32_t context = err_context(err);
@@ -88,9 +88,9 @@ static void logCodecError(Error64 err, const ErrorLogCtx* ctx)
     }
 }
 
-static void logWavError(Error64 err, const ErrorLogCtx* ctx)
+static void logWavError(Error err, const ErrorLogCtx* ctx)
 {
-    assert(err_category(err) == E64_Wav);
+    assert(err_category(err) == E_Wav);
 
     const WavError sub = err_subCategory(err);
     const uint32_t context = err_context(err);
@@ -105,27 +105,27 @@ static void logWavError(Error64 err, const ErrorLogCtx* ctx)
     }
 }
 
-void logError(Error64 err, const ErrorLogCtx* ctx)
+void logError(Error err, const ErrorLogCtx* ctx)
 {
     const ErrorCategory category = err_category(err);
 
     switch (category) {
-        case E64_NoError:
+        case E_NoError:
             logFn(LogLevel_Info, "Everything good\n");
             break;
-        case E64_Read:
+        case E_Read:
             logReadError(err, ctx);
             break;
-        case E64_Option:
+        case E_Option:
             logOptionError(err, ctx);
             break;
-        case E64_Codec:
+        case E_Codec:
             logCodecError(err, ctx);
             break;
-        case E64_Wav:
+        case E_Wav:
             logWavError(err, ctx);
             break;
-        case E64_System:
+        case E_System:
             logSystemError(err, ctx);
             break;
         default:

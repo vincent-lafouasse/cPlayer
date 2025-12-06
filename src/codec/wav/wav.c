@@ -5,7 +5,7 @@
 AudioDataResult decodeWav(Reader* reader)
 {
     WavFormatInfo format;
-    const Error64 err = readWavFormatInfo(reader, &format);
+    const Error err = readWavFormatInfo(reader, &format);
     if (!err_isOk(err)) {
         return AudioDataResult_Err(err);
     }

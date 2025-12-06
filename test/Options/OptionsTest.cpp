@@ -1,4 +1,4 @@
-#include "Error64.h"
+#include "Error.h"
 #include "gtest/gtest.h"
 
 extern "C" {
@@ -66,7 +66,7 @@ TEST(ParseOptions, UnknownFlag)
     const size_t sz = sizeof(args) / sizeof(*args);
     OptionsResult res = parseOptions(args, sz);
 
-    EXPECT_EQ(err_category(res.err), E64_Option);
+    EXPECT_EQ(err_category(res.err), E_Option);
     EXPECT_EQ(err_subCategory(res.err), EOpt_UnknownFlag);
     EXPECT_EQ(err_context(res.err), 0);  // args[0]
 }
@@ -77,7 +77,7 @@ TEST(ParseOptions, MissingInputForFlag)
     const size_t sz = sizeof(args) / sizeof(*args);
     OptionsResult res = parseOptions(args, sz);
 
-    EXPECT_EQ(err_category(res.err), E64_Option);
+    EXPECT_EQ(err_category(res.err), E_Option);
     EXPECT_EQ(err_subCategory(res.err), EOpt_BadUsage);
     // EXPECT_EQ(err_context(res.err), 0); no context
 }
@@ -98,7 +98,7 @@ TEST(ParseOptions, NoInputProvided)
     const size_t sz = sizeof(args) / sizeof(*args);
     OptionsResult res = parseOptions(args, sz);
 
-    EXPECT_EQ(err_category(res.err), E64_Option);
+    EXPECT_EQ(err_category(res.err), E_Option);
     EXPECT_EQ(err_subCategory(res.err), EOpt_BadUsage);
 }
 

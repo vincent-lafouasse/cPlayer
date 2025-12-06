@@ -3,7 +3,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#include "Error64.h"
+#include "Error.h"
 
 #define Ansi_Black "\x1b[0;30m"
 #define Ansi_Red "\x1b[0;31m"
@@ -26,7 +26,7 @@ typedef struct {
     const struct Options* options;
 } ErrorLogCtx;
 
-void logError(Error64 err, const ErrorLogCtx* ctx);
+void logError(Error err, const ErrorLogCtx* ctx);
 
 typedef enum {
     LogLevel_Error = 0,

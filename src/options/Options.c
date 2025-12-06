@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "Error64.h"
+#include "Error.h"
 #include "Flag.h"
 #include "log.h"
 
@@ -14,7 +14,7 @@ static OptionsResult Options_Ok(Options opt)
 
 static OptionsResult Options_Err(OptionError subError, uint32_t ctx)
 {
-    return (OptionsResult){.err = err_withCtx(E64_Option, subError, ctx)};
+    return (OptionsResult){.err = err_withCtx(E_Option, subError, ctx)};
 }
 
 static bool strEq(const char* a, const char* b)

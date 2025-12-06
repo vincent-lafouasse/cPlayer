@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include "Error64.h"
+#include "Error.h"
 
 typedef struct {
     float* left;
@@ -13,7 +13,7 @@ typedef struct {
 
 typedef struct {
     AudioData track;
-    Error64 err;
+    Error err;
     const char* fault;
 } AudioDataResult;
 
@@ -22,7 +22,7 @@ static inline AudioDataResult AudioDataResult_Ok(AudioData track)
     return (AudioDataResult){.track = track, .err = err_Ok()};
 }
 
-static inline AudioDataResult AudioDataResult_Err(Error64 err)
+static inline AudioDataResult AudioDataResult_Err(Error err)
 {
     return (AudioDataResult){.err = err};
 }

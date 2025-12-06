@@ -2,48 +2,48 @@
 
 #include <string.h>
 
-#include "Error64.h"
+#include "Error.h"
 #include "FileReader.h"
 
-static Error64 reader_FileReaderPeekSlice(Reader* reader, size_t n, Slice* out)
+static Error reader_FileReaderPeekSlice(Reader* reader, size_t n, Slice* out)
 {
     FileReader* fileReader = (FileReader*)reader->ctx;
 
     SliceResult slice = fr_peekSlice(fileReader, n);
     if (slice.status == ReadStatus_ReadErr) {
-        return err_Err(E64_Read, ERd_ReadFailed);
+        return err_Err(E_Read, ERd_ReadFailed);
     } else if (slice.status == ReadStatus_EOF) {
-        return err_Err(E64_Read, ERd_UnexpectedEOF);
+        return err_Err(E_Read, ERd_UnexpectedEOF);
     }
 
     *out = (Slice){.slice = slice.slice, .len = slice.len};
     return err_Ok();
 }
 
-static Error64 reader_FileReaderPeekInto(Reader* reader, size_t n, uint8_t* out)
+static Error reader_FileReaderPeekInto(Reader* reader, size_t n, uint8_t* out)
 {
     FileReader* fileReader = (FileReader*)reader->ctx;
 
     SliceResult slice = fr_peekSlice(fileReader, n);
     if (slice.status == ReadStatus_ReadErr) {
-        return err_Err(E64_Read, ERd_ReadFailed);
+        return err_Err(E_Read, ERd_ReadFailed);
     } else if (slice.status == ReadStatus_EOF) {
-        return err_Err(E64_Read, ERd_UnexpectedEOF);
+        return err_Err(E_Read, ERd_UnexpectedEOF);
     }
 
     memcpy(out, slice.slice, slice.len);
     return err_Ok();
 }
 
-static Error64 reader_FileReaderSkip(Reader* reader, size_t n)
+static Error reader_FileReaderSkip(Reader* reader, size_t n)
 {
     FileReader* fileReader = (FileReader*)reader->ctx;
 
     ReadStatus status = fr_skip(fileReader, n);
     if (status == ReadStatus_ReadErr) {
-        return err_Err(E64_Read, ERd_ReadFailed);
+        return err_Err(E_Read, ERd_ReadFailed);
     } else if (status == ReadStatus_EOF) {
-        return err_Err(E64_Read, ERd_UnexpectedEOF);
+        return err_Err(E_Read, ERd_UnexpectedEOF);
     } else {
         reader->offset += n;
         return err_Ok();

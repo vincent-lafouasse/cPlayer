@@ -1,7 +1,7 @@
 #include <cstdint>
 #include <string>
 
-#include "Error64.h"
+#include "Error.h"
 #include "gtest/gtest.h"
 
 extern "C" {
@@ -66,8 +66,8 @@ TEST(FileReaderReader, PeekSlice_Basic)
     ASSERT_TRUE(err_isOk(reader.peekSlice(&reader, 7, &slice)));
     assertSliceEq(slice, "1234567");
 
-    Error64 err = reader.peekSlice(&reader, 8, &slice);
-    ASSERT_EQ(err_category(err), E64_Read);
+    Error err = reader.peekSlice(&reader, 8, &slice);
+    ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 
@@ -85,8 +85,8 @@ TEST(FileReaderReader, PeekInto_Basic)
     ASSERT_TRUE(err_isOk(reader.peekInto(&reader, 7, buf)));
     ASSERT_EQ(memcmp(buf, "abcdefg", 7), 0);
 
-    Error64 err = reader.peekInto(&reader, 8, buf);
-    ASSERT_EQ(err_category(err), E64_Read);
+    Error err = reader.peekInto(&reader, 8, buf);
+    ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 
@@ -127,8 +127,8 @@ TEST(FileReaderReader, Skip_Basic)
     ASSERT_TRUE(err_isOk(reader.skip(&reader, 1)));
     ASSERT_EQ(reader.offset, 7u);
 
-    Error64 err = reader.skip(&reader, 1);
-    ASSERT_EQ(err_category(err), E64_Read);
+    Error err = reader.skip(&reader, 1);
+    ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 
@@ -151,8 +151,8 @@ TEST(FileReaderReader, Skip_Then_Peek)
     ASSERT_TRUE(err_isOk(reader.peekSlice(&reader, 3, &slice)));
     assertSliceEq(slice, "789");
 
-    Error64 err = reader.peekSlice(&reader, 4, &slice);
-    ASSERT_EQ(err_category(err), E64_Read);
+    Error err = reader.peekSlice(&reader, 4, &slice);
+    ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 
@@ -180,8 +180,8 @@ TEST(FileReaderReader, EOF_PeekSlice_Exact)
     ASSERT_TRUE(err_isOk(reader.peekSlice(&reader, 2, &slice)));
     assertSliceEq(slice, "hi");
 
-    Error64 err = reader.peekSlice(&reader, 3, &slice);
-    ASSERT_EQ(err_category(err), E64_Read);
+    Error err = reader.peekSlice(&reader, 3, &slice);
+    ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 
@@ -196,8 +196,8 @@ TEST(FileReaderReader, EOF_PeekInto_Exact)
     ASSERT_TRUE(err_isOk(reader.peekInto(&reader, 2, buf)));
     ASSERT_EQ(memcmp(buf, "xy", 2), 0);
 
-    Error64 err = reader.peekInto(&reader, 3, buf);
-    ASSERT_EQ(err_category(err), E64_Read);
+    Error err = reader.peekInto(&reader, 3, buf);
+    ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 
@@ -211,8 +211,8 @@ TEST(FileReaderReader, PeekSlice_AfterEOFOffset)
     ASSERT_EQ(reader.offset, 3u);
 
     Slice slice;
-    Error64 err = reader.peekSlice(&reader, 1, &slice);
-    ASSERT_EQ(err_category(err), E64_Read);
+    Error err = reader.peekSlice(&reader, 1, &slice);
+    ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 
@@ -243,8 +243,8 @@ TEST(FileReaderReader, MixedOperations_Consistency)
     ASSERT_TRUE(err_isOk(reader.peekSlice(&reader, 2, &slice)));
     assertSliceEq(slice, "ij");
 
-    Error64 err = reader.peekSlice(&reader, 3, &slice);
-    ASSERT_EQ(err_category(err), E64_Read);
+    Error err = reader.peekSlice(&reader, 3, &slice);
+    ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 
@@ -265,8 +265,8 @@ TEST(FileReaderReader, PeekSlice_SingleByteAdvances)
     }
 
     // now at EOF
-    Error64 err = r.peekSlice(&r, 1, &s);
-    ASSERT_EQ(err_category(err), E64_Read);
+    Error err = r.peekSlice(&r, 1, &s);
+    ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 
@@ -282,13 +282,13 @@ TEST(FileReaderReader, OffsetMonotonicity_PeekDoesNotAdvance)
 
         // varying peek sizes
         size_t n = (i % 11);
-        Error64 err = r.peekSlice(&r, n, &s);
+        Error err = r.peekSlice(&r, n, &s);
 
         if (n <= 10) {
             if (n <= 10 - before) {
                 ASSERT_TRUE(err_isOk(err));
             } else {
-                ASSERT_EQ(err_category(err), E64_Read);
+                ASSERT_EQ(err_category(err), E_Read);
                 ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
             }
         }
@@ -308,8 +308,8 @@ TEST(FileReaderReader, RepeatedEOFPeek)
 
     for (int i = 0; i < 10; i++) {
         Slice s;
-        Error64 err = r.peekSlice(&r, 1, &s);
-        ASSERT_EQ(err_category(err), E64_Read);
+        Error err = r.peekSlice(&r, 1, &s);
+        ASSERT_EQ(err_category(err), E_Read);
         ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
         ASSERT_EQ(r.offset, 3u);
     }
@@ -334,8 +334,8 @@ TEST(FileReaderReader, ExhaustiveByteWalk)
     }
 
     // exhausted
-    Error64 err = r.peekInto(&r, 1, buf);
-    ASSERT_EQ(err_category(err), E64_Read);
+    Error err = r.peekInto(&r, 1, buf);
+    ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 
@@ -354,14 +354,14 @@ TEST(FileReaderReader, SlidingWindows)
         for (size_t k = 0; k <= 10; k++) {
             size_t remaining = 10 - j;
 
-            Error64 err = r.peekSlice(&r, k, &s);
+            Error err = r.peekSlice(&r, k, &s);
 
             if (k <= remaining) {
                 ASSERT_TRUE(err_isOk(err));
                 ASSERT_EQ(s.len, k);
                 ASSERT_EQ(memcmp(s.slice, data.c_str() + j, k), 0);
             } else {
-                ASSERT_EQ(err_category(err), E64_Read);
+                ASSERT_EQ(err_category(err), E_Read);
                 ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
             }
         }
@@ -401,8 +401,8 @@ TEST(FileReaderReader, SkipToLastByte)
     ASSERT_TRUE(err_isOk(r.peekSlice(&r, 1, &s)));
     ASSERT_EQ((char)s.slice[0], '3');
 
-    Error64 err = r.peekSlice(&r, 2, &s);
-    ASSERT_EQ(err_category(err), E64_Read);
+    Error err = r.peekSlice(&r, 2, &s);
+    ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 
@@ -416,8 +416,8 @@ TEST(FileReaderReader, SkipExhaustively)
     ASSERT_EQ(r.offset, 3u);
 
     for (int i = 0; i < 5; i++) {
-        Error64 err = r.skip(&r, 1);
-        ASSERT_EQ(err_category(err), E64_Read);
+        Error err = r.skip(&r, 1);
+        ASSERT_EQ(err_category(err), E_Read);
         ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
     }
 }
@@ -431,13 +431,13 @@ TEST(FileReaderReader, PeekInto_Substrings)
     uint8_t buf[64];
 
     for (size_t n = 0; n <= data.size(); n++) {
-        Error64 e = r.peekInto(&r, n, buf);
+        Error e = r.peekInto(&r, n, buf);
         ASSERT_TRUE(err_isOk(e));
         ASSERT_EQ(memcmp(buf, data.c_str(), n), 0);
     }
 
-    Error64 err = r.peekInto(&r, data.size() + 1, buf);
-    ASSERT_EQ(err_category(err), E64_Read);
+    Error err = r.peekInto(&r, data.size() + 1, buf);
+    ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 
@@ -457,8 +457,8 @@ TEST(FileReaderReader, ComplexSkipPattern)
             ASSERT_TRUE(err_isOk(r.skip(&r, s)));
             expectedOffset += s;
         } else {
-            Error64 err = r.skip(&r, s);
-            ASSERT_EQ(err_category(err), E64_Read);
+            Error err = r.skip(&r, s);
+            ASSERT_EQ(err_category(err), E_Read);
             ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
         }
 

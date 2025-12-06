@@ -3,24 +3,24 @@
 #include <assert.h>
 #include <string.h>
 
-#include "Error64.h"
+#include "Error.h"
 #include "bitcast.h"
 #include "log.h"
 
-Error64 skipChunkUntil(Reader* reader, const char* expectedId)
+Error skipChunkUntil(Reader* reader, const char* expectedId)
 {
     uint8_t id[5] = {0};
 
-    TRY64(reader_peekFourCC(reader, id));
+    TRY(reader_peekFourCC(reader, id));
     while (memcmp(id, expectedId, 4) != 0) {
         // skip the fourCC we just peeked
-        TRY64(reader->skip(reader, 4));
+        TRY(reader->skip(reader, 4));
 
         uint32_t chunkSize = 0;
-        TRY64(reader_takeU32_LE(reader, &chunkSize));
+        TRY(reader_takeU32_LE(reader, &chunkSize));
         logFn(LogLevel_Debug, "Skipping chunk %s of size %u\n", id, chunkSize);
-        TRY64(reader->skip(reader, chunkSize));
-        TRY64(reader_peekFourCC(reader, id));
+        TRY(reader->skip(reader, chunkSize));
+        TRY(reader_peekFourCC(reader, id));
     }
     return err_Ok();
 }
@@ -30,39 +30,39 @@ static uint32_t fourCC_asU32(const uint8_t fourcc[4])
     return bitcastU32_BE(fourcc);
 }
 
-Error64 getToFormatChunk(Reader* reader)
+Error getToFormatChunk(Reader* reader)
 {
     uint8_t id[5] = {0};
-    TRY64(reader_takeFourCC(reader, id));
+    TRY(reader_takeFourCC(reader, id));
     if (memcmp(id, "RIFF", 4) != 0) {
-        return err_withCtx(E64_Wav, EWav_UnknownFourCC, fourCC_asU32(id));
+        return err_withCtx(E_Wav, EWav_UnknownFourCC, fourCC_asU32(id));
     }
 
     uint32_t size;
-    TRY64(reader_takeU32_LE(reader, &size));
+    TRY(reader_takeU32_LE(reader, &size));
     logFn(LogLevel_Debug, "master RIFF chunk:\t %u bytes\n", size);
 
-    TRY64(reader_takeFourCC(reader, id));
+    TRY(reader_takeFourCC(reader, id));
     if (memcmp(id, "WAVE", 4) != 0) {
-        return err_withCtx(E64_Wav, EWav_UnknownFourCC, fourCC_asU32(id));
+        return err_withCtx(E_Wav, EWav_UnknownFourCC, fourCC_asU32(id));
     }
 
     return skipChunkUntil(reader, "fmt ");
 }
 
-Error64 readFormatChunk(Reader* reader, WavFormatChunk* out)
+Error readFormatChunk(Reader* reader, WavFormatChunk* out)
 {
     Slice header;
-    TRY64(reader_takeSlice(reader, 8, &header));
+    TRY(reader_takeSlice(reader, 8, &header));
     if (memcmp(header.slice, "fmt ", 4) != 0) {
-        return err_withCtx(E64_Wav, EWav_UnknownFourCC,
+        return err_withCtx(E_Wav, EWav_UnknownFourCC,
                            fourCC_asU32(header.slice));
     }
     const uint32_t fmtChunkSize = bitcastU32_LE(header.slice + 4);
     logFn(LogLevel_Debug, "format chunk size:\t%u bytes\n", fmtChunkSize);
 
     Slice slice;
-    TRY64(reader_takeSlice(reader, fmtChunkSize, &slice));
+    TRY(reader_takeSlice(reader, fmtChunkSize, &slice));
     const uint8_t* format = slice.slice;
 
     const uint16_t waveFormat = bitcastU16_LE(format);
@@ -108,37 +108,36 @@ Error64 readFormatChunk(Reader* reader, WavFormatChunk* out)
     return err_Ok();
 }
 
-Error64 validateWavFormatChunk(const WavFormatChunk* format, SampleFormat* out)
+Error validateWavFormatChunk(const WavFormatChunk* format, SampleFormat* out)
 {
     // Check number of channels (we only accept mono/stereo eventually)
     if (format->nChannels == 0 || format->nChannels > 2)
-        return err_withCtx(E64_Codec, ECdc_UnsupportedChannelLayout,
+        return err_withCtx(E_Codec, ECdc_UnsupportedChannelLayout,
                            format->nChannels);
 
     // Check sample rate sanity (arbitrary max = 192 kHz)
     if (format->sampleRate == 0 || format->sampleRate > 192000)
-        return err_withCtx(E64_Codec, ECdc_AbsurdSampleRate,
-                           format->sampleRate);
+        return err_withCtx(E_Codec, ECdc_AbsurdSampleRate, format->sampleRate);
 
     // Check bits per sample / block align consistency
     if (format->bitDepth == 0 || format->bitDepth > 64)
-        return err_withCtx(E64_Wav, EWav_InvalidBitDepth, format->bitDepth);
+        return err_withCtx(E_Wav, EWav_InvalidBitDepth, format->bitDepth);
 
     // PCM sanity: blockAlign must match nChannels * bytesPerSample
     uint16_t bytesPerSample = (format->bitDepth + 7) / 8;
     if (format->formatTag == WAVE_FORMAT_PCM ||
         format->formatTag == WAVE_FORMAT_IEEE_FLOAT) {
         if (format->blockAlign != bytesPerSample * format->nChannels)
-            return err_Err(E64_Wav, EWav_BlockAlignMismatch);
+            return err_Err(E_Wav, EWav_BlockAlignMismatch);
     }
 
     // Extension size sanity
     if (format->size < 16)
-        return err_withCtx(E64_Wav, EWav_FormatChunkTooSmall, format->size);
+        return err_withCtx(E_Wav, EWav_FormatChunkTooSmall, format->size);
     if (format->size == 18 && format->extensionSize != 0)
-        return err_Err(E64_Wav, EWav_ExtensionSizeMismatch);
+        return err_Err(E_Wav, EWav_ExtensionSizeMismatch);
     if (format->size == 40 && format->extensionSize != 22)
-        return err_Err(E64_Wav, EWav_ExtensionSizeMismatch);
+        return err_Err(E_Wav, EWav_ExtensionSizeMismatch);
 
     // Sample format mapping
     switch (format->formatTag) {
@@ -157,7 +156,7 @@ Error64 validateWavFormatChunk(const WavFormatChunk* format, SampleFormat* out)
                     *out = SampleFormat_Signed32;
                     break;
                 default:
-                    return err_withCtx(E64_Wav, EWav_UnsupportedBitDepth,
+                    return err_withCtx(E_Wav, EWav_UnsupportedBitDepth,
                                        format->bitDepth);
             }
             break;
@@ -167,7 +166,7 @@ Error64 validateWavFormatChunk(const WavFormatChunk* format, SampleFormat* out)
             else if (format->bitDepth == 64)
                 *out = SampleFormat_Float64;
             else
-                return err_withCtx(E64_Wav, EWav_UnsupportedBitDepth,
+                return err_withCtx(E_Wav, EWav_UnsupportedBitDepth,
                                    format->bitDepth);
             break;
         case WAVE_FORMAT_ADPCM:
@@ -180,30 +179,30 @@ Error64 validateWavFormatChunk(const WavFormatChunk* format, SampleFormat* out)
             *out = SampleFormat_ALAW;  // no validation yet
             break;
         default:
-            return err_withCtx(E64_Wav, EWav_UnknownSampleFormat,
+            return err_withCtx(E_Wav, EWav_UnknownSampleFormat,
                                format->formatTag);
     }
 
     return err_Ok();
 }
 
-Error64 readWavFormatInfo(Reader* reader, WavFormatInfo* out)
+Error readWavFormatInfo(Reader* reader, WavFormatInfo* out)
 {
     // master chunk
     // skip other chunks
-    TRY64(getToFormatChunk(reader));
+    TRY(getToFormatChunk(reader));
 
     WavFormatChunk format;
-    TRY64(readFormatChunk(reader, &format));
-    TRY64(skipChunkUntil(reader, "data"));
+    TRY(readFormatChunk(reader, &format));
+    TRY(skipChunkUntil(reader, "data"));
 
     SampleFormat sampleFormat;
-    TRY64(validateWavFormatChunk(&format, &sampleFormat));
+    TRY(validateWavFormatChunk(&format, &sampleFormat));
     logFn(LogLevel_Debug, "format chunk seems good\n");
 
     // data chunk
     Slice dataChunkHeader;
-    TRY64(reader_takeSlice(reader, 8, &dataChunkHeader));
+    TRY(reader_takeSlice(reader, 8, &dataChunkHeader));
     assert(memcmp(dataChunkHeader.slice, "data", 4) == 0);
     logFn(LogLevel_Debug, "reached data chunk\n");
 

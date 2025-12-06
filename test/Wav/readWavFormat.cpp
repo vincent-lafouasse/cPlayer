@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-#include "Error64.h"
+#include "Error.h"
 #include "gtest/gtest.h"
 
 #include "MemoryReader.hpp"
@@ -81,8 +81,8 @@ TEST(WavReader, SkipChunkUntil_UnexpectedEOF)
     MemoryReader mem(data);
     Reader r = memoryReaderInterface(&mem);
 
-    Error64 err = skipChunkUntil(&r, "fmt ");
-    ASSERT_EQ(err_category(err), E64_Read);
+    Error err = skipChunkUntil(&r, "fmt ");
+    ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 
@@ -122,8 +122,8 @@ TEST(WavReader, SkipChunkUntil_EmptyReader)
     MemoryReader mem(data);
     Reader r = memoryReaderInterface(&mem);
 
-    Error64 err = skipChunkUntil(&r, "fmt ");
-    ASSERT_EQ(err_category(err), E64_Read);
+    Error err = skipChunkUntil(&r, "fmt ");
+    ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 TEST(WavReader, SkipChunkUntil_MalformedSize)
@@ -136,8 +136,8 @@ TEST(WavReader, SkipChunkUntil_MalformedSize)
     Reader r = memoryReaderInterface(&mem);
 
     // Should fail due to trying to skip beyond EOF
-    Error64 err = skipChunkUntil(&r, "fmt ");
-    ASSERT_EQ(err_category(err), E64_Read);
+    Error err = skipChunkUntil(&r, "fmt ");
+    ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 
@@ -208,8 +208,8 @@ TEST(WavReader, GetToFormatChunk_TruncatedRiff)
     MemoryReader mem(data);
     Reader r = memoryReaderInterface(&mem);
 
-    Error64 err = getToFormatChunk(&r);
-    ASSERT_EQ(err_category(err), E64_Read);
+    Error err = getToFormatChunk(&r);
+    ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 
@@ -222,8 +222,8 @@ TEST(WavReader, GetToFormatChunk_NotWave)
     MemoryReader mem(data);
     Reader r = memoryReaderInterface(&mem);
 
-    Error64 err = getToFormatChunk(&r);
-    ASSERT_EQ(err_category(err), E64_Wav);
+    Error err = getToFormatChunk(&r);
+    ASSERT_EQ(err_category(err), E_Wav);
     ASSERT_EQ(err_subCategory(err), EWav_UnknownFourCC);
 }
 
@@ -237,8 +237,8 @@ TEST(WavReader, GetToFormatChunk_NoFmtChunk)
     Reader r = memoryReaderInterface(&mem);
 
     // Should fail because no fmt chunk exists
-    Error64 err = getToFormatChunk(&r);
-    ASSERT_EQ(err_category(err), E64_Read);
+    Error err = getToFormatChunk(&r);
+    ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 
@@ -352,8 +352,8 @@ TEST(WavReader, ReadFormatChunk_Truncated)
     Reader r = memoryReaderInterface(&mem);
 
     WavFormatChunk fmt;
-    Error64 err = readFormatChunk(&r, &fmt);
-    ASSERT_EQ(err_category(err), E64_Read);
+    Error err = readFormatChunk(&r, &fmt);
+    ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 
@@ -363,8 +363,8 @@ TEST(WavReader, ReadFormatChunk_EmptyReader)
     MemoryReader mem(data);
     Reader r = memoryReaderInterface(&mem);
     WavFormatChunk fmt;
-    Error64 err = readFormatChunk(&r, &fmt);
-    ASSERT_EQ(err_category(err), E64_Read);
+    Error err = readFormatChunk(&r, &fmt);
+    ASSERT_EQ(err_category(err), E_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
 
@@ -547,8 +547,8 @@ TEST(WavValidator, AbsurdSampleRate)
     fmt.extensionSize = 0;
 
     SampleFormat out;
-    Error64 err = validateWavFormatChunk(&fmt, &out);
-    ASSERT_EQ(err_category(err), E64_Codec);
+    Error err = validateWavFormatChunk(&fmt, &out);
+    ASSERT_EQ(err_category(err), E_Codec);
     ASSERT_EQ(err_subCategory(err), ECdc_AbsurdSampleRate);
 }
 
@@ -564,8 +564,8 @@ TEST(WavValidator, ZeroChannels)
     fmt.extensionSize = 0;
 
     SampleFormat out;
-    Error64 err = validateWavFormatChunk(&fmt, &out);
-    ASSERT_EQ(err_category(err), E64_Codec);
+    Error err = validateWavFormatChunk(&fmt, &out);
+    ASSERT_EQ(err_category(err), E_Codec);
     ASSERT_EQ(err_subCategory(err), ECdc_UnsupportedChannelLayout);
 }
 
@@ -581,8 +581,8 @@ TEST(WavValidator, BlockAlignMismatch)
     fmt.extensionSize = 0;
 
     SampleFormat out;
-    Error64 err = validateWavFormatChunk(&fmt, &out);
-    ASSERT_EQ(err_category(err), E64_Wav);
+    Error err = validateWavFormatChunk(&fmt, &out);
+    ASSERT_EQ(err_category(err), E_Wav);
     ASSERT_EQ(err_subCategory(err), EWav_BlockAlignMismatch);
 }
 
@@ -598,8 +598,8 @@ TEST(WavValidator, FormatChunkTooSmall)
     fmt.extensionSize = 0;
 
     SampleFormat out;
-    Error64 err = validateWavFormatChunk(&fmt, &out);
-    ASSERT_EQ(err_category(err), E64_Wav);
+    Error err = validateWavFormatChunk(&fmt, &out);
+    ASSERT_EQ(err_category(err), E_Wav);
     ASSERT_EQ(err_subCategory(err), EWav_FormatChunkTooSmall);
 }
 
@@ -614,8 +614,8 @@ TEST(WavValidator, ExtensionSizeMismatch_18Bytes)
     fmt.size = 18;
     fmt.extensionSize = 2;  // should be 0
     SampleFormat out;
-    Error64 err = validateWavFormatChunk(&fmt, &out);
-    ASSERT_EQ(err_category(err), E64_Wav);
+    Error err = validateWavFormatChunk(&fmt, &out);
+    ASSERT_EQ(err_category(err), E_Wav);
     ASSERT_EQ(err_subCategory(err), EWav_ExtensionSizeMismatch);
 }
 
@@ -630,8 +630,8 @@ TEST(WavValidator, ExtensionSizeMismatch_40Bytes)
     fmt.size = 40;
     fmt.extensionSize = 10;  // should be 22
     SampleFormat out;
-    Error64 err = validateWavFormatChunk(&fmt, &out);
-    ASSERT_EQ(err_category(err), E64_Wav);
+    Error err = validateWavFormatChunk(&fmt, &out);
+    ASSERT_EQ(err_category(err), E_Wav);
     ASSERT_EQ(err_subCategory(err), EWav_ExtensionSizeMismatch);
 }
 
@@ -647,7 +647,7 @@ TEST(WavValidator, UnknownFormatTag)
     fmt.extensionSize = 0;
 
     SampleFormat out;
-    Error64 err = validateWavFormatChunk(&fmt, &out);
-    ASSERT_EQ(err_category(err), E64_Wav);
+    Error err = validateWavFormatChunk(&fmt, &out);
+    ASSERT_EQ(err_category(err), E_Wav);
     ASSERT_EQ(err_subCategory(err), EWav_UnknownSampleFormat);
 }

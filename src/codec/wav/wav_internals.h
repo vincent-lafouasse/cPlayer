@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Error64.h"
+#include "Error.h"
 #include "wav.h"
 
 #define WAVE_FORMAT_PCM 0x0001
@@ -25,9 +25,9 @@ typedef struct {
     uint8_t subFormat[16];
 } WavFormatChunk;
 
-Error64 skipChunkUntil(Reader* reader, const char* expectedId);
-Error64 getToFormatChunk(Reader* reader);
-Error64 readFormatChunk(Reader* reader, WavFormatChunk* out);
+Error skipChunkUntil(Reader* reader, const char* expectedId);
+Error getToFormatChunk(Reader* reader);
+Error readFormatChunk(Reader* reader, WavFormatChunk* out);
 
 typedef enum {
     SampleFormat_Unsigned8,
@@ -55,11 +55,11 @@ typedef struct {
     uint16_t adpcmBlockSize;  // only for ADPCM, else 0
 } WavFormatInfo;
 
-Error64 validateWavFormatChunk(const WavFormatChunk* format, SampleFormat* out);
-Error64 readWavFormatInfo(Reader* reader, WavFormatInfo* out);
+Error validateWavFormatChunk(const WavFormatChunk* format, SampleFormat* out);
+Error readWavFormatInfo(Reader* reader, WavFormatInfo* out);
 void logWavFormatInfo(const WavFormatInfo* format);
 
-Error64 readSample(Reader* reader, const WavFormatInfo* format, float* out);
+Error readSample(Reader* reader, const WavFormatInfo* format, float* out);
 AudioDataResult readWavData(Reader* reader, const WavFormatInfo* format);
 
 #define DUMP_PREFIX "./build/dump_"

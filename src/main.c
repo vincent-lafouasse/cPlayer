@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "Error64.h"
+#include "Error.h"
 #include "FileReader.h"
 #include "Reader/ReaderAdapters.h"
 #include "audio.h"
@@ -11,7 +11,7 @@
 
 #define STREAM_BUFFER_SIZE 256
 
-Error64 parseFlags(int ac, char** av, Options* out)
+Error parseFlags(int ac, char** av, Options* out)
 {
     const OptionsResult maybeOptions =
         parseOptions((const char**)av + 1, ac - 1);
@@ -28,12 +28,12 @@ Error64 parseFlags(int ac, char** av, Options* out)
     return err_Ok();
 }
 
-static Error64 loadAudioOrExit(const char* path, AudioData* out)
+static Error loadAudioOrExit(const char* path, AudioData* out)
 {
     logFn(LogLevel_Debug, "-----Reading file\t%s-----\n", path);
     FileReader fileReader = fr_open(path);
     if (!fr_isOpened(&fileReader)) {
-        return err_Err(E64_Read, (uint16_t)ERd_OpenFailed);
+        return err_Err(E_Read, (uint16_t)ERd_OpenFailed);
     }
     logFn(LogLevel_Debug, "FileReader buffer size: %zu\n",
           FILE_READER_BUFFER_SIZE);
@@ -58,7 +58,7 @@ ErrorLogCtx makeLogCtx(int ac, char** av, const Options* opts)
 
 int main(int ac, char** av)
 {
-    Error64 err;
+    Error err;
 
     Options options;
     err = parseFlags(ac, av, &options);

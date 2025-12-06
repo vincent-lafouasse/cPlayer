@@ -1,42 +1,42 @@
 #include "wav_internals.h"
 
-#include "Error64.h"
+#include "Error.h"
 #include "int24.h"
 
 #define INT24_MAX_ABS (1 << 23)
 #define INT16_MAX_ABS (-INT16_MIN)
 
-Error64 readI24(Reader* reader, float* out)
+Error readI24(Reader* reader, float* out)
 {
     Int24 i24;
-    TRY64(reader_takeI24_LE(reader, &i24));
+    TRY(reader_takeI24_LE(reader, &i24));
 
     *out = (float)i24_asI32(i24) / (float)INT24_MAX_ABS;
     return err_Ok();
 }
 
-Error64 readI16(Reader* reader, float* out)
+Error readI16(Reader* reader, float* out)
 {
     int16_t i16;
-    TRY64(reader_takeI16_LE(reader, &i16));
+    TRY(reader_takeI16_LE(reader, &i16));
 
     *out = (float)i16 / (float)INT16_MAX_ABS;
     return err_Ok();
 }
 
-Error64 readSample(Reader* reader, const WavFormatInfo* format, float* out)
+Error readSample(Reader* reader, const WavFormatInfo* format, float* out)
 {
     const size_t sampleBlockSize = format->blockAlign / format->nChannels;
 
     switch (format->sampleFormat) {
         case SampleFormat_Signed24:
-            TRY64(readI24(reader, out));
+            TRY(readI24(reader, out));
             return reader->skip(reader, sampleBlockSize - 3);
         case SampleFormat_Signed16:
-            TRY64(readI16(reader, out));
+            TRY(readI16(reader, out));
             return reader->skip(reader, sampleBlockSize - 2);
         default:
-            return err_withCtx(E64_Wav, EWav_UnsupportedSampleFormat,
+            return err_withCtx(E_Wav, EWav_UnsupportedSampleFormat,
                                format->sampleFormat);
     }
 }
