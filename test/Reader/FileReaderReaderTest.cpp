@@ -196,7 +196,7 @@ TEST(FileReaderReader, EOF_PeekInto_Exact)
     ASSERT_TRUE(err_isOk(reader.peekInto(&reader, 2, buf)));
     ASSERT_EQ(memcmp(buf, "xy", 2), 0);
 
-    Error64 err = reader.peekInto(&reader, 2, buf);
+    Error64 err = reader.peekInto(&reader, 3, buf);
     ASSERT_EQ(err_category(err), E64_Read);
     ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
 }
