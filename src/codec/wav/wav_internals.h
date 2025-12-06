@@ -14,6 +14,16 @@ extern "C" {
 #define WAVE_FORMAT_MULAW 0x0007
 #define WAVE_FORMAT_EXTENSIBLE 0xFFFE
 
+// RIFF chunk navigation
+typedef struct {
+    uint8_t fourcc[5];  // yes i waste a byte for easier logging
+    uint32_t size;
+} RiffChunkHeader;
+
+Error skipChunkUntil(Reader* reader, const char* expectedId);
+Error getToFormatChunk(Reader* reader);
+
+// read/validate format chunk
 typedef struct {
     uint32_t size;
     uint16_t formatTag;
@@ -29,10 +39,10 @@ typedef struct {
     uint8_t subFormat[16];
 } WavFormatChunk;
 
-Error skipChunkUntil(Reader* reader, const char* expectedId);
-Error getToFormatChunk(Reader* reader);
 Error readFormatChunk(Reader* reader, WavFormatChunk* out);
+// Error validateWavFormatChunk(const WavFormatChunk* format);
 
+// gather what's needed to deserialize the data segment
 typedef enum {
     SampleFormat_Unsigned8,
     SampleFormat_Signed16,
@@ -44,7 +54,6 @@ typedef enum {
     SampleFormat_MULAW,  // μ-law
     SampleFormat_ALAW,   // A-law
 } SampleFormat;
-
 const char* sampleFormatRepr(SampleFormat fmt);
 
 typedef struct {
@@ -63,6 +72,7 @@ Error validateWavFormatChunk(const WavFormatChunk* format, SampleFormat* out);
 Error readWavFormatInfo(Reader* reader, WavFormatInfo* out);
 void logWavFormatInfo(const WavFormatInfo* format);
 
+// read the actual data
 Error readSample(Reader* reader, const WavFormatInfo* format, float* out);
 AudioDataResult readWavData(Reader* reader, const WavFormatInfo* format);
 
