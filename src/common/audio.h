@@ -21,15 +21,8 @@ typedef struct {
     const char* fault;
 } AudioDataResult;
 
-static inline AudioDataResult AudioDataResult_Ok(AudioData track)
-{
-    return (AudioDataResult){.track = track, .err = err_Ok()};
-}
-
-static inline AudioDataResult AudioDataResult_Err(Error err)
-{
-    return (AudioDataResult){.err = err};
-}
+AudioDataResult AudioDataResult_Ok(AudioData track);
+AudioDataResult AudioDataResult_Err(Error err);
 
 #ifdef __cplusplus
 }

@@ -10,6 +10,8 @@ PRIVATE
 
 	${testedSourceDir}/options/Options.c
 	${testedSourceDir}/options/Flag.c
+
+	${testedSourceDir}/common/Error.c
 )
 
 target_include_directories(${TEST_RUNNER_NAME} PUBLIC

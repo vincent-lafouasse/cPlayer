@@ -23,6 +23,8 @@ PRIVATE
 	options/printHelp.c
 
 	common/int24.c
+	common/AudioData.c
+	common/Error.c
 	common/logError.c
 )
 

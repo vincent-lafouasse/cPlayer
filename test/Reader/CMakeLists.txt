@@ -10,6 +10,7 @@ PRIVATE
 	./FileReaderReaderTest.cpp
 
 	${testedSourceDir}/Reader/fileReaderAdapter.c
+	${testedSourceDir}/common/Error.c
 )
 
 target_include_directories(${TEST_RUNNER_NAME} PUBLIC
