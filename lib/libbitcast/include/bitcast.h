@@ -9,17 +9,16 @@ extern "C" {
 typedef uint8_t Byte;
 
 // you better give me 2 bytes or else
-uint16_t	bitcastU16_LE(const Byte bytes[2]);
-uint16_t	bitcastU16_BE(const Byte bytes[2]);
-int16_t		bitcastI16_LE(const Byte bytes[2]);
-int16_t		bitcastI16_BE(const Byte bytes[2]);
-
+uint16_t bitcastU16_LE(const Byte bytes[2]);
+uint16_t bitcastU16_BE(const Byte bytes[2]);
+int16_t bitcastI16_LE(const Byte bytes[2]);
+int16_t bitcastI16_BE(const Byte bytes[2]);
 
 // you better give me 4 bytes or else
-uint32_t	bitcastU32_LE(const Byte bytes[4]);
-uint32_t	bitcastU32_BE(const Byte bytes[4]);
-int32_t		bitcastI32_LE(const Byte bytes[4]);
-int32_t		bitcastI32_BE(const Byte bytes[4]);
+uint32_t bitcastU32_LE(const Byte bytes[4]);
+uint32_t bitcastU32_BE(const Byte bytes[4]);
+int32_t bitcastI32_LE(const Byte bytes[4]);
+int32_t bitcastI32_BE(const Byte bytes[4]);
 
 #ifdef __cplusplus
 }
