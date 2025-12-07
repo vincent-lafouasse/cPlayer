@@ -454,3 +454,113 @@ TEST(bitcast, U24_BE)
         EXPECT_EQ(bitcastU24_BE(b), expected);
     }
 }
+
+constexpr i32 int24Min = -(1 << 23);
+constexpr i32 int24Max = -int24Min - 1;
+
+TEST(bitcastI24, Zero_LE)
+{
+    constexpr Byte b[3] = {0x00, 0x00, 0x00};
+    constexpr i32 expected = 0;
+    EXPECT_EQ(bitcastI24_LE(b), expected);
+}
+
+TEST(bitcastI24, One_LE)
+{
+    constexpr Byte b[3] = {0x01, 0x00, 0x00};
+    constexpr i32 expected = 1;
+    EXPECT_EQ(bitcastI24_LE(b), expected);
+}
+
+TEST(bitcastI24, MaxPositive_LE)
+{
+    // Corresponds to 0x007fffff
+    constexpr Byte b[3] = {0xff, 0xff, 0x7f};
+    constexpr i32 expected = int24Max;
+    EXPECT_EQ(bitcastI24_LE(b), expected);
+}
+
+TEST(bitcastI24, PositiveNearBoundary_LE)
+{
+    // 0x007ffffe (One less than Max Positive)
+    constexpr Byte b[3] = {0xfe, 0xff, 0x7f};
+    constexpr i32 expected = int24Max - 1;
+    EXPECT_EQ(bitcastI24_LE(b), expected);
+}
+
+TEST(bitcastI24, MinNegative_LE)
+{
+    // Corresponds to 0x00800000 (The 24-bit sign bit is set)
+    constexpr Byte b[3] = {0x00, 0x00, 0x80};
+    constexpr i32 expected = int24Min;
+    EXPECT_EQ(bitcastI24_LE(b), expected);
+}
+
+TEST(bitcastI24, NegativeNearBoundary_LE)
+{
+    // Corresponds to 0x00800001
+    constexpr Byte b[3] = {0x01, 0x00, 0x80};
+    constexpr i32 expected = int24Min + 1;
+    EXPECT_EQ(bitcastI24_LE(b), expected);
+}
+
+TEST(bitcastI24, AllOnes_NegativeOne_LE)
+{
+    // Corresponds to 0x00ffffff, which is -1
+    constexpr Byte b[3] = {0xff, 0xff, 0xff};
+    constexpr i32 expected = -1;
+    EXPECT_EQ(bitcastI24_LE(b), expected);
+}
+TEST(bitcastI24, Zero_BE)
+{
+    constexpr Byte b[3] = {0x00, 0x00, 0x00};
+    constexpr i32 expected = 0;
+    EXPECT_EQ(bitcastI24_BE(b), expected);
+}
+
+TEST(bitcastI24, One_BE)
+{
+    constexpr Byte b[3] = {0x00, 0x00, 0x01};
+    constexpr i32 expected = 1;
+    EXPECT_EQ(bitcastI24_BE(b), expected);
+}
+
+TEST(bitcastI24, MaxPositive_BE)
+{
+    // Corresponds to 0x007fffff
+    constexpr Byte b[3] = {0x7f, 0xff, 0xff};
+    constexpr i32 expected = int24Max;
+    EXPECT_EQ(bitcastI24_BE(b), expected);
+}
+
+TEST(bitcastI24, PositiveNearBoundary_BE)
+{
+    // 0x007ffffe (One less than Max Positive)
+    constexpr Byte b[3] = {0x7f, 0xff, 0xfe};
+    constexpr i32 expected = int24Max - 1;
+    EXPECT_EQ(bitcastI24_BE(b), expected);
+}
+
+TEST(bitcastI24, MinNegative_BE)
+{
+    // Corresponds to 0x00800000 (The 24-bit sign bit is set)
+    constexpr Byte b[3] = {0x80, 0x00, 0x00};
+    constexpr i32 expected = int24Min;
+    EXPECT_EQ(bitcastI24_BE(b), expected);
+}
+
+TEST(bitcastI24, NegativeNearBoundary_BE)
+{
+    // Corresponds to 0x00800001
+    constexpr Byte b[3] = {0x80, 0x00, 0x01};
+    constexpr i32 expected = int24Min + 1;
+    EXPECT_EQ(bitcastI24_BE(b), expected);
+}
+
+TEST(bitcastI24, AllOnes_NegativeOne_BE)
+{
+    // Corresponds to 0x00ffffff, which is -1
+    constexpr Byte b[3] = {0xff, 0xff, 0xff};
+    constexpr i32 expected = -1;
+    EXPECT_EQ(bitcastI24_BE(b), expected);
+}
