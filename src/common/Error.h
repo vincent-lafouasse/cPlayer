@@ -75,6 +75,7 @@ typedef enum {
     EWav_ExtensionSizeMismatch,
     EWav_UnsupportedBitDepth,
     EWav_UnknownSampleFormat,
+    EWav_UnknownGuidSubformat,
 } WavError;
 
 // constructors

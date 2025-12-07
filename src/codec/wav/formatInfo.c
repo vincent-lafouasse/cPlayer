@@ -13,13 +13,22 @@ Error readWavFormatInfo(Reader* reader, WavFormatInfo* out)
     // skip other chunks
     TRY(getToFormatChunk(reader));
 
-    WavFormatChunk format;
-    TRY(readFormatChunk(reader, &format));
+    WavFormatChunk formatChunk;
+    TRY(readFormatChunk(reader, &formatChunk));
     TRY(skipChunkUntil(reader, "data"));
 
-    SampleFormat sampleFormat;
-    TRY(validateWavFormatChunk(&format, &sampleFormat));
+    TRY(validateWavFormatChunk(&formatChunk));
     logFn(LogLevel_Debug, "format chunk seems good\n");
+
+    WavFormatInfo format;
+    TRY(parseFormatChunk(&formatChunk, &format));
+
+    // only keep int and float PCM
+    // no ADPCM, no A-Law, no mu-Law
+    TRY(checkFormatSupport(&format));
+    // 0xfffe should have been collapsed into PCM by this point
+    assert(format.formatTag == WAVE_FORMAT_PCM ||
+           format.formatTag == WAVE_FORMAT_IEEE_FLOAT);
 
     // data chunk
     Slice dataChunkHeader;
@@ -31,17 +40,11 @@ Error readWavFormatInfo(Reader* reader, WavFormatInfo* out)
     logFn(LogLevel_Debug, "data size:\t\t%u\n", dataSize);
 
     // NOTE: this won't be true for ADPCM
-    uint32_t nBlocks = 8 * dataSize / format.bitDepth / format.nChannels;
-    logFn(LogLevel_Debug, "n blocks:\t\t%u\n", nBlocks);
+    uint32_t nFrames = 8 * dataSize / format.bitDepth / format.nChannels;
+    logFn(LogLevel_Debug, "n frames:\t\t%u\n", nFrames);
 
-    *out = (WavFormatInfo){.formatTag = format.formatTag,
-                           .nChannels = format.nChannels,
-                           .sampleRate = format.sampleRate,
-                           .sampleFormat = sampleFormat,
-                           .blockAlign = format.blockAlign,
-                           .nFrames = nBlocks,
-                           .bitsPerSample = format.bitDepth,
-                           .adpcmBlockSize = 0};
+    format.nFrames = nFrames;
+    *out = format;
     logFn(LogLevel_Debug, "\n");
     return err_Ok();
 }
