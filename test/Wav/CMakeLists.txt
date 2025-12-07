@@ -16,7 +16,6 @@ PRIVATE
 
 	${testedSourceDir}/Reader/read.c
 
-	${testedSourceDir}/common/int24.c
 	${testedSourceDir}/common/Error.c
 )
 

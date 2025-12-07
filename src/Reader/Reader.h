@@ -9,7 +9,6 @@ extern "C" {
 #include <stdint.h>
 
 #include "Error.h"
-#include "int24.h"
 
 typedef struct Reader Reader;
 
@@ -41,7 +40,7 @@ Error reader_takeU16_LE(Reader* reader, uint16_t* out);
 Error reader_takeI16_LE(Reader* reader, int16_t* out);
 Error reader_takeU32_LE(Reader* reader, uint32_t* out);
 Error reader_takeI32_LE(Reader* reader, int32_t* out);
-Error reader_takeI24_LE(Reader* reader, Int24* out);
+Error reader_takeI24_LE(Reader* reader, int32_t* out);
 
 #ifdef __cplusplus
 }

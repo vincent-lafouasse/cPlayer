@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "bitcast.h"
-#include "int24.h"
 
 Error reader_peekSlice(Reader* reader, size_t n, Slice* out)
 {
@@ -82,7 +81,7 @@ Error reader_takeI32_LE(Reader* reader, int32_t* out)
     return reader_skip(reader, 4);
 }
 
-Error reader_takeI24_LE(Reader* reader, Int24* out)
+Error reader_takeI24_LE(Reader* reader, int32_t* out)
 {
     Slice slice;
     TRY(reader_peekSlice(reader, 4, &slice));
