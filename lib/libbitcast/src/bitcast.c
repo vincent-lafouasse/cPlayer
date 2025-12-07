@@ -10,6 +10,18 @@ uint16_t bitcastU16_BE(const Byte bytes[2])
     return ((uint16_t)bytes[0] << 8) | (uint16_t)bytes[1];
 }
 
+uint32_t bitcastU24_LE(const Byte bytes[3])
+{
+    return ((uint32_t)bytes[2] << 16) | ((uint32_t)bytes[1] << 8) |
+           (uint32_t)bytes[0];
+}
+
+uint32_t bitcastU24_BE(const Byte bytes[3])
+{
+    return ((uint32_t)bytes[0] << 16) | ((uint32_t)bytes[1] << 8) |
+           (uint32_t)bytes[2];
+}
+
 uint32_t bitcastU32_LE(const Byte bytes[4])
 {
     return ((uint32_t)bytes[3] << 24) | ((uint32_t)bytes[2] << 16) |
@@ -30,6 +42,16 @@ int16_t bitcastI16_LE(const Byte bytes[2])
 int16_t bitcastI16_BE(const Byte bytes[2])
 {
     return (int16_t)bitcastU16_BE(bytes);
+}
+
+int32_t bitcastI24_LE(const Byte bytes[3])
+{
+    return (int32_t)bitcastU24_LE(bytes);
+}
+
+int32_t bitcastI24_BE(const Byte bytes[3])
+{
+    return (int32_t)bitcastU24_BE(bytes);
 }
 
 int32_t bitcastI32_LE(const Byte bytes[4])
