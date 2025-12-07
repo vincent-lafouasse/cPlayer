@@ -12,6 +12,7 @@ PRIVATE
 	${testedSourceDir}/codec/wav/navigateRiff.c
 	${testedSourceDir}/codec/wav/readFormatChunk.c
 	${testedSourceDir}/codec/wav/validateFormatChunk.c
+	${testedSourceDir}/codec/wav/parseFormatChunk.c
 	${testedSourceDir}/codec/wav/formatInfo.c
 	${testedSourceDir}/codec/wav/sampleFormat.c
 

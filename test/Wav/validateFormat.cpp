@@ -15,9 +15,7 @@ TEST(WavValidator, ValidPCM16Mono)
     fmt.size = 16;
     fmt.extensionSize = 0;
 
-    SampleFormat out;
-    EXPECT_TRUE(err_isOk(validateWavFormatChunk(&fmt, &out)));
-    EXPECT_EQ(out, SampleFormat_Signed16);
+    EXPECT_TRUE(err_isOk(validateWavFormatChunk(&fmt)));
 }
 
 TEST(WavValidator, ValidPCM16Stereo)
@@ -31,9 +29,7 @@ TEST(WavValidator, ValidPCM16Stereo)
     fmt.size = 16;
     fmt.extensionSize = 0;
 
-    SampleFormat out;
-    EXPECT_TRUE(err_isOk(validateWavFormatChunk(&fmt, &out)));
-    EXPECT_EQ(out, SampleFormat_Signed16);
+    EXPECT_TRUE(err_isOk(validateWavFormatChunk(&fmt)));
 }
 
 TEST(WavValidator, ValidFloat32Stereo)
@@ -47,9 +43,7 @@ TEST(WavValidator, ValidFloat32Stereo)
     fmt.size = 16;
     fmt.extensionSize = 0;
 
-    SampleFormat out;
-    EXPECT_TRUE(err_isOk(validateWavFormatChunk(&fmt, &out)));
-    EXPECT_EQ(out, SampleFormat_Float32);
+    EXPECT_TRUE(err_isOk(validateWavFormatChunk(&fmt)));
 }
 
 TEST(WavValidator, AbsurdSampleRate)
@@ -63,8 +57,7 @@ TEST(WavValidator, AbsurdSampleRate)
     fmt.size = 16;
     fmt.extensionSize = 0;
 
-    SampleFormat out;
-    Error err = validateWavFormatChunk(&fmt, &out);
+    Error err = validateWavFormatChunk(&fmt);
     ASSERT_EQ(err_category(err), E_Codec);
     ASSERT_EQ(err_subCategory(err), ECdc_AbsurdSampleRate);
 }
@@ -80,8 +73,7 @@ TEST(WavValidator, ZeroChannels)
     fmt.size = 16;
     fmt.extensionSize = 0;
 
-    SampleFormat out;
-    Error err = validateWavFormatChunk(&fmt, &out);
+    Error err = validateWavFormatChunk(&fmt);
     ASSERT_EQ(err_category(err), E_Codec);
     ASSERT_EQ(err_subCategory(err), ECdc_UnsupportedChannelLayout);
 }
@@ -97,8 +89,7 @@ TEST(WavValidator, BlockAlignMismatch)
     fmt.size = 16;
     fmt.extensionSize = 0;
 
-    SampleFormat out;
-    Error err = validateWavFormatChunk(&fmt, &out);
+    Error err = validateWavFormatChunk(&fmt);
     ASSERT_EQ(err_category(err), E_Wav);
     ASSERT_EQ(err_subCategory(err), EWav_BlockAlignMismatch);
 }
@@ -114,8 +105,7 @@ TEST(WavValidator, FormatChunkTooSmall)
     fmt.size = 12;  // < 16
     fmt.extensionSize = 0;
 
-    SampleFormat out;
-    Error err = validateWavFormatChunk(&fmt, &out);
+    Error err = validateWavFormatChunk(&fmt);
     ASSERT_EQ(err_category(err), E_Wav);
     ASSERT_EQ(err_subCategory(err), EWav_FormatChunkTooSmall);
 }
@@ -130,8 +120,8 @@ TEST(WavValidator, ExtensionSizeMismatch_18Bytes)
     fmt.blockAlign = 4;
     fmt.size = 18;
     fmt.extensionSize = 2;  // should be 0
-    SampleFormat out;
-    Error err = validateWavFormatChunk(&fmt, &out);
+
+    Error err = validateWavFormatChunk(&fmt);
     ASSERT_EQ(err_category(err), E_Wav);
     ASSERT_EQ(err_subCategory(err), EWav_ExtensionSizeMismatch);
 }
@@ -146,8 +136,8 @@ TEST(WavValidator, ExtensionSizeMismatch_40Bytes)
     fmt.blockAlign = 4;
     fmt.size = 40;
     fmt.extensionSize = 10;  // should be 22
-    SampleFormat out;
-    Error err = validateWavFormatChunk(&fmt, &out);
+
+    Error err = validateWavFormatChunk(&fmt);
     ASSERT_EQ(err_category(err), E_Wav);
     ASSERT_EQ(err_subCategory(err), EWav_ExtensionSizeMismatch);
 }
@@ -163,8 +153,7 @@ TEST(WavValidator, UnknownFormatTag)
     fmt.size = 16;
     fmt.extensionSize = 0;
 
-    SampleFormat out;
-    Error err = validateWavFormatChunk(&fmt, &out);
+    Error err = validateWavFormatChunk(&fmt);
     ASSERT_EQ(err_category(err), E_Wav);
     ASSERT_EQ(err_subCategory(err), EWav_UnknownSampleFormat);
 }
