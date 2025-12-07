@@ -23,6 +23,11 @@ uint32_t bitcastU32_BE(const Byte bytes[4]);
 int32_t bitcastI32_LE(const Byte bytes[4]);
 int32_t bitcastI32_BE(const Byte bytes[4]);
 
+uint64_t bitcastU64_LE(const Byte bytes[8]);
+uint64_t bitcastU64_BE(const Byte bytes[8]);
+int64_t bitcastI64_LE(const Byte bytes[8]);
+int64_t bitcastI64_BE(const Byte bytes[8]);
+
 #ifdef __cplusplus
 }
 #endif
