@@ -396,3 +396,61 @@ TEST(bitcast, I64_BE)
         EXPECT_EQ(bitcastI64_BE(b), expected);
     }
 }
+
+TEST(bitcast, U24_LE)
+{
+    // Zero
+    {
+        constexpr Byte b[3] = {0x00, 0x00, 0x00};
+        constexpr u32 expected = 0x000000;
+        EXPECT_EQ(bitcastU24_LE(b), expected);
+    }
+    // One (LSB set)
+    {
+        constexpr Byte b[3] = {0x01, 0x00, 0x00};
+        constexpr u32 expected = 0x000001;
+        EXPECT_EQ(bitcastU24_LE(b), expected);
+    }
+    // Max Positive Value (0xFFFFFF)
+    {
+        constexpr Byte b[3] = {0xff, 0xff, 0xff};
+        constexpr u32 expected = 0xffffff;
+        EXPECT_EQ(bitcastU24_LE(b), expected);
+    }
+    // Arbitrary Value
+    {
+        // 0x123456
+        constexpr Byte b[3] = {0x56, 0x34, 0x12};
+        constexpr u32 expected = 0x123456;
+        EXPECT_EQ(bitcastU24_LE(b), expected);
+    }
+}
+
+TEST(bitcast, U24_BE)
+{
+    // Zero
+    {
+        constexpr Byte b[3] = {0x00, 0x00, 0x00};
+        constexpr u32 expected = 0x000000;
+        EXPECT_EQ(bitcastU24_BE(b), expected);
+    }
+    // One (LSB set)
+    {
+        constexpr Byte b[3] = {0x00, 0x00, 0x01};
+        constexpr u32 expected = 0x000001;
+        EXPECT_EQ(bitcastU24_BE(b), expected);
+    }
+    // Max Positive Value (0xFFFFFF)
+    {
+        constexpr Byte b[3] = {0xff, 0xff, 0xff};
+        constexpr u32 expected = 0xffffff;
+        EXPECT_EQ(bitcastU24_BE(b), expected);
+    }
+    // Arbitrary Value
+    {
+        // 0x123456
+        constexpr Byte b[3] = {0x12, 0x34, 0x56};
+        constexpr u32 expected = 0x123456;
+        EXPECT_EQ(bitcastU24_BE(b), expected);
+    }
+}
