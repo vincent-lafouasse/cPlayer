@@ -101,3 +101,37 @@ int64_t bitcastI64_BE(const Byte bytes[8])
 {
     return (int64_t)bitcastU64_BE(bytes);
 }
+
+typedef union {
+    float f;
+    uint32_t bits;
+} FloatBits;
+
+float bitcastF32_LE(const Byte bytes[4])
+{
+    const FloatBits bits = (FloatBits){.bits = bitcastU32_LE(bytes)};
+    return bits.f;
+}
+
+float bitcastF32_BE(const Byte bytes[4])
+{
+    const FloatBits bits = (FloatBits){.bits = bitcastU32_BE(bytes)};
+    return bits.f;
+}
+
+typedef union {
+    double f;
+    uint64_t bits;
+} DoubleBits;
+
+double bitcastF64_LE(const Byte bytes[8])
+{
+    const DoubleBits bits = (DoubleBits){.bits = bitcastU64_LE(bytes)};
+    return bits.f;
+}
+
+double bitcastF64_BE(const Byte bytes[8])
+{
+    const DoubleBits bits = (DoubleBits){.bits = bitcastU64_BE(bytes)};
+    return bits.f;
+}

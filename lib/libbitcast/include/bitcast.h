@@ -28,6 +28,12 @@ uint64_t bitcastU64_BE(const Byte bytes[8]);
 int64_t bitcastI64_LE(const Byte bytes[8]);
 int64_t bitcastI64_BE(const Byte bytes[8]);
 
+float bitcastF32_LE(const Byte bytes[4]);
+float bitcastF32_BE(const Byte bytes[4]);
+
+double bitcastF64_LE(const Byte bytes[8]);
+double bitcastF64_BE(const Byte bytes[8]);
+
 #ifdef __cplusplus
 }
 #endif
