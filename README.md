@@ -1,6 +1,6 @@
 # cPlayer
 
-a wav player
+a wav player in standard C99
 
 ### Supported formats
 - [x] Raw PCM 24bit
