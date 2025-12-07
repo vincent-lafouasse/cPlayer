@@ -11,6 +11,7 @@ PRIVATE
 	codec/wav/navigateRiff.c
 	codec/wav/readFormatChunk.c
 	codec/wav/validateFormatChunk.c
+	codec/wav/parseFormatChunk.c
 	codec/wav/formatInfo.c
 	codec/wav/sampleFormat.c
 	codec/wav/readSample.c

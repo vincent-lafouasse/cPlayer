@@ -15,10 +15,6 @@ Error readWavFormatInfo(Reader* reader, WavFormatInfo* out)
 
     WavFormatChunk formatChunk;
     TRY(readFormatChunk(reader, &formatChunk));
-    TRY(skipChunkUntil(reader, "data"));
-
-    TRY(validateWavFormatChunk(&formatChunk));
-    logFn(LogLevel_Debug, "format chunk seems good\n");
 
     WavFormatInfo format;
     TRY(parseFormatChunk(&formatChunk, &format));
@@ -30,6 +26,7 @@ Error readWavFormatInfo(Reader* reader, WavFormatInfo* out)
     assert(format.formatTag == WAVE_FORMAT_PCM ||
            format.formatTag == WAVE_FORMAT_IEEE_FLOAT);
 
+    TRY(skipChunkUntil(reader, "data"));
     // data chunk
     Slice dataChunkHeader;
     TRY(reader_takeSlice(reader, 8, &dataChunkHeader));
@@ -40,10 +37,9 @@ Error readWavFormatInfo(Reader* reader, WavFormatInfo* out)
     logFn(LogLevel_Debug, "data size:\t\t%u\n", dataSize);
 
     // NOTE: this won't be true for ADPCM
-    uint32_t nFrames = 8 * dataSize / format.bitDepth / format.nChannels;
-    logFn(LogLevel_Debug, "n frames:\t\t%u\n", nFrames);
+    format.nFrames = dataSize / format.blockAlign;
+    logFn(LogLevel_Debug, "n frames:\t\t%u\n", format.nFrames);
 
-    format.nFrames = nFrames;
     *out = format;
     logFn(LogLevel_Debug, "\n");
     return err_Ok();
@@ -78,7 +74,7 @@ void logWavFormatInfo(const WavFormatInfo* info)
           sampleFormatRepr(info->sampleFormat));
     logFn(LogLevel_Info, "\tnumber of frames:\t%u\n", info->nFrames);
     logFn(LogLevel_Info, "\tblock align:\t\t%u\n", info->blockAlign);
-    logFn(LogLevel_Info, "\tbit depth:\t\t%u\n", info->bitsPerSample);
+    logFn(LogLevel_Info, "\tbit depth:\t\t%u\n", info->bitDepth);
     logFn(LogLevel_Info, "\tadpcm block size:\t%u\n", info->adpcmBlockSize);
     logFn(LogLevel_Info, "}\n\n");
 }

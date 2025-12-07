@@ -1,6 +1,6 @@
 #include "wav_internals.h"
 
-Error validateWavFormatChunk(const WavFormatChunk* format, SampleFormat* out)
+Error validateWavFormatChunk(const WavFormatChunk* format)
 {
     // Check number of channels (we only accept mono/stereo eventually)
     if (format->nChannels == 0 || format->nChannels > 2)
@@ -30,50 +30,6 @@ Error validateWavFormatChunk(const WavFormatChunk* format, SampleFormat* out)
         return err_Err(E_Wav, EWav_ExtensionSizeMismatch);
     if (format->size == 40 && format->extensionSize != 22)
         return err_Err(E_Wav, EWav_ExtensionSizeMismatch);
-
-    // Sample format mapping
-    switch (format->formatTag) {
-        case WAVE_FORMAT_PCM:
-            switch (format->bitDepth) {
-                case 8:
-                    *out = SampleFormat_Unsigned8;
-                    break;
-                case 16:
-                    *out = SampleFormat_Signed16;
-                    break;
-                case 24:
-                    *out = SampleFormat_Signed24;
-                    break;
-                case 32:
-                    *out = SampleFormat_Signed32;
-                    break;
-                default:
-                    return err_withCtx(E_Wav, EWav_UnsupportedBitDepth,
-                                       format->bitDepth);
-            }
-            break;
-        case WAVE_FORMAT_IEEE_FLOAT:
-            if (format->bitDepth == 32)
-                *out = SampleFormat_Float32;
-            else if (format->bitDepth == 64)
-                *out = SampleFormat_Float64;
-            else
-                return err_withCtx(E_Wav, EWav_UnsupportedBitDepth,
-                                   format->bitDepth);
-            break;
-        case WAVE_FORMAT_ADPCM:
-            *out = SampleFormat_ADPCM;  // no validation yet
-            break;
-        case WAVE_FORMAT_MULAW:
-            *out = SampleFormat_MULAW;  // no validation yet
-            break;
-        case WAVE_FORMAT_ALAW:
-            *out = SampleFormat_ALAW;  // no validation yet
-            break;
-        default:
-            return err_withCtx(E_Wav, EWav_UnknownSampleFormat,
-                               format->formatTag);
-    }
 
     return err_Ok();
 }

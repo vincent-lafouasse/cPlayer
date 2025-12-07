@@ -92,3 +92,9 @@ Error parseFormatChunk(const WavFormatChunk* chunk, WavFormatInfo* out)
     TRY(assignSampleFormat(out, &out->sampleFormat));
     return err_Ok();
 }
+
+Error checkFormatSupport(const WavFormatInfo* format)
+{
+    (void)format;
+    return err_Ok();
+}
