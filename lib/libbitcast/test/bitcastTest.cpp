@@ -7,6 +7,7 @@ extern "C" {
 using u16 = uint16_t;
 using i16 = int16_t;
 using u32 = uint32_t;
+using i32 = int32_t;
 
 TEST(bitcast, U16_LE)
 {
@@ -196,32 +197,32 @@ TEST(bitcast, I32_LE)
 {
     {
         constexpr Byte b[4] = {0x00, 0x00, 0x00, 0x00};
-        constexpr int32_t expected = 0x00000000;
+        constexpr i32 expected = 0x00000000;
         EXPECT_EQ(bitcastI32_LE(b), expected);
     }
     {
         constexpr Byte b[4] = {0x01, 0x00, 0x00, 0x00};
-        constexpr int32_t expected = 0x00000001;
+        constexpr i32 expected = 0x00000001;
         EXPECT_EQ(bitcastI32_LE(b), expected);
     }
     {
         constexpr Byte b[4] = {0xff, 0xff, 0xff, 0x7f};
-        constexpr int32_t expected = INT32_MAX;
+        constexpr i32 expected = INT32_MAX;
         EXPECT_EQ(bitcastI32_LE(b), expected);
     }
     {
         constexpr Byte b[4] = {0x00, 0x00, 0x00, 0x80};
-        constexpr int32_t expected = INT32_MIN;
+        constexpr i32 expected = INT32_MIN;
         EXPECT_EQ(bitcastI32_LE(b), expected);
     }
     {
         constexpr Byte b[4] = {0xfe, 0xca, 0xbe, 0xba};
-        constexpr int32_t expected = static_cast<int32_t>(0xbabecafe);
+        constexpr i32 expected = static_cast<i32>(0xbabecafe);
         EXPECT_EQ(bitcastI32_LE(b), expected);
     }
     {
         constexpr Byte b[4] = {0xff, 0xff, 0xff, 0xff};
-        constexpr int32_t expected = -1;
+        constexpr i32 expected = -1;
         EXPECT_EQ(bitcastI32_LE(b), expected);
     }
 }
@@ -230,32 +231,32 @@ TEST(bitcast, I32_BE)
 {
     {
         constexpr Byte b[4] = {0x00, 0x00, 0x00, 0x00};
-        constexpr int32_t expected = 0x00000000;
+        constexpr i32 expected = 0x00000000;
         EXPECT_EQ(bitcastI32_BE(b), expected);
     }
     {
         constexpr Byte b[4] = {0x00, 0x00, 0x00, 0x01};
-        constexpr int32_t expected = 0x00000001;
+        constexpr i32 expected = 0x00000001;
         EXPECT_EQ(bitcastI32_BE(b), expected);
     }
     {
         constexpr Byte b[4] = {0x7f, 0xff, 0xff, 0xff};
-        constexpr int32_t expected = INT32_MAX;
+        constexpr i32 expected = INT32_MAX;
         EXPECT_EQ(bitcastI32_BE(b), expected);
     }
     {
         constexpr Byte b[4] = {0x80, 0x00, 0x00, 0x00};
-        constexpr int32_t expected = INT32_MIN;
+        constexpr i32 expected = INT32_MIN;
         EXPECT_EQ(bitcastI32_BE(b), expected);
     }
     {
         constexpr Byte b[4] = {0xba, 0xbe, 0xca, 0xfe};
-        constexpr int32_t expected = static_cast<int32_t>(0xbabecafe);
+        constexpr i32 expected = static_cast<i32>(0xbabecafe);
         EXPECT_EQ(bitcastI32_BE(b), expected);
     }
     {
         constexpr Byte b[4] = {0xff, 0xff, 0xff, 0xff};
-        constexpr int32_t expected = -1;
+        constexpr i32 expected = -1;
         EXPECT_EQ(bitcastI32_BE(b), expected);
     }
 }
