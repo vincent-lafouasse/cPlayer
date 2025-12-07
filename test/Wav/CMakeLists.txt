@@ -6,7 +6,8 @@ add_executable(${TEST_RUNNER_NAME})
 target_sources(${TEST_RUNNER_NAME}
 PRIVATE
 	./main.cpp
-	./readWavFormat.cpp
+	./readFormat.cpp
+	./validateFormat.cpp
 
 	${testedSourceDir}/codec/wav/navigateRiff.c
 	${testedSourceDir}/codec/wav/readFormatChunk.c
