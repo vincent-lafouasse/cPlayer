@@ -46,12 +46,24 @@ int16_t bitcastI16_BE(const Byte bytes[2])
 
 int32_t bitcastI24_LE(const Byte bytes[3])
 {
-    return (int32_t)bitcastU24_LE(bytes);
+    uint32_t value = bitcastU24_LE(bytes);
+
+    // extend sign bit
+    if (value & 0x00800000)
+        value |= 0xFF000000;
+
+    return (int32_t)value;
 }
 
 int32_t bitcastI24_BE(const Byte bytes[3])
 {
-    return (int32_t)bitcastU24_BE(bytes);
+    uint32_t value = bitcastU24_BE(bytes);
+
+    // extend sign bit
+    if (value & 0x00800000)
+        value |= 0xFF000000;
+
+    return (int32_t)value;
 }
 
 int32_t bitcastI32_LE(const Byte bytes[4])
