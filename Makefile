@@ -46,7 +46,7 @@ fclean: clean
 .PHONY: format
 format:
 	clang-format -i $(shell find src -name '*.c' -or -name '*.h')
-	clang-format -i $(shell find lib -name '*.c' -or -name '*.h')
+	clang-format -i $(shell find lib -name '*.c' -or -name '*.cpp' -or -name '*.hpp' -or -name '*.h')
 	clang-format -i $(shell find test -name '*.cpp' -or -name '*.hpp' -or -name '*.h')
 
 # aliases
