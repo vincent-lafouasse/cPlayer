@@ -155,5 +155,5 @@ TEST(WavValidator, UnknownFormatTag)
 
     Error err = validateWavFormatChunk(&fmt);
     ASSERT_EQ(err_category(err), E_Wav);
-    ASSERT_EQ(err_subCategory(err), EWav_UnknownSampleFormat);
+    ASSERT_EQ(err_subCategory(err), EWav_UnknownFormatTag);
 }

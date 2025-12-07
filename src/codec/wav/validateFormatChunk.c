@@ -1,7 +1,16 @@
+#include "Error.h"
 #include "wav_internals.h"
 
 Error validateWavFormatChunk(const WavFormatChunk* format)
 {
+    if (format->formatTag != WAVE_FORMAT_PCM &&
+        format->formatTag != WAVE_FORMAT_ADPCM &&
+        format->formatTag != WAVE_FORMAT_IEEE_FLOAT &&
+        format->formatTag != WAVE_FORMAT_ALAW &&
+        format->formatTag != WAVE_FORMAT_MULAW &&
+        format->formatTag != WAVE_FORMAT_EXTENSIBLE) {
+        return err_withCtx(E_Wav, EWav_UnknownFormatTag, format->formatTag);
+    }
     // Check number of channels (we only accept mono/stereo eventually)
     if (format->nChannels == 0 || format->nChannels > 2)
         return err_withCtx(E_Codec, ECdc_UnsupportedChannelLayout,
