@@ -1,3 +1,6 @@
 [submodule "lib/FileReader"]
 	path = lib/FileReader
 	url = https://github.com/vincent-lafouasse/FileReader.git
+[submodule "lib/libbitcast"]
+	path = lib/libbitcast
+	url = https://github.com/vincent-lafouasse/libbitcast.git
