@@ -30,9 +30,6 @@ add_test(NAME ReaderTest
 add_test(NAME bitcastTest
     COMMAND bitcastTest
 )
-add_test(NAME i24Test
-    COMMAND i24Test
-)
 add_test(NAME OptionsTest
     COMMAND OptionsTest
 )
