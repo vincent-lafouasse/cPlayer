@@ -124,6 +124,9 @@ static void logWavError(Error err, const ErrorLogCtx* ctx)
         case EWav_UnknownGuidSubformat:
             logFn(LogLevel_Error, "Unrecognised subformat GUID\n");
             break;
+        case EWav_UnsupportedSampleFormat:
+            logFn(LogLevel_Error, "Unsupported sample format\n");
+            break;
         default:
             logFn(LogLevel_Error, "Unknown wav decoding error %u\n", sub);
             break;
