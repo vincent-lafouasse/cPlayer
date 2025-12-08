@@ -86,15 +86,11 @@ static AudioDataResult readStereoPCM(Reader* reader,
     for (uint32_t i = 0; i < format->nFrames; ++i) {
         err = readStereoFrame(reader, format, left + i, right + i);
         if (!err_isOk(err)) {
-            logFn(LogLevel_Error,
-                  "encountered read error at offset %u for sample %u\n",
-                  reader->offset, i);
             goto out;
         }
     }
 
 out:
-    dumpFloatCsv(left, format->nFrames, "s24_dump.csv");
     if (!err_isOk(err)) {
         free(left);
         free(right);
