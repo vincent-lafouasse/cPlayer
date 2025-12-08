@@ -39,12 +39,13 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     bitcast
 )
 
-# include(FetchContent)
-# include(cmake/fetch_gtest.cmake)
-# add_subdirectory(test)
-# include(CTest)
-# enable_testing()
-# 
-# add_test(NAME bitcastTest
-#     COMMAND bitcastTest
-# )
+include(FetchContent)
+include(cmake/fetch_gtest.cmake)
+add_subdirectory(test)
+
+include(CTest)
+enable_testing()
+
+add_test(NAME bitcastTest
+    COMMAND bitcastTest
+)
