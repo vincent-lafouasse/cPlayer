@@ -9,10 +9,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 if(NOT TARGET bitcast)
-    message(STATUS "Building libstream Standalone: Fetching bitcast dependency.")
+    message(STATUS "---- No libbitcast here or in parent project: fetching libbitcast")
 
     include(FetchContent)
-
     FetchContent_Declare(
         bitcast_dep
         GIT_REPOSITORY  https://github.com/vincent-lafouasse/libbitcast.git
@@ -20,6 +19,8 @@ if(NOT TARGET bitcast)
         GIT_SHALLOW     1
     )
     FetchContent_MakeAvailable(bitcast_dep)
+else()
+    message(STATUS "---- Found libbitcast in parent project: no fetching")
 endif()
 
 add_library(${PROJECT_NAME})
