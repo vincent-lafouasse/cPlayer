@@ -84,7 +84,7 @@ Error reader_takeI32_LE(Reader* reader, int32_t* out)
 Error reader_takeI24_LE(Reader* reader, int32_t* out)
 {
     Slice slice;
-    TRY(reader_peekSlice(reader, 4, &slice));
+    TRY(reader_peekSlice(reader, 3, &slice));
 
     *out = bitcastI24_LE(slice.slice);
     return reader_skip(reader, 3);
