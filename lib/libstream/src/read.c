@@ -4,13 +4,13 @@
 
 #include "bitcast.h"
 
-#define TRY(canFail) \
-        do {         \
-            ReadStatus status = canFail;   \
-            if (status != ReadStatus_Ok) { \
-                return status;             \
-            }                              \
-        } while (0)
+#define TRY(canFail)                   \
+    do {                               \
+        ReadStatus status = canFail;   \
+        if (status != ReadStatus_Ok) { \
+            return status;             \
+        }                              \
+    } while (0)
 
 ReadStatus reader_peekSlice(Reader* reader, size_t n, Slice* out)
 {
