@@ -19,6 +19,7 @@ Error readFormatChunk(Reader* reader, WavFormatChunk* out)
         return err_withCtx(E_Wav, EWav_UnknownFourCC,
                            fourCC_asU32(header.slice));
     }
+    logFn(LogLevel_Debug, "format chunk start:\t%u\n", reader->offset - 8);
     const uint32_t fmtChunkSize = bitcastU32_LE(header.slice + 4);
     logFn(LogLevel_Debug, "format chunk size:\t%u bytes\n", fmtChunkSize);
 

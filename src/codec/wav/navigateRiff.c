@@ -11,6 +11,7 @@ Error skipChunkUntil(Reader* reader, const char* expectedId)
     uint8_t id[5] = {0};
 
     TRY(reader_peekFourCC(reader, id));
+    logFn(LogLevel_Debug, "%s chunk found at offset %u\n", id, reader->offset);
     while (memcmp(id, expectedId, 4) != 0) {
         // skip the fourCC we just peeked
         TRY(reader_skip(reader, 4));
@@ -20,6 +21,8 @@ Error skipChunkUntil(Reader* reader, const char* expectedId)
         logFn(LogLevel_Debug, "Skipping chunk %s of size %u\n", id, chunkSize);
         TRY(reader_skip(reader, chunkSize));
         TRY(reader_peekFourCC(reader, id));
+        logFn(LogLevel_Debug, "%s chunk found at offset %u\n", id,
+              reader->offset);
     }
     return err_Ok();
 }

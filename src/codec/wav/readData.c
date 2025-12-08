@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "Error.h"
+#include "log.h"
 
 static AudioDataResult readMonoPCM(Reader* reader, const WavFormatInfo* format);
 static AudioDataResult readStereoPCM(Reader* reader,
@@ -14,6 +15,10 @@ AudioDataResult readWavData(Reader* reader, const WavFormatInfo* format)
         return AudioDataResult_Err(err_withCtx(
             E_Wav, EWav_UnsupportedSampleFormat, format->formatTag));
     }
+
+    logFn(LogLevel_Debug,
+          "start of the data _segment_, (data data not data chunk): %u\n",
+          reader->offset);
 
     if (format->nChannels == 1) {
         return readMonoPCM(reader, format);
@@ -81,11 +86,15 @@ static AudioDataResult readStereoPCM(Reader* reader,
     for (uint32_t i = 0; i < format->nFrames; ++i) {
         err = readStereoFrame(reader, format, left + i, right + i);
         if (!err_isOk(err)) {
+            logFn(LogLevel_Error,
+                  "encountered read error at offset %u for sample %u\n",
+                  reader->offset, i);
             goto out;
         }
     }
 
 out:
+    dumpFloatCsv(left, format->nFrames, "s24_dump.csv");
     if (!err_isOk(err)) {
         free(left);
         free(right);
