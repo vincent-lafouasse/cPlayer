@@ -99,6 +99,31 @@ static void logWavError(Error err, const ErrorLogCtx* ctx)
     (void)context;
 
     switch (sub) {
+        case EWav_UnknownFourCC:
+            logFn(LogLevel_Error, "Unknown wav Four CC %x\n", context);
+            break;
+        case EWav_UnknownSampleFormat:
+            logFn(LogLevel_Error, "Unknown sample format\n");
+            break;
+        case EWav_UnsupportedBitDepth:
+        case EWav_InvalidBitDepth:
+            logFn(LogLevel_Error, "Invalid bit depth: %u\n", context);
+            break;
+        case EWav_BlockAlignMismatch:
+            logFn(LogLevel_Error, "Mismatch in block alignment\n");
+            break;
+        case EWav_ExtensionSizeMismatch:
+            logFn(LogLevel_Error, "Mismatch in extension size\n");
+            break;
+        case EWav_FormatChunkTooSmall:
+            logFn(LogLevel_Error, "Wav format chunk too short to be correct\n");
+            break;
+        case EWav_UnknownFormatTag:
+            logFn(LogLevel_Error, "Unrecognised format tag: %x\n", context);
+            break;
+        case EWav_UnknownGuidSubformat:
+            logFn(LogLevel_Error, "Unrecognised subformat GUID\n");
+            break;
         default:
             logFn(LogLevel_Error, "Unknown wav decoding error %u\n", sub);
             break;
