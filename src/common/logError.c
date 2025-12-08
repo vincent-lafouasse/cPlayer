@@ -16,6 +16,12 @@ static void logReadError(Error err, const ErrorLogCtx* ctx)
     (void)context;
 
     switch (sub) {
+        case ERd_ReadFailed:
+            logFn(LogLevel_Error, "Failed to read\n");
+            break;
+        case ERd_UnexpectedEOF:
+            logFn(LogLevel_Error, "Unexpected EOF\n");
+            break;
         default:
             logFn(LogLevel_Error, "Unknown read error %u\n", sub);
             break;
