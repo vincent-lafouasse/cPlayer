@@ -4,8 +4,9 @@
 extern "C" {
 #endif
 
-#include "Error.h"
 #include "wav.h"
+
+#include "Error.h"
 
 #define WAVE_FORMAT_PCM 0x0001
 #define WAVE_FORMAT_ADPCM 0x0002

@@ -1,6 +1,7 @@
 #include "MemoryReader.hpp"
 
 #include <cstring>
+
 #include "Error.h"
 
 MemoryReader::MemoryReader(const std::vector<Byte>& v) : data(v), pos(0) {}

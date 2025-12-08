@@ -1,5 +1,6 @@
-#include "Error.h"
 #include "wav_internals.h"
+
+#include "Error.h"
 
 Error validateWavFormatChunk(const WavFormatChunk* format)
 {

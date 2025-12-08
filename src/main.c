@@ -1,7 +1,8 @@
 #include <stdlib.h>
 
-#include "Error.h"
 #include "FileReader.h"
+
+#include "Error.h"
 #include "Reader/ReaderAdapters.h"
 #include "audio.h"
 #include "codec/decode.h"

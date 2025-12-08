@@ -1,8 +1,8 @@
 #include "Error.h"
-#include "log.h"
 
 #include <assert.h>
 
+#include "log.h"
 #include "options/Options.h"
 
 static void logReadError(Error err, const ErrorLogCtx* ctx)
