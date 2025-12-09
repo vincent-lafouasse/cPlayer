@@ -17,9 +17,9 @@ base() {
     echo "${fname%.*}"
 }
 
-SAMPLE_RATE="44100"  # Standard sample rate (44.1 kHz)
-BIT_RATE="128k"      # Constant Bit Rate (CBR)
-CHANNELS="1"         # Mono audio (simplest channel mode)
+SAMPLE_RATE="44100"
+BIT_RATE="128k"
+CHANNELS="1"
 ENCODER="libmp3lame" # Standard MP3 encoder
 
 # no idv3 metadata
