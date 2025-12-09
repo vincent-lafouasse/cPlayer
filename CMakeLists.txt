@@ -19,6 +19,7 @@ set(FILE_READER_BUFFER_SIZE
     16384
     CACHE STRING "" FORCE)
 add_subdirectory(lib)
+
 add_subdirectory(src)
 
 include(cmake/fetch_gtest.cmake)
