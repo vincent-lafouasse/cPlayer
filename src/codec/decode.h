@@ -11,7 +11,7 @@ typedef enum {
     Codec_Wav,
 } Codec;
 
-AudioDataResult decodeAudio(Reader* reader);
+Error decodeAudio(Reader* reader, AudioData* out);
 
 #ifdef __cplusplus
 }

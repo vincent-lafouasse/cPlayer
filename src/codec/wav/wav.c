@@ -2,14 +2,12 @@
 
 #include "audio.h"
 
-AudioDataResult decodeWav(Reader* reader)
+Error decodeWav(Reader* reader, AudioData* out)
 {
     WavFormatInfo format;
-    const Error err = readWavFormatInfo(reader, &format);
-    if (!err_isOk(err)) {
-        return AudioDataResult_Err(err);
-    }
+    TRY(readWavFormatInfo(reader, &format));
     logWavFormatInfo(&format);
 
-    return readWavData(reader, &format);
+    TRY(readWavData(reader, &format, out));
+    return err_Ok();
 }

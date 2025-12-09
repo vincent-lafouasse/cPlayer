@@ -5,15 +5,17 @@
 #include "Error.h"
 #include "log.h"
 
-static AudioDataResult readMonoPCM(Reader* reader, const WavFormatInfo* format);
-static AudioDataResult readStereoPCM(Reader* reader,
-                                     const WavFormatInfo* format);
+static Error readMonoPCM(Reader* reader,
+                         const WavFormatInfo* format,
+                         AudioData* out);
+static Error readStereoPCM(Reader* reader,
+                           const WavFormatInfo* format,
+                           AudioData* out);
 
-AudioDataResult readWavData(Reader* reader, const WavFormatInfo* format)
+Error readWavData(Reader* reader, const WavFormatInfo* format, AudioData* out)
 {
     if (format->formatTag != WAVE_FORMAT_PCM) {
-        return AudioDataResult_Err(err_withCtx(
-            E_Wav, EWav_UnsupportedSampleFormat, format->formatTag));
+        err_withCtx(E_Wav, EWav_UnsupportedSampleFormat, format->formatTag);
     }
 
     logFn(LogLevel_Debug,
@@ -21,16 +23,18 @@ AudioDataResult readWavData(Reader* reader, const WavFormatInfo* format)
           reader->offset);
 
     if (format->nChannels == 1) {
-        return readMonoPCM(reader, format);
+        return readMonoPCM(reader, format, out);
     } else if (format->nChannels == 2) {
-        return readStereoPCM(reader, format);
+        return readStereoPCM(reader, format, out);
     } else {
-        return AudioDataResult_Err(err_withCtx(
-            E_Codec, ECdc_UnsupportedChannelLayout, format->nChannels));
+        return err_withCtx(E_Codec, ECdc_UnsupportedChannelLayout,
+                           format->nChannels);
     }
 }
 
-static AudioDataResult readMonoPCM(Reader* reader, const WavFormatInfo* format)
+static Error readMonoPCM(Reader* reader,
+                         const WavFormatInfo* format,
+                         AudioData* out)
 {
     Error err = err_Ok();
 
@@ -50,14 +54,14 @@ static AudioDataResult readMonoPCM(Reader* reader, const WavFormatInfo* format)
 
 out:
     if (!err_isOk(err)) {
-        const AudioData track = (AudioData){.left = left,
-                                            .right = left,
-                                            .size = format->nFrames,
-                                            .sampleRate = format->sampleRate};
-        return AudioDataResult_Ok(track);
+        *out = (AudioData){.left = left,
+                           .right = left,
+                           .size = format->nFrames,
+                           .sampleRate = format->sampleRate};
+        return err_Ok();
     } else {
         free(left);
-        return AudioDataResult_Err(err);
+        return err;
     }
 }
 
@@ -71,8 +75,9 @@ static Error readStereoFrame(Reader* reader,
     return err_Ok();
 }
 
-static AudioDataResult readStereoPCM(Reader* reader,
-                                     const WavFormatInfo* format)
+static Error readStereoPCM(Reader* reader,
+                           const WavFormatInfo* format,
+                           AudioData* out)
 {
     Error err = err_Ok();
 
@@ -94,12 +99,12 @@ out:
     if (!err_isOk(err)) {
         free(left);
         free(right);
-        return AudioDataResult_Err(err);
+        return err;
     } else {
-        const AudioData track = (AudioData){.left = left,
-                                            .right = right,
-                                            .size = format->nFrames,
-                                            .sampleRate = format->sampleRate};
-        return AudioDataResult_Ok(track);
+        *out = (AudioData){.left = left,
+                           .right = right,
+                           .size = format->nFrames,
+                           .sampleRate = format->sampleRate};
+        return err_Ok();
     }
 }

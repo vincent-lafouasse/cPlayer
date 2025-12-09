@@ -7,7 +7,7 @@ extern "C" {
 #include "audio.h"
 #include "libstream/Reader.h"
 
-AudioDataResult decodeWav(Reader* reader);
+Error decodeWav(Reader* reader, AudioData* out);
 
 #ifdef __cplusplus
 }

@@ -41,13 +41,12 @@ static Error loadAudioOrExit(const char* path, AudioData* out)
 
     Reader reader = reader_fromFileReader(&fileReader);
 
-    AudioDataResult maybeTrack = decodeAudio(&reader);
+    Error err = decodeAudio(&reader, out);
     fr_close(&fileReader);  // this isn't needed anymore
-    if (!err_isOk(maybeTrack.err)) {
-        return maybeTrack.err;
+    if (!err_isOk(err)) {
+        return err;
     }
 
-    *out = maybeTrack.track;
     return err_Ok();
 }
 
