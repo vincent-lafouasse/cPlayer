@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Reader.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -87,6 +88,34 @@ Error readSample(Reader* reader, const WavFormatInfo* format, float* out);
 // debug utils
 const char* sampleFormatRepr(SampleFormat fmt);
 void logWavFormatInfo(const WavFormatInfo* format);
+
+static inline Error err_fromIo(LibStream_ReadStatus status)
+{
+    switch (status) {
+        case LibStream_ReadStatus_Ok:
+            return err_Ok();
+        case LibStream_ReadStatus_ReadFailed:
+            return err_Err(E_Read, ERd_ReadFailed);
+        case LibStream_ReadStatus_UnexpectedEOF:
+            return err_Err(E_Read, ERd_UnexpectedEOF);
+    }
+}
+
+#define TRY_IO(func_call)                           \
+    do {                                            \
+        Error __temp_err = (err_fromIo(func_call)); \
+        if (!err_isOk(__temp_err)) {                \
+            return __temp_err;                      \
+        }                                           \
+    } while (0)
+
+#define TRY_IO_CTX(func_call, ctxBits)              \
+    do {                                            \
+        Error __temp_err = (err_fromIo(func_call)); \
+        if (!err_isOk(__temp_err)) {                \
+            return err_addCtx(__temp_err, ctxBits); \
+        }                                           \
+    } while (0)
 
 #define DUMP_PREFIX "./build/dump_"
 #define DUMP_SUFFIX ".csv"

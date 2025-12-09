@@ -16,10 +16,12 @@ class MemoryReader {
     MemoryReader(const std::vector<Byte>& v);
     MemoryReader(const std::string& s);
 
-    Error peekSlice(size_t size, Slice* out) const;
-    Error skip(size_t size);
+    LibStream_ReadStatus peekSlice(size_t size, Slice* out) const;
+    LibStream_ReadStatus skip(size_t size);
 };
 
-Error memoryReaderPeekSlice(Reader* reader, size_t n, Slice* out);
-Error memoryReaderSkip(Reader* reader, size_t n);
+LibStream_ReadStatus memoryReaderPeekSlice(Reader* reader,
+                                           size_t n,
+                                           Slice* out);
+LibStream_ReadStatus memoryReaderSkip(Reader* reader, size_t n);
 Reader memoryReaderInterface(MemoryReader* memoryReader);

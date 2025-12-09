@@ -2,7 +2,22 @@
 
 #include <cstring>
 
-#include "Error.h"
+#include "Reader.h"
+
+static LibStream_ReadStatus ls_Ok()
+{
+    return LibStream_ReadStatus_Ok;
+}
+
+static LibStream_ReadStatus ls_EOF()
+{
+    return LibStream_ReadStatus_UnexpectedEOF;
+}
+
+static bool ls_isOk(LibStream_ReadStatus err)
+{
+    return err == ls_Ok();
+}
 
 MemoryReader::MemoryReader(const std::vector<Byte>& v) : data(v), pos(0) {}
 
@@ -13,43 +28,43 @@ MemoryReader::MemoryReader(const std::string& s) : data(), pos(0)
     }
 }
 
-Error MemoryReader::peekSlice(size_t size, Slice* out) const
+LibStream_ReadStatus MemoryReader::peekSlice(size_t size, Slice* out) const
 {
     if (this->pos + size > this->data.size()) {
-        return err_Err(E_Read, ERd_UnexpectedEOF);
+        return ls_EOF();
     }
 
     *out = {.slice = this->data.data() + this->pos, .len = size};
-    return err_Ok();
+    return ls_Ok();
 }
 
-Error MemoryReader::skip(size_t size)
+LibStream_ReadStatus MemoryReader::skip(size_t size)
 {
     if (this->pos + size > this->data.size()) {
-        return err_Err(E_Read, ERd_UnexpectedEOF);
+        return ls_EOF();
     } else {
         this->pos += size;
-        return err_Ok();
+        return ls_Ok();
     }
 }
 
-Error memoryReaderPeekSlice(Reader* reader, size_t n, Slice* out)
+LibStream_ReadStatus memoryReaderPeekSlice(Reader* reader, size_t n, Slice* out)
 {
     MemoryReader* memoryReader = static_cast<MemoryReader*>(reader->ctx);
 
     return memoryReader->peekSlice(n, out);
 }
 
-Error memoryReaderSkip(Reader* reader, size_t n)
+LibStream_ReadStatus memoryReaderSkip(Reader* reader, size_t n)
 {
     MemoryReader* memoryReader = static_cast<MemoryReader*>(reader->ctx);
 
-    Error err = memoryReader->skip(n);
-    if (!err_isOk(err)) {
+    LibStream_ReadStatus err = memoryReader->skip(n);
+    if (!ls_isOk(err)) {
         return err;
     } else {
         reader->offset += n;
-        return err_Ok();
+        return ls_Ok();
     }
 }
 

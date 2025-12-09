@@ -2,12 +2,18 @@
 #include <string>
 #include <vector>
 
+#include "Reader.h"
 #include "gtest/gtest.h"
 
 #include "MemoryReader.hpp"
 
 #include "Error.h"
 #include "wav_internals.h"
+
+bool io_err_isOk(LibStream_ReadStatus status)
+{
+    return status == LibStream_ReadStatus_Ok;
+}
 
 // Helper to write u32 little-endian
 std::vector<Byte> le32(uint32_t x)
@@ -68,7 +74,7 @@ TEST(WavReader, SkipChunkUntil_Success)
 
     ASSERT_TRUE(err_isOk(skipChunkUntil(&r, "fmt ")));
     Slice s;
-    ASSERT_TRUE(err_isOk(reader_takeSlice(&r, 4, &s)));
+    ASSERT_TRUE(io_err_isOk(reader_takeSlice(&r, 4, &s)));
     EXPECT_EQ(std::string((char*)s.slice, s.len), "fmt ");
 }
 
@@ -97,7 +103,7 @@ TEST(WavReader, SkipChunkUntil_MultipleJunk)
     ASSERT_TRUE(err_isOk(skipChunkUntil(&r, "fmt ")));
 
     Slice s;
-    ASSERT_TRUE(err_isOk(reader_takeSlice(&r, 4, &s)));
+    ASSERT_TRUE(io_err_isOk(reader_takeSlice(&r, 4, &s)));
     EXPECT_EQ(std::string((char*)s.slice, s.len), "fmt ");
 }
 
@@ -110,7 +116,7 @@ TEST(WavReader, SkipChunkUntil_ImmediateFmt)
 
     ASSERT_TRUE(err_isOk(skipChunkUntil(&r, "fmt ")));
     Slice s;
-    ASSERT_TRUE(err_isOk(reader_takeSlice(&r, 4, &s)));
+    ASSERT_TRUE(io_err_isOk(reader_takeSlice(&r, 4, &s)));
     EXPECT_EQ(std::string((char*)s.slice, s.len), "fmt ");
 }
 
@@ -159,7 +165,7 @@ TEST(WavReader, GetToFormatChunk_SimpleFmt)
     ASSERT_TRUE(err_isOk(getToFormatChunk(&r)));
 
     Slice s;
-    ASSERT_TRUE(err_isOk(reader_takeSlice(&r, 4, &s)));
+    ASSERT_TRUE(io_err_isOk(reader_takeSlice(&r, 4, &s)));
     EXPECT_EQ(std::string((char*)s.slice, s.len), "fmt ");
 }
 
@@ -176,7 +182,7 @@ TEST(WavReader, GetToFormatChunk_JunkBeforeFmt)
     ASSERT_TRUE(err_isOk(getToFormatChunk(&r)));
 
     Slice s;
-    ASSERT_TRUE(err_isOk(reader_takeSlice(&r, 4, &s)));
+    ASSERT_TRUE(io_err_isOk(reader_takeSlice(&r, 4, &s)));
     EXPECT_EQ(std::string((char*)s.slice, s.len), "fmt ");
 }
 
@@ -194,7 +200,7 @@ TEST(WavReader, GetToFormatChunk_MultipleJunk)
     ASSERT_TRUE(err_isOk(getToFormatChunk(&r)));
 
     Slice s;
-    ASSERT_TRUE(err_isOk(reader_takeSlice(&r, 4, &s)));
+    ASSERT_TRUE(io_err_isOk(reader_takeSlice(&r, 4, &s)));
     EXPECT_EQ(std::string((char*)s.slice, s.len), "fmt ");
 }
 

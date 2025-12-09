@@ -12,3 +12,5 @@ target_sources(
          ${CMAKE_SOURCE_DIR}/src/common/
          FILES
          ./MemoryReader.hpp)
+
+target_link_libraries(MemoryReader PRIVATE libstream)

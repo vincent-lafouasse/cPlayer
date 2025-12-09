@@ -8,7 +8,7 @@
 Error readI24(Reader* reader, float* out)
 {
     int32_t i24;
-    TRY(reader_takeI24_LE(reader, &i24));
+    TRY_IO(reader_takeI24_LE(reader, &i24));
 
     *out = (float)i24 / (float)INT24_MAX_ABS;
     return err_Ok();
@@ -17,7 +17,7 @@ Error readI24(Reader* reader, float* out)
 Error readI16(Reader* reader, float* out)
 {
     int16_t i16;
-    TRY(reader_takeI16_LE(reader, &i16));
+    TRY_IO(reader_takeI16_LE(reader, &i16));
 
     *out = (float)i16 / (float)INT16_MAX_ABS;
     return err_Ok();
@@ -30,10 +30,10 @@ Error readSample(Reader* reader, const WavFormatInfo* format, float* out)
     switch (format->sampleFormat) {
         case SampleFormat_Signed24:
             TRY(readI24(reader, out));
-            return reader_skip(reader, sampleBlockSize - 3);
+            return err_fromIo(reader_skip(reader, sampleBlockSize - 3));
         case SampleFormat_Signed16:
             TRY(readI16(reader, out));
-            return reader_skip(reader, sampleBlockSize - 2);
+            return err_fromIo(reader_skip(reader, sampleBlockSize - 2));
         default:
             return err_withCtx(E_Wav, EWav_UnsupportedSampleFormat,
                                format->sampleFormat);

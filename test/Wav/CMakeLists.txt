@@ -14,15 +14,15 @@ target_sources(
           ${testedSourceDir}/codec/wav/parseFormatChunk.c
           ${testedSourceDir}/codec/wav/formatInfo.c
           ${testedSourceDir}/codec/wav/sampleFormat.c
-          ${testedSourceDir}/Reader/read.c
           ${testedSourceDir}/common/Error.c)
 
 target_include_directories(
   ${TEST_RUNNER_NAME} PUBLIC ${testedSourceDir}/ ${testedSourceDir}/codec/wav/
                              ${testedSourceDir}/common/)
 
-target_link_libraries(${TEST_RUNNER_NAME} PRIVATE MemoryReader bitcast gtest)
+target_link_libraries(${TEST_RUNNER_NAME} PRIVATE MemoryReader bitcast libstream gtest)
 
 add_test(NAME ${TEST_RUNNER_NAME} COMMAND ${TEST_RUNNER_NAME})
 
 set_tests_properties(${TEST_RUNNER_NAME} PROPERTIES DEPENDS bitcastTest)
+set_tests_properties(${TEST_RUNNER_NAME} PROPERTIES DEPENDS ReaderTest)

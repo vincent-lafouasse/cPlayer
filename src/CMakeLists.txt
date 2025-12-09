@@ -16,7 +16,6 @@ target_sources(
           codec/wav/readData.c
           codec/wav/dump.c
           play/callback.c
-          Reader/read.c
           Reader/fileReaderAdapter.c
           options/Options.c
           options/Flag.c
@@ -26,4 +25,4 @@ target_sources(
           common/logError.c)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ./ ./common/)
-target_link_libraries(${PROJECT_NAME} PRIVATE FileReader bitcast portaudio)
+target_link_libraries(${PROJECT_NAME} PRIVATE FileReader bitcast libstream portaudio)

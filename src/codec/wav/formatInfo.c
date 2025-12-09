@@ -29,7 +29,7 @@ Error readWavFormatInfo(Reader* reader, WavFormatInfo* out)
     TRY(skipChunkUntil(reader, "data"));
     // data chunk
     Slice dataChunkHeader;
-    TRY(reader_takeSlice(reader, 8, &dataChunkHeader));
+    TRY_IO(reader_takeSlice(reader, 8, &dataChunkHeader));
     assert(memcmp(dataChunkHeader.slice, "data", 4) == 0);
     logFn(LogLevel_Debug, "reached data chunk\n");
 

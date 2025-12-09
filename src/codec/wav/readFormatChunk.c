@@ -14,7 +14,7 @@ static uint32_t fourCC_asU32(const uint8_t fourcc[4])
 Error readFormatChunk(Reader* reader, WavFormatChunk* out)
 {
     Slice header;
-    TRY(reader_takeSlice(reader, 8, &header));
+    TRY_IO(reader_takeSlice(reader, 8, &header));
     if (memcmp(header.slice, "fmt ", 4) != 0) {
         return err_withCtx(E_Wav, EWav_UnknownFourCC,
                            fourCC_asU32(header.slice));
@@ -24,7 +24,7 @@ Error readFormatChunk(Reader* reader, WavFormatChunk* out)
     logFn(LogLevel_Debug, "format chunk size:\t%u bytes\n", fmtChunkSize);
 
     Slice slice;
-    TRY(reader_takeSlice(reader, fmtChunkSize, &slice));
+    TRY_IO(reader_takeSlice(reader, fmtChunkSize, &slice));
     const uint8_t* format = slice.slice;
 
     const uint16_t waveFormat = bitcastU16_LE(format);
