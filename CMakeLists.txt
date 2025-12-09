@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(cPlayer VERSION 0.1.0)
 
 set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED TRUE)
 set(CMAKE_C_FLAGS "-Wall -Wextra -pedantic -fdiagnostics-color=always -g3")
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
