@@ -28,3 +28,4 @@ the big maybes
     - **MP3 extension**, Adds support for **LSF** for modern MP3 files.
 - [ISO/IEC TR 11172-5:1998 - MPEG-1 Software Simulation (404 pages)](there.are.ways)
     - **Reference C code**
+- [ffmpeg](https://github.com/FFmpeg/FFmpeg)
