@@ -4,8 +4,8 @@
 extern "C" {
 #endif
 
-#include "libstream/Reader.h"
 #include "audio.h"
+#include "libstream/Reader.h"
 
 AudioDataResult decodeWav(Reader* reader);
 

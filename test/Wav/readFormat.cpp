@@ -2,8 +2,8 @@
 #include <string>
 #include <vector>
 
-#include "libstream/Reader.h"
 #include "gtest/gtest.h"
+#include "libstream/Reader.h"
 
 #include "MemoryReader.hpp"
 
