@@ -12,3 +12,5 @@ target_include_directories(${TEST_RUNNER_NAME}
                            PUBLIC ${testedSourceDir} ${testedSourceDir}/common/)
 
 target_link_libraries(${TEST_RUNNER_NAME} PRIVATE gtest)
+
+add_test(NAME ${TEST_RUNNER_NAME} COMMAND ${TEST_RUNNER_NAME})

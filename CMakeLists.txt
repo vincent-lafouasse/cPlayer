@@ -22,8 +22,3 @@ add_subdirectory(src)
 
 include(cmake/fetch_gtest.cmake)
 add_subdirectory(test)
-
-add_test(NAME OptionsTest COMMAND OptionsTest)
-add_test(NAME WavTest COMMAND WavTest)
-
-set_tests_properties(WavTest PROPERTIES DEPENDS bitcastTest)

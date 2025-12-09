@@ -22,3 +22,7 @@ target_include_directories(
                              ${testedSourceDir}/common/)
 
 target_link_libraries(${TEST_RUNNER_NAME} PRIVATE MemoryReader bitcast gtest)
+
+add_test(NAME ${TEST_RUNNER_NAME} COMMAND ${TEST_RUNNER_NAME})
+
+set_tests_properties(${TEST_RUNNER_NAME} PROPERTIES DEPENDS bitcastTest)
