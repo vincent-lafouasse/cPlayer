@@ -25,4 +25,5 @@ target_sources(
           common/logError.c)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ./ ./common/)
-target_link_libraries(${PROJECT_NAME} PRIVATE FileReader bitcast libstream portaudio)
+target_link_libraries(${PROJECT_NAME} PRIVATE FileReader bitcast libstream
+                                              portaudio)
