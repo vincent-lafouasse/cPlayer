@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Reader.h"
 #ifdef __cplusplus
 extern "C" {
 #endif

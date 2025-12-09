@@ -1,7 +1,6 @@
 #include "ReaderAdapters.h"
 
 #include "FileReader.h"
-#include "Reader.h"
 
 static LibStream_ReadStatus ls_Ok(void)
 {

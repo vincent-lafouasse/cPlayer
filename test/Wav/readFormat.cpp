@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-#include "Reader.h"
+#include "libstream/Reader.h"
 #include "gtest/gtest.h"
 
 #include "MemoryReader.hpp"

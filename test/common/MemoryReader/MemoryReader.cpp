@@ -2,8 +2,6 @@
 
 #include <cstring>
 
-#include "Reader.h"
-
 static LibStream_ReadStatus ls_Ok()
 {
     return LibStream_ReadStatus_Ok;
