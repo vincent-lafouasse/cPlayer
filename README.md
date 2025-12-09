@@ -3,8 +3,8 @@
 a wav player in standard C99
 
 ### Supported formats
-- [x] Raw PCM 24bit
-- [ ] Float 32bit
+- [x] u8 s16 s32 PCM wav
+- [x] 32 and 64 bit float wav
 
 later maybe
 - [ ] more raw PCM formats, e.g. AIFF, AU
