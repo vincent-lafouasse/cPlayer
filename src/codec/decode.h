@@ -4,8 +4,10 @@
 extern "C" {
 #endif
 
-#include "audio.h"
 #include "libstream/Reader.h"
+
+#include "Error.h"
+#include "audio.h"
 
 typedef enum {
     Codec_Wav,

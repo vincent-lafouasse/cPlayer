@@ -76,8 +76,9 @@ int main(int ac, char** av)
         return 1;
     }
 
+    const float* right = track.nChannels == 2 ? track.data[1] : NULL;
     AudioPlayer player = (AudioPlayer){
-        .left = track.left, .right = track.right, .head = 0, .len = track.size};
+        .left = track.data[0], .right = right, .head = 0, .len = track.size};
 
     // ----- start stream -----
     Pa_Initialize();
@@ -108,9 +109,6 @@ int main(int ac, char** av)
     Pa_CloseStream(stream);
     Pa_Terminate();
 
-    if (track.left != track.right) {
-        free(track.right);
-    }
-    free(track.left);
+    audiodata_destroy(&track);
     logFn(LogLevel_Debug, "ok\n");
 }

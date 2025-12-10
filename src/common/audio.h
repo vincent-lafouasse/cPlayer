@@ -6,14 +6,15 @@ extern "C" {
 
 #include <stdint.h>
 
-#include "Error.h"
-
 typedef struct {
-    float* left;
-    float* right;
+    float** data;
     uint32_t size;
+    uint32_t nChannels;
     uint32_t sampleRate;
 } AudioData;
+
+AudioData audiodata_new(uint32_t size, uint32_t nChannels, uint32_t sampleRate);
+void audiodata_destroy(AudioData* track);
 
 #ifdef __cplusplus
 }

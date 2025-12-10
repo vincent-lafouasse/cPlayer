@@ -1,3 +1,4 @@
+#include "audio.h"
 #include "wav_internals.h"
 
 #include <stdlib.h>
@@ -38,29 +39,27 @@ static Error readMonoPCM(Reader* reader,
 {
     Error err = err_Ok();
 
-    float* left = calloc(format->nFrames, sizeof(float));
-    if (left == NULL) {
+    AudioData track = audiodata_new(format->nFrames, 1, format->sampleRate);
+    if (track.data == NULL) {
         err = err_Err(E_System, ESys_OutOfMemory);
         goto out;
     }
 
     for (uint32_t i = 0; i < format->nFrames; ++i) {
-        err = readSample(reader, format, left + i);
+        err = readSample(reader, format, track.data[0] + i);
         if (!err_isOk(err)) {
             goto out;
         }
     }
-    dumpFloatCsv(left, format->nFrames, DUMP_PREFIX "float" DUMP_SUFFIX);
+    dumpFloatCsv(track.data[0], format->nFrames,
+                 DUMP_PREFIX "float" DUMP_SUFFIX);
 
 out:
     if (!err_isOk(err)) {
-        *out = (AudioData){.left = left,
-                           .right = left,
-                           .size = format->nFrames,
-                           .sampleRate = format->sampleRate};
+        *out = track;
         return err_Ok();
     } else {
-        free(left);
+        audiodata_destroy(&track);
         return err;
     }
 }
@@ -81,12 +80,14 @@ static Error readStereoPCM(Reader* reader,
 {
     Error err = err_Ok();
 
-    float* left = calloc(format->nFrames, sizeof(float));
-    float* right = calloc(format->nFrames, sizeof(float));
-    if (left == NULL || right == NULL) {
+    AudioData track = audiodata_new(format->nFrames, 2, format->sampleRate);
+    if (track.data == NULL) {
         err = err_Err(E_System, ESys_OutOfMemory);
         goto out;
     }
+
+    float* left = track.data[0];
+    float* right = track.data[1];
 
     for (uint32_t i = 0; i < format->nFrames; ++i) {
         err = readStereoFrame(reader, format, left + i, right + i);
@@ -97,14 +98,10 @@ static Error readStereoPCM(Reader* reader,
 
 out:
     if (!err_isOk(err)) {
-        free(left);
-        free(right);
+        audiodata_destroy(&track);
         return err;
     } else {
-        *out = (AudioData){.left = left,
-                           .right = right,
-                           .size = format->nFrames,
-                           .sampleRate = format->sampleRate};
+        *out = track;
         return err_Ok();
     }
 }
