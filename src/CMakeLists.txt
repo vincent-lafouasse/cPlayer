@@ -4,7 +4,6 @@ target_sources(
   ${PROJECT_NAME}
   PRIVATE main.c
           codec/decode.c
-          codec/codec_internals.c
           codec/wav/wav.c
           codec/wav/navigateRiff.c
           codec/wav/readFormatChunk.c
