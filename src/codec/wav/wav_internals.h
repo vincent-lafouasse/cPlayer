@@ -46,7 +46,9 @@ typedef struct {
 Error readWavFormatInfo(Reader* reader, WavFormatInfo* out);
 
 // read the actual data
-Error readWavData(Reader* reader, const WavFormatInfo* format, AudioData* out);
+Error readWavData(Reader* reader,
+                  const WavFormatInfo* format,
+                  AudioBuffer* out);
 
 // ----------- Implementation
 

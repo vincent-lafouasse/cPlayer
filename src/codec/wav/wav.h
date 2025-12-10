@@ -4,12 +4,12 @@
 extern "C" {
 #endif
 
+#include "libaudiospecs.h"
 #include "libstream/Reader.h"
 
 #include "Error.h"
-#include "audio.h"
 
-Error decodeWav(Reader* reader, AudioData* out);
+Error decodeWav(Reader* reader, AudioBuffer* out);
 
 #ifdef __cplusplus
 }

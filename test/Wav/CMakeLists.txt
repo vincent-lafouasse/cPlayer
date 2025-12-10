@@ -21,7 +21,7 @@ target_include_directories(
                              ${testedSourceDir}/common/)
 
 target_link_libraries(${TEST_RUNNER_NAME} PRIVATE MemoryReader bitcast
-                                                  libstream gtest)
+                                                  libstream gtest libaudiospecs)
 
 add_test(NAME ${TEST_RUNNER_NAME} COMMAND ${TEST_RUNNER_NAME})
 

@@ -19,10 +19,9 @@ target_sources(
           options/Options.c
           options/Flag.c
           options/printHelp.c
-          common/AudioData.c
           common/Error.c
           common/logError.c)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ./ ./common/)
 target_link_libraries(${PROJECT_NAME} PRIVATE FileReader bitcast libstream
-                                              portaudio)
+                                              portaudio libaudiospecs)

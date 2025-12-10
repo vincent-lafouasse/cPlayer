@@ -1,4 +1,3 @@
-#include "audio.h"
 #include "wav_internals.h"
 
 #include <stdlib.h>
@@ -8,12 +7,12 @@
 
 static Error readMonoPCM(Reader* reader,
                          const WavFormatInfo* format,
-                         AudioData* out);
+                         AudioBuffer* out);
 static Error readStereoPCM(Reader* reader,
                            const WavFormatInfo* format,
-                           AudioData* out);
+                           AudioBuffer* out);
 
-Error readWavData(Reader* reader, const WavFormatInfo* format, AudioData* out)
+Error readWavData(Reader* reader, const WavFormatInfo* format, AudioBuffer* out)
 {
     if (format->formatTag != WAVE_FORMAT_PCM) {
         err_withCtx(E_Wav, EWav_UnsupportedSampleFormat, format->formatTag);
@@ -35,11 +34,11 @@ Error readWavData(Reader* reader, const WavFormatInfo* format, AudioData* out)
 
 static Error readMonoPCM(Reader* reader,
                          const WavFormatInfo* format,
-                         AudioData* out)
+                         AudioBuffer* out)
 {
     Error err = err_Ok();
 
-    AudioData track = audiodata_new(format->nFrames, 1, format->sampleRate);
+    AudioBuffer track = audiobuffer_new(format->nFrames, 1, format->sampleRate);
     if (track.data == NULL) {
         err = err_Err(E_System, ESys_OutOfMemory);
         goto out;
@@ -59,7 +58,7 @@ out:
         *out = track;
         return err_Ok();
     } else {
-        audiodata_destroy(&track);
+        audiobuffer_destroy(&track);
         return err;
     }
 }
@@ -76,11 +75,11 @@ static Error readStereoFrame(Reader* reader,
 
 static Error readStereoPCM(Reader* reader,
                            const WavFormatInfo* format,
-                           AudioData* out)
+                           AudioBuffer* out)
 {
     Error err = err_Ok();
 
-    AudioData track = audiodata_new(format->nFrames, 2, format->sampleRate);
+    AudioBuffer track = audiobuffer_new(format->nFrames, 2, format->sampleRate);
     if (track.data == NULL) {
         err = err_Err(E_System, ESys_OutOfMemory);
         goto out;
@@ -98,7 +97,7 @@ static Error readStereoPCM(Reader* reader,
 
 out:
     if (!err_isOk(err)) {
-        audiodata_destroy(&track);
+        audiobuffer_destroy(&track);
         return err;
     } else {
         *out = track;

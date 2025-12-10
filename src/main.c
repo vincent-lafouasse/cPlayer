@@ -1,10 +1,10 @@
 #include <stdlib.h>
 
 #include "FileReader.h"
+#include "libaudiospecs.h"
 
 #include "Error.h"
 #include "Reader/ReaderAdapters.h"
-#include "audio.h"
 #include "codec/decode.h"
 #include "common/log.h"
 #include "options/Options.h"
@@ -29,7 +29,7 @@ Error parseFlags(int ac, char** av, Options* out)
     return err_Ok();
 }
 
-static Error loadAudioOrExit(const char* path, AudioData* out)
+static Error loadAudioOrExit(const char* path, AudioBuffer* out)
 {
     logFn(LogLevel_Debug, "-----Reading file\t%s-----\n", path);
     FileReader fileReader = fr_open(path);
@@ -68,7 +68,7 @@ int main(int ac, char** av)
         return 1;
     }
 
-    AudioData track;
+    AudioBuffer track;
     err = loadAudioOrExit(options.input, &track);
     if (!err_isOk(err)) {
         ErrorLogCtx ctx = makeLogCtx(ac, av, &options);
@@ -109,6 +109,6 @@ int main(int ac, char** av)
     Pa_CloseStream(stream);
     Pa_Terminate();
 
-    audiodata_destroy(&track);
+    audiobuffer_destroy(&track);
     logFn(LogLevel_Debug, "ok\n");
 }

@@ -1,8 +1,6 @@
 #include "wav_internals.h"
 
-#include "audio.h"
-
-Error decodeWav(Reader* reader, AudioData* out)
+Error decodeWav(Reader* reader, AudioBuffer* out)
 {
     WavFormatInfo format;
     TRY(readWavFormatInfo(reader, &format));
