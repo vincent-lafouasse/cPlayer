@@ -7,3 +7,6 @@
 [submodule "lib/libstream"]
 	path = lib/libstream
 	url = https://github.com/vincent-lafouasse/libstream.git
+[submodule "lib/libaudiospecs"]
+	path = lib/libaudiospecs
+	url = https://github.com/vincent-lafouasse/libaudiospecs.git
