@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(libcoded_wav VERSION 0.1.0)
+project(libcodec_wav VERSION 0.1.0)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -17,11 +17,11 @@ if(NOT TARGET libaudiospecs)
 
   include(FetchContent)
   FetchContent_Declare(
-    libaudiospecs_dep
+    libaudiospecs
     GIT_REPOSITORY https://github.com/vincent-lafouasse/libaudiospecs.git
     GIT_TAG "main"
     GIT_SHALLOW 1)
-  FetchContent_MakeAvailable(libaudiospecs_dep)
+  FetchContent_MakeAvailable(libaudiospecs)
 else()
   message(STATUS "---- Found libaudiospecs in parent project: no fetching")
 endif()
@@ -32,11 +32,11 @@ if(NOT TARGET libstream)
 
   include(FetchContent)
   FetchContent_Declare(
-    libstream_dep
+    libstream
     GIT_REPOSITORY https://github.com/vincent-lafouasse/libstream.git
     GIT_TAG "main"
     GIT_SHALLOW 1)
-  FetchContent_MakeAvailable(libstream_dep)
+  FetchContent_MakeAvailable(libstream)
 else()
   message(STATUS "---- Found libstream in parent project: no fetching")
 endif()
@@ -47,19 +47,18 @@ if(NOT TARGET bitcast)
 
   include(FetchContent)
   FetchContent_Declare(
-    bitcast_dep
+    bitcast
     GIT_REPOSITORY https://github.com/vincent-lafouasse/libbitcast.git
     GIT_TAG "main"
     GIT_SHALLOW 1)
-  FetchContent_MakeAvailable(bitcast_dep)
+  FetchContent_MakeAvailable(bitcast)
 else()
   message(STATUS "---- Found libbitcast in parent project: no fetching")
 endif()
 
 add_library(${PROJECT_NAME})
-target_sources(
-  ${PROJECT_NAME}
-  PRIVATE src/dump.c
+target_sources(${PROJECT_NAME} PRIVATE
+          src/dump.c
           src/formatInfo.c
           src/navigateRiff.c
           src/parseFormatChunk.c
@@ -69,16 +68,30 @@ target_sources(
           src/sampleFormat.c
           src/validateFormatChunk.c
           src/wav.c
-  PUBLIC FILE_SET
-         myHeaders
-         TYPE
-         HEADERS
-         BASE_DIRS
-         include
-         FILES
-         include/libcodec_wav.h)
+)
+
+target_include_directories(
+  ${PROJECT_NAME}
+  PRIVATE 
+    src
+  PUBLIC
+    include
+)
 
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic
                                                -fdiagnostics-color=always)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE bitcast libstream libaudiospecs)
+target_link_libraries(
+  ${PROJECT_NAME}
+  PRIVATE bitcast
+  PUBLIC libstream libaudiospecs)
+
+if(LIBCODEC_WAV_BUILD_TESTS)
+  include(FetchContent)
+  include(cmake/fetch_gtest.cmake)
+
+  include(CTest)
+  enable_testing()
+
+  add_subdirectory(test)
+endif()
