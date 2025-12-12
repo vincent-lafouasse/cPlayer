@@ -1,6 +1,3 @@
-[submodule "lib/libbitcast"]
-	path = lib/libbitcast
-	url = https://github.com/vincent-lafouasse/libbitcast.git
 [submodule "lib/libstream"]
 	path = lib/libstream
 	url = https://github.com/vincent-lafouasse/libstream.git

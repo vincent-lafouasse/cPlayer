@@ -5,6 +5,12 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(FileReader)
 
-add_subdirectory(libbitcast)
+FetchContent_Declare(
+    bitcast
+    GIT_REPOSITORY https://github.com/vincent-lafouasse/libbitcast.git
+    GIT_TAG 559fbbedb42bf961eaf8680d2f82dd0a804aa4a5
+)
+FetchContent_MakeAvailable(bitcast)
+
 add_subdirectory(libstream)
 add_subdirectory(libaudiospecs)
