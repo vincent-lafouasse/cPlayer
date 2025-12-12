@@ -1,21 +1,23 @@
+#include "libcodec_wav.h"
 #include "wav_internals.h"
 
 #include <stdlib.h>
 
-#include "Error.h"
 #include "log.h"
 
-static Error readMonoPCM(Reader* reader,
-                         const WavFormatInfo* format,
-                         AudioBuffer* out);
-static Error readStereoPCM(Reader* reader,
-                           const WavFormatInfo* format,
-                           AudioBuffer* out);
+static WavError readMonoPCM(Reader* reader,
+                            const WavFormatInfo* format,
+                            AudioBuffer* out);
+static WavError readStereoPCM(Reader* reader,
+                              const WavFormatInfo* format,
+                              AudioBuffer* out);
 
-Error readWavData(Reader* reader, const WavFormatInfo* format, AudioBuffer* out)
+WavError readWavData(Reader* reader,
+                     const WavFormatInfo* format,
+                     AudioBuffer* out)
 {
     if (format->formatTag != WAVE_FORMAT_PCM) {
-        err_withCtx(E_Wav, EWav_UnsupportedSampleFormat, format->formatTag);
+        return EWav_UnsupportedSampleFormat;
     }
 
     logFn(LogLevel_Debug,
@@ -27,26 +29,25 @@ Error readWavData(Reader* reader, const WavFormatInfo* format, AudioBuffer* out)
     } else if (format->nChannels == 2) {
         return readStereoPCM(reader, format, out);
     } else {
-        return err_withCtx(E_Codec, ECdc_UnsupportedChannelLayout,
-                           format->nChannels);
+        return EWav_UnsupportedChannelLayout;
     }
 }
 
-static Error readMonoPCM(Reader* reader,
-                         const WavFormatInfo* format,
-                         AudioBuffer* out)
+static WavError readMonoPCM(Reader* reader,
+                            const WavFormatInfo* format,
+                            AudioBuffer* out)
 {
-    Error err = err_Ok();
+    WavError err = EWav_Ok;
 
     AudioBuffer track = audiobuffer_new(format->nFrames, 1, format->sampleRate);
     if (track.data == NULL) {
-        err = err_Err(E_System, ESys_OutOfMemory);
+        err = EWav_OOM;
         goto out;
     }
 
     for (uint32_t i = 0; i < format->nFrames; ++i) {
         err = readSample(reader, format, track.data[0] + i);
-        if (!err_isOk(err)) {
+        if (err != EWav_Ok) {
             goto out;
         }
     }
@@ -54,34 +55,34 @@ static Error readMonoPCM(Reader* reader,
                  DUMP_PREFIX "float" DUMP_SUFFIX);
 
 out:
-    if (!err_isOk(err)) {
+    if (err != EWav_Ok) {
         *out = track;
-        return err_Ok();
+        return EWav_Ok;
     } else {
         audiobuffer_destroy(&track);
         return err;
     }
 }
 
-static Error readStereoFrame(Reader* reader,
-                             const WavFormatInfo* format,
-                             float* left,
-                             float* right)
+static WavError readStereoFrame(Reader* reader,
+                                const WavFormatInfo* format,
+                                float* left,
+                                float* right)
 {
     TRY(readSample(reader, format, left));
     TRY(readSample(reader, format, right));
-    return err_Ok();
+    return EWav_Ok;
 }
 
-static Error readStereoPCM(Reader* reader,
-                           const WavFormatInfo* format,
-                           AudioBuffer* out)
+static WavError readStereoPCM(Reader* reader,
+                              const WavFormatInfo* format,
+                              AudioBuffer* out)
 {
-    Error err = err_Ok();
+    WavError err = EWav_Ok;
 
     AudioBuffer track = audiobuffer_new(format->nFrames, 2, format->sampleRate);
     if (track.data == NULL) {
-        err = err_Err(E_System, ESys_OutOfMemory);
+        err = EWav_OOM;
         goto out;
     }
 
@@ -90,17 +91,17 @@ static Error readStereoPCM(Reader* reader,
 
     for (uint32_t i = 0; i < format->nFrames; ++i) {
         err = readStereoFrame(reader, format, left + i, right + i);
-        if (!err_isOk(err)) {
+        if (err != EWav_Ok) {
             goto out;
         }
     }
 
 out:
-    if (!err_isOk(err)) {
+    if (err != EWav_Ok) {
         audiobuffer_destroy(&track);
         return err;
     } else {
         *out = track;
-        return err_Ok();
+        return EWav_Ok;
     }
 }

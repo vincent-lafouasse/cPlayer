@@ -1,11 +1,12 @@
+#include "libcodec_wav.h"
 #include "wav_internals.h"
 
-Error decodeWav(Reader* reader, AudioBuffer* out)
+WavError decodeWav(Reader* reader, AudioBuffer* out)
 {
     WavFormatInfo format;
     TRY(readWavFormatInfo(reader, &format));
     logWavFormatInfo(&format);
 
     TRY(readWavData(reader, &format, out));
-    return err_Ok();
+    return EWav_Ok;
 }
