@@ -19,8 +19,8 @@ if(NOT TARGET libaudiospecs)
   FetchContent_Declare(
     libaudiospecs
     GIT_REPOSITORY https://github.com/vincent-lafouasse/libaudiospecs.git
-    GIT_TAG "main"
-    GIT_SHALLOW 1)
+    GIT_TAG e2bffa47bcbdee16174bf5f6c9ec435e08f91af3
+  )
   FetchContent_MakeAvailable(libaudiospecs)
 else()
   message(STATUS "---- Found libaudiospecs in parent project: no fetching")
@@ -34,8 +34,8 @@ if(NOT TARGET libstream)
   FetchContent_Declare(
     libstream
     GIT_REPOSITORY https://github.com/vincent-lafouasse/libstream.git
-    GIT_TAG "main"
-    GIT_SHALLOW 1)
+    GIT_TAG d4bc4bbe3918645caffcb36154e0ea7509bbb581
+  )
   FetchContent_MakeAvailable(libstream)
 else()
   message(STATUS "---- Found libstream in parent project: no fetching")
@@ -46,12 +46,12 @@ if(NOT TARGET bitcast)
     STATUS "---- No libbitcast here or in parent project: fetching libbitcast")
 
   include(FetchContent)
+  FetchContent_MakeAvailable(bitcast)
   FetchContent_Declare(
     bitcast
     GIT_REPOSITORY https://github.com/vincent-lafouasse/libbitcast.git
-    GIT_TAG "main"
-    GIT_SHALLOW 1)
-  FetchContent_MakeAvailable(bitcast)
+    GIT_TAG 559fbbedb42bf961eaf8680d2f82dd0a804aa4a5
+  )
 else()
   message(STATUS "---- Found libbitcast in parent project: no fetching")
 endif()
