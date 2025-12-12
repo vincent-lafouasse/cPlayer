@@ -12,5 +12,11 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(bitcast)
 
+FetchContent_Declare(
+    libaudiospecs
+    GIT_REPOSITORY https://github.com/vincent-lafouasse/libaudiospecs.git
+    GIT_TAG e2bffa47bcbdee16174bf5f6c9ec435e08f91af3
+)
+FetchContent_MakeAvailable(libaudiospecs)
+
 add_subdirectory(libstream)
-add_subdirectory(libaudiospecs)
