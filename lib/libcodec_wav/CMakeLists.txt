@@ -19,8 +19,7 @@ if(NOT TARGET libaudiospecs)
   FetchContent_Declare(
     libaudiospecs
     GIT_REPOSITORY https://github.com/vincent-lafouasse/libaudiospecs.git
-    GIT_TAG e2bffa47bcbdee16174bf5f6c9ec435e08f91af3
-  )
+    GIT_TAG e2bffa47bcbdee16174bf5f6c9ec435e08f91af3)
   FetchContent_MakeAvailable(libaudiospecs)
 else()
   message(STATUS "---- Found libaudiospecs in parent project: no fetching")
@@ -34,8 +33,7 @@ if(NOT TARGET libstream)
   FetchContent_Declare(
     libstream
     GIT_REPOSITORY https://github.com/vincent-lafouasse/libstream.git
-    GIT_TAG d4bc4bbe3918645caffcb36154e0ea7509bbb581
-  )
+    GIT_TAG d4bc4bbe3918645caffcb36154e0ea7509bbb581)
   FetchContent_MakeAvailable(libstream)
 else()
   message(STATUS "---- Found libstream in parent project: no fetching")
@@ -50,15 +48,15 @@ if(NOT TARGET bitcast)
   FetchContent_Declare(
     bitcast
     GIT_REPOSITORY https://github.com/vincent-lafouasse/libbitcast.git
-    GIT_TAG 559fbbedb42bf961eaf8680d2f82dd0a804aa4a5
-  )
+    GIT_TAG 559fbbedb42bf961eaf8680d2f82dd0a804aa4a5)
 else()
   message(STATUS "---- Found libbitcast in parent project: no fetching")
 endif()
 
 add_library(${PROJECT_NAME})
-target_sources(${PROJECT_NAME} PRIVATE
-          src/dump.c
+target_sources(
+  ${PROJECT_NAME}
+  PRIVATE src/dump.c
           src/formatInfo.c
           src/navigateRiff.c
           src/parseFormatChunk.c
@@ -67,16 +65,12 @@ target_sources(${PROJECT_NAME} PRIVATE
           src/readSample.c
           src/sampleFormat.c
           src/validateFormatChunk.c
-          src/wav.c
-)
+          src/wav.c)
 
 target_include_directories(
   ${PROJECT_NAME}
-  PRIVATE 
-    src
-  PUBLIC
-    include
-)
+  PRIVATE src
+  PUBLIC include)
 
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic
                                                -fdiagnostics-color=always)
