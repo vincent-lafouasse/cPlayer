@@ -19,4 +19,9 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(libaudiospecs)
 
-add_subdirectory(libstream)
+FetchContent_Declare(
+    libstream
+    GIT_REPOSITORY https://github.com/vincent-lafouasse/libstream.git
+    GIT_TAG d4bc4bbe3918645caffcb36154e0ea7509bbb581
+)
+FetchContent_MakeAvailable(libstream)
