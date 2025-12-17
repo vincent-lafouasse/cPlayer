@@ -4,9 +4,7 @@
 extern "C" {
 #endif
 
-#include "wav.h"
-
-#include "Error.h"
+#include "libcodec_wav.h"
 
 #define WAVE_FORMAT_PCM 0x0001
 #define WAVE_FORMAT_ADPCM 0x0002
@@ -43,10 +41,12 @@ typedef struct {
 
 // gather what's needed to deserialize the data segment
 // places the head at the beginning of the data payload
-Error readWavFormatInfo(Reader* reader, WavFormatInfo* out);
+WavError readWavFormatInfo(Reader* reader, WavFormatInfo* out);
 
 // read the actual data
-AudioDataResult readWavData(Reader* reader, const WavFormatInfo* format);
+WavError readWavData(Reader* reader,
+                     const WavFormatInfo* format,
+                     AudioBuffer* out);
 
 // ----------- Implementation
 
@@ -56,8 +56,8 @@ typedef struct {
     uint32_t size;
 } RiffChunkHeader;
 
-Error skipChunkUntil(Reader* reader, const char* expectedId);
-Error getToFormatChunk(Reader* reader);
+WavError skipChunkUntil(Reader* reader, const char* expectedId);
+WavError getToFormatChunk(Reader* reader);
 
 // read/validate format chunk
 typedef struct {
@@ -75,46 +75,40 @@ typedef struct {
     uint8_t subFormat[16];
 } WavFormatChunk;
 
-Error readFormatChunk(Reader* reader, WavFormatChunk* out);
-Error validateWavFormatChunk(const WavFormatChunk* format);
-Error parseFormatChunk(const WavFormatChunk* chunk, WavFormatInfo* out);
-Error checkFormatSupport(
+WavError readFormatChunk(Reader* reader, WavFormatChunk* out);
+WavError validateWavFormatChunk(const WavFormatChunk* format);
+WavError parseFormatChunk(const WavFormatChunk* chunk, WavFormatInfo* out);
+WavError checkFormatSupport(
     const WavFormatInfo* format);  // reject codecs i don't support
 
 // dispatches between the different formats and outputs a single sample
-Error readSample(Reader* reader, const WavFormatInfo* format, float* out);
+WavError readSample(Reader* reader, const WavFormatInfo* format, float* out);
 
 // debug utils
 const char* sampleFormatRepr(SampleFormat fmt);
 void logWavFormatInfo(const WavFormatInfo* format);
 
-static inline Error err_fromIo(LibStream_ReadStatus status)
+static inline WavError err_fromIo(LibStream_ReadStatus status)
 {
     switch (status) {
         case LibStream_ReadStatus_Ok:
-            return err_Ok();
+            return EWav_Ok;
         case LibStream_ReadStatus_ReadFailed:
-            return err_Err(E_Read, ERd_ReadFailed);
+            return EWav_ReadFailed;
         case LibStream_ReadStatus_UnexpectedEOF:
-            return err_Err(E_Read, ERd_UnexpectedEOF);
+            return EWav_UnexpectedEOF;
     }
 }
 
-#define TRY_IO(func_call)                           \
-    do {                                            \
-        Error __temp_err = (err_fromIo(func_call)); \
-        if (!err_isOk(__temp_err)) {                \
-            return __temp_err;                      \
-        }                                           \
+#define TRY(func_call)                     \
+    do {                                   \
+        WavError __temp_err = (func_call); \
+        if (__temp_err != EWav_Ok) {       \
+            return __temp_err;             \
+        }                                  \
     } while (0)
 
-#define TRY_IO_CTX(func_call, ctxBits)              \
-    do {                                            \
-        Error __temp_err = (err_fromIo(func_call)); \
-        if (!err_isOk(__temp_err)) {                \
-            return err_addCtx(__temp_err, ctxBits); \
-        }                                           \
-    } while (0)
+#define TRY_IO(func_call) TRY(err_fromIo(func_call))
 
 #define DUMP_PREFIX "./build/dump_"
 #define DUMP_SUFFIX ".csv"

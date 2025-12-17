@@ -1,3 +1,4 @@
+#include "libcodec_wav.h"
 #include "wav_internals.h"
 
 #include <string.h>
@@ -6,7 +7,7 @@
 
 #include "log.h"
 
-Error skipChunkUntil(Reader* reader, const char* expectedId)
+WavError skipChunkUntil(Reader* reader, const char* expectedId)
 {
     uint8_t id[5] = {0};
 
@@ -24,20 +25,20 @@ Error skipChunkUntil(Reader* reader, const char* expectedId)
         logFn(LogLevel_Debug, "%s chunk found at offset %u\n", id,
               reader->offset);
     }
-    return err_Ok();
+    return EWav_Ok;
 }
 
-static uint32_t fourCC_asU32(const uint8_t fourcc[4])
+/*static*/ uint32_t fourCC_asU32(const uint8_t fourcc[4])
 {
     return bitcastU32_BE(fourcc);
 }
 
-Error getToFormatChunk(Reader* reader)
+WavError getToFormatChunk(Reader* reader)
 {
     uint8_t id[5] = {0};
     TRY_IO(reader_takeFourCC(reader, id));
     if (memcmp(id, "RIFF", 4) != 0) {
-        return err_withCtx(E_Wav, EWav_UnknownFourCC, fourCC_asU32(id));
+        return EWav_UnknownFourCC;
     }
 
     uint32_t size;
@@ -46,7 +47,7 @@ Error getToFormatChunk(Reader* reader)
 
     TRY_IO(reader_takeFourCC(reader, id));
     if (memcmp(id, "WAVE", 4) != 0) {
-        return err_withCtx(E_Wav, EWav_UnknownFourCC, fourCC_asU32(id));
+        return EWav_UnknownFourCC;
     }
 
     return skipChunkUntil(reader, "fmt ");

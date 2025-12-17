@@ -1,29 +1,28 @@
+#include "libcodec_wav.h"
 #include "wav_internals.h"
-
-#include "Error.h"
 
 #define INT24_MAX_ABS (1 << 23)
 #define INT16_MAX_ABS (-INT16_MIN)
 
-Error readI24(Reader* reader, float* out)
+WavError readI24(Reader* reader, float* out)
 {
     int32_t i24;
     TRY_IO(reader_takeI24_LE(reader, &i24));
 
     *out = (float)i24 / (float)INT24_MAX_ABS;
-    return err_Ok();
+    return EWav_Ok;
 }
 
-Error readI16(Reader* reader, float* out)
+WavError readI16(Reader* reader, float* out)
 {
     int16_t i16;
     TRY_IO(reader_takeI16_LE(reader, &i16));
 
     *out = (float)i16 / (float)INT16_MAX_ABS;
-    return err_Ok();
+    return EWav_Ok;
 }
 
-Error readSample(Reader* reader, const WavFormatInfo* format, float* out)
+WavError readSample(Reader* reader, const WavFormatInfo* format, float* out)
 {
     const size_t sampleBlockSize = format->blockAlign / format->nChannels;
 
@@ -35,7 +34,6 @@ Error readSample(Reader* reader, const WavFormatInfo* format, float* out)
             TRY(readI16(reader, out));
             return err_fromIo(reader_skip(reader, sampleBlockSize - 2));
         default:
-            return err_withCtx(E_Wav, EWav_UnsupportedSampleFormat,
-                               format->sampleFormat);
+            return EWav_UnsupportedSampleFormat;
     }
 }

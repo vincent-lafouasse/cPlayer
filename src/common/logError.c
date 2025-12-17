@@ -2,6 +2,8 @@
 
 #include <assert.h>
 
+#include "libcodec_wav.h"
+
 #include "log.h"
 #include "options/Options.h"
 

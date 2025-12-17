@@ -1,8 +1,7 @@
+#include "libcodec_wav.h"
 #include "wav_internals.h"
 
 #include <string.h>
-
-#include "Error.h"
 
 const uint8_t pcmGuid[16] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00,
                              0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71};
@@ -15,7 +14,8 @@ static bool guidEq(const uint8_t a[16], const uint8_t b[16])
     return memcmp(a, b, 16) == 0;
 }
 
-static Error assignSampleFormat(const WavFormatInfo* format, SampleFormat* out)
+static WavError assignSampleFormat(const WavFormatInfo* format,
+                                   SampleFormat* out)
 {
     // WAVE_FORMAT_EXTENSIBLE should have been folded into PCM or IEEE by this
     // point or entirely rejected
@@ -38,7 +38,7 @@ static Error assignSampleFormat(const WavFormatInfo* format, SampleFormat* out)
                     *out = SampleFormat_Float64;
                     break;
                 default:
-                    return err_Err(E_Wav, EWav_InvalidBitDepth);
+                    return EWav_InvalidBitDepth;
             }
             break;
         case WAVE_FORMAT_PCM:
@@ -56,17 +56,17 @@ static Error assignSampleFormat(const WavFormatInfo* format, SampleFormat* out)
                     *out = SampleFormat_Signed32;
                     break;
                 default:
-                    return err_Err(E_Wav, EWav_InvalidBitDepth);
+                    return EWav_InvalidBitDepth;
             }
             break;
         default:
             // should be unreachable
             break;
     }
-    return err_Ok();
+    return EWav_Ok;
 }
 
-Error parseFormatChunk(const WavFormatChunk* chunk, WavFormatInfo* out)
+WavError parseFormatChunk(const WavFormatChunk* chunk, WavFormatInfo* out)
 {
     memset(out, 0, sizeof(*out));
     *out = (WavFormatInfo){
@@ -87,15 +87,15 @@ Error parseFormatChunk(const WavFormatChunk* chunk, WavFormatInfo* out)
             out->formatTag = WAVE_FORMAT_IEEE_FLOAT;
             out->bitDepth = chunk->validBitsPerSample;
         } else {
-            return err_Err(E_Wav, EWav_UnknownGuidSubformat);
+            return EWav_UnknownGuidSubformat;
         }
     }
     TRY(assignSampleFormat(out, &out->sampleFormat));
-    return err_Ok();
+    return EWav_Ok;
 }
 
-Error checkFormatSupport(const WavFormatInfo* format)
+WavError checkFormatSupport(const WavFormatInfo* format)
 {
     (void)format;
-    return err_Ok();
+    return EWav_Ok;
 }

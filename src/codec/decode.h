@@ -4,14 +4,16 @@
 extern "C" {
 #endif
 
-#include "audio.h"
+#include "libaudiospecs.h"
 #include "libstream/Reader.h"
+
+#include "Error.h"
 
 typedef enum {
     Codec_Wav,
 } Codec;
 
-AudioDataResult decodeAudio(Reader* reader);
+Error decodeAudio(Reader* reader, AudioBuffer* out);
 
 #ifdef __cplusplus
 }

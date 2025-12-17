@@ -1,3 +1,4 @@
+#include "libcodec_wav.h"
 #include "wav_internals.h"
 
 #include <string.h>
@@ -11,13 +12,12 @@ static uint32_t fourCC_asU32(const uint8_t fourcc[4])
     return bitcastU32_BE(fourcc);
 }
 
-Error readFormatChunk(Reader* reader, WavFormatChunk* out)
+WavError readFormatChunk(Reader* reader, WavFormatChunk* out)
 {
     Slice header;
     TRY_IO(reader_takeSlice(reader, 8, &header));
     if (memcmp(header.slice, "fmt ", 4) != 0) {
-        return err_withCtx(E_Wav, EWav_UnknownFourCC,
-                           fourCC_asU32(header.slice));
+        return EWav_UnknownFourCC;
     }
     logFn(LogLevel_Debug, "format chunk start:\t%u\n", reader->offset - 8);
     const uint32_t fmtChunkSize = bitcastU32_LE(header.slice + 4);
@@ -67,5 +67,5 @@ Error readFormatChunk(Reader* reader, WavFormatChunk* out)
     if (fmtChunkSize >= 40) {
         memcpy(out->subFormat, format + 24, 16);
     }
-    return err_Ok();
+    return EWav_Ok;
 }

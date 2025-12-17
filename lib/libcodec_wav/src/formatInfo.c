@@ -7,7 +7,7 @@
 
 #include "log.h"
 
-Error readWavFormatInfo(Reader* reader, WavFormatInfo* out)
+WavError readWavFormatInfo(Reader* reader, WavFormatInfo* out)
 {
     // master chunk
     // skip other chunks
@@ -42,7 +42,7 @@ Error readWavFormatInfo(Reader* reader, WavFormatInfo* out)
 
     *out = format;
     logFn(LogLevel_Debug, "\n");
-    return err_Ok();
+    return EWav_Ok;
 }
 
 static const char* formatTagRepr(uint16_t formatTag)

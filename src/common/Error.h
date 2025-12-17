@@ -66,19 +66,6 @@ typedef enum {
     ECdc_AbsurdSampleRate,
 } CodecError;
 
-typedef enum {
-    EWav_UnknownFourCC,
-    EWav_UnsupportedSampleFormat,
-    EWav_InvalidBitDepth,
-    EWav_BlockAlignMismatch,
-    EWav_FormatChunkTooSmall,
-    EWav_ExtensionSizeMismatch,
-    EWav_UnsupportedBitDepth,
-    EWav_UnknownSampleFormat,
-    EWav_UnknownGuidSubformat,
-    EWav_UnknownFormatTag,
-} WavError;
-
 // constructors
 Error err_Ok(void);
 Error err_Err(ErrorCategory category, uint16_t subCategory);

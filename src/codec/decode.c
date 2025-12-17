@@ -1,13 +1,13 @@
 #include "decode.h"
 
-#include "wav/wav.h"
+#include "libcodec_wav.h"
 
-AudioDataResult decodeAudio(Reader* reader)
+Error decodeAudio(Reader* reader, AudioBuffer* out)
 {
-    const AudioDataResult maybeTrack = decodeWav(reader);
-    if (!err_isOk(maybeTrack.err)) {
-        return maybeTrack;
+    WavError err = decodeWav(reader, out);
+    if (err != EWav_Ok) {
+        return err_Err(E_Wav, err);
     }
 
-    return AudioDataResult_Ok(maybeTrack.track);
+    return err_Ok();
 }

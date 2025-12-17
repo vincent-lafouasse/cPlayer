@@ -3,16 +3,21 @@
 #include <vector>
 
 #include "gtest/gtest.h"
+#include "libcodec_wav.h"
 #include "libstream/Reader.h"
 
 #include "MemoryReader.hpp"
 
-#include "Error.h"
 #include "wav_internals.h"
 
 bool io_err_isOk(LibStream_ReadStatus status)
 {
     return status == LibStream_ReadStatus_Ok;
+}
+
+bool err_isOk(WavError err)
+{
+    return err == EWav_Ok;
 }
 
 // Helper to write u32 little-endian
@@ -85,9 +90,8 @@ TEST(WavReader, SkipChunkUntil_UnexpectedEOF)
     MemoryReader mem(data);
     Reader r = memoryReaderInterface(&mem);
 
-    Error err = skipChunkUntil(&r, "fmt ");
-    ASSERT_EQ(err_category(err), E_Read);
-    ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
+    WavError err = skipChunkUntil(&r, "fmt ");
+    ASSERT_EQ(err, EWav_UnexpectedEOF);
 }
 
 TEST(WavReader, SkipChunkUntil_MultipleJunk)
@@ -126,9 +130,8 @@ TEST(WavReader, SkipChunkUntil_EmptyReader)
     MemoryReader mem(data);
     Reader r = memoryReaderInterface(&mem);
 
-    Error err = skipChunkUntil(&r, "fmt ");
-    ASSERT_EQ(err_category(err), E_Read);
-    ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
+    WavError err = skipChunkUntil(&r, "fmt ");
+    ASSERT_EQ(err, EWav_UnexpectedEOF);
 }
 TEST(WavReader, SkipChunkUntil_MalformedSize)
 
@@ -140,9 +143,8 @@ TEST(WavReader, SkipChunkUntil_MalformedSize)
     Reader r = memoryReaderInterface(&mem);
 
     // Should fail due to trying to skip beyond EOF
-    Error err = skipChunkUntil(&r, "fmt ");
-    ASSERT_EQ(err_category(err), E_Read);
-    ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
+    WavError err = skipChunkUntil(&r, "fmt ");
+    ASSERT_EQ(err, EWav_UnexpectedEOF);
 }
 
 // Helper: append RIFF/WAVE header
@@ -212,9 +214,8 @@ TEST(WavReader, GetToFormatChunk_TruncatedRiff)
     MemoryReader mem(data);
     Reader r = memoryReaderInterface(&mem);
 
-    Error err = getToFormatChunk(&r);
-    ASSERT_EQ(err_category(err), E_Read);
-    ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
+    WavError err = getToFormatChunk(&r);
+    ASSERT_EQ(err, EWav_UnexpectedEOF);
 }
 
 TEST(WavReader, GetToFormatChunk_NotWave)
@@ -226,9 +227,8 @@ TEST(WavReader, GetToFormatChunk_NotWave)
     MemoryReader mem(data);
     Reader r = memoryReaderInterface(&mem);
 
-    Error err = getToFormatChunk(&r);
-    ASSERT_EQ(err_category(err), E_Wav);
-    ASSERT_EQ(err_subCategory(err), EWav_UnknownFourCC);
+    WavError err = getToFormatChunk(&r);
+    ASSERT_EQ(err, EWav_UnknownFourCC);
 }
 
 TEST(WavReader, GetToFormatChunk_NoFmtChunk)
@@ -241,9 +241,8 @@ TEST(WavReader, GetToFormatChunk_NoFmtChunk)
     Reader r = memoryReaderInterface(&mem);
 
     // Should fail because no fmt chunk exists
-    Error err = getToFormatChunk(&r);
-    ASSERT_EQ(err_category(err), E_Read);
-    ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
+    WavError err = getToFormatChunk(&r);
+    ASSERT_EQ(err, EWav_UnexpectedEOF);
 }
 
 /*
@@ -356,9 +355,8 @@ TEST(WavReader, ReadFormatChunk_Truncated)
     Reader r = memoryReaderInterface(&mem);
 
     WavFormatChunk fmt;
-    Error err = readFormatChunk(&r, &fmt);
-    ASSERT_EQ(err_category(err), E_Read);
-    ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
+    WavError err = readFormatChunk(&r, &fmt);
+    ASSERT_EQ(err, EWav_UnexpectedEOF);
 }
 
 TEST(WavReader, ReadFormatChunk_EmptyReader)
@@ -367,9 +365,8 @@ TEST(WavReader, ReadFormatChunk_EmptyReader)
     MemoryReader mem(data);
     Reader r = memoryReaderInterface(&mem);
     WavFormatChunk fmt;
-    Error err = readFormatChunk(&r, &fmt);
-    ASSERT_EQ(err_category(err), E_Read);
-    ASSERT_EQ(err_subCategory(err), ERd_UnexpectedEOF);
+    WavError err = readFormatChunk(&r, &fmt);
+    ASSERT_EQ(err, EWav_UnexpectedEOF);
 }
 
 TEST(WavReader, ReadFormatChunk_CheckZeroingBeyondChunk)
