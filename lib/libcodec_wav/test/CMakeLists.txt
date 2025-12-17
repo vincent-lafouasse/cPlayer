@@ -1,8 +1,8 @@
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS ${CMAKE_C_FLAGS})
 
-set(testedSourceDir ${CMAKE_SOURCE_DIR}/src)
-set(testedIncludeDir ${CMAKE_SOURCE_DIR}/include)
+set(testedSourceDir ../src)
+set(testedIncludeDir ../include)
 
 add_subdirectory(MemoryReader)
 
