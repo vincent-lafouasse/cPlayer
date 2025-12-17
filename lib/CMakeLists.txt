@@ -25,3 +25,5 @@ FetchContent_Declare(
     GIT_TAG d4bc4bbe3918645caffcb36154e0ea7509bbb581
 )
 FetchContent_MakeAvailable(libstream)
+
+add_subdirectory(libcodec_wav)
